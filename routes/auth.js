@@ -32,8 +32,8 @@ router.get('/:id?', async function (req, res, next) {
 });
 
 /* Login user. */
-router.post('/', function (req, res, next) {
-
+router.post('/login', function (req, res, next) {
+    console.log('hj', req.body)
     if (!req.body.email)
         return next(new Error('missing_email'));
     if (!req.body.password)
@@ -48,11 +48,9 @@ router.post('/', function (req, res, next) {
         let token = jwt.sign({
             id: user.id,
             email: user.email.toLowerCase(),
-            roleId: user.roleId,
-            companyName:user.company,
-            firstName:user.firstName,
-            lastName:user.lastName
-            
+            firstName: user.firstName,
+            lastName: user.lastName
+
         }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
 
         res.json({

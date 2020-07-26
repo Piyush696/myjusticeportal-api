@@ -3,9 +3,8 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
 var passport = require('passport');
-const authRouter = require('./routes/auth');
 const usersRouter = require('./routes/users');
-
+const authRouter = require('./routes/auth');
 
 const env = process.env.NODE_ENV = process.env.NODE_ENV || 'local';
 
@@ -45,12 +44,12 @@ app.use(passport.initialize());
 require('./config/passport')(passport);
 
 //Public routes
-app.use('/api/auth', authRouter);
+app.use('/api/users', authRouter);
 
 //Private routes.
 // app.use(authMiddleware.verifyToken);
 
-app.use('/api/users', /*roleMiddleware,*/ usersRouter);
+app.use('/api/user', /*roleMiddleware,*/ usersRouter);
 
 
 
