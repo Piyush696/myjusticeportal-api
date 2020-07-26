@@ -21,13 +21,4 @@ db.User = require('./user')(sequelize, Sequelize);
 
 
 
-// Mapping
-// db.User.hasMany(db.Address, { foreignKey: 'userId', sourceKey: 'id' });
-// db.User.hasMany(db.Property, { foreignKey: 'userId', sourceKey: 'id' });
-// db.Property.hasOne(db.Address, { foreignKey: 'propertyId', sourceKey: 'propertyId' });
-// db.UserRole.hasMany(db.User, { foreignKey: 'roleId', sourceKey: 'id' });
-// db.county.belongsTo(db.State, { foreignKey: 'abreviations', sourceKey: 'abreviations' });
-// db.county.hasOne(db.adminConfig, { foreignKey: 'countyId', sourceKey: 'countyId' });
-
-
 module.exports = db;
