@@ -18,10 +18,7 @@ const originsWhitelist = [
 
 originsWhitelist.push('http://localhost:4200');
 originsWhitelist.push('http://localhost:8000');
-originsWhitelist.push('https://apt-api-ui.herokuapp.com');
-originsWhitelist.push('http://apt-api-ui.herokuapp.com');
-originsWhitelist.push('https://apt-ui-prod.herokuapp.com');
-originsWhitelist.push('https://app.accuratepropertytax.com');
+originsWhitelist.push('https://dev-mjp-ui.herokuapp.com');
 
 
 app.use(logger('dev'));
