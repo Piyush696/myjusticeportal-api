@@ -11,22 +11,22 @@
   },
   "dependencies": {
     "bcrypt": "^3.0.3",
-    "cookie-parser": "~1.4.3",
+    "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "debug": "~2.6.9",
     "express": "~4.16.0",
     "fs-extra": "^8.1.0",
-    "handlebars": "^4.1.2",
+    "handlebars": "^4.7.6",
     "http-errors": "~1.6.2",
     "jsonwebtoken": "^8.4.0",
-    "moment": "^2.24.0",
+    "moment": "^2.27.0",
     "morgan": "~1.9.0",
-    "mysql2": "^1.6.4",
-    "nodemon": "^1.19.0",
-    "passport": "^0.4.0",
+    "mysql2": "^1.7.0",
+    "nodemon": "^1.19.4",
+    "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
-    "request": "^2.88.0",
-    "sequelize": "^4.42.0",
-    "uuid": "^3.2.1"
+    "request": "^2.88.2",
+    "sequelize": "^4.44.4",
+    "uuid": "^3.4.0"
   }
 }
