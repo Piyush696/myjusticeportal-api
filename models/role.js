@@ -17,15 +17,7 @@ module.exports = (sequelize, DataTypes) => {
         description: {
             type: DataTypes.STRING,
             allowNull: false,
-        },
-        createdBy: {
-            type: DataTypes.INTEGER,
-            allowNull: true,
-        },
-        updatedBy: {
-            type: DataTypes.INTEGER,
-            allowNull: true,
-        },
+        }
     }, {
         tableName: 'role',
         freezeTableName: true
