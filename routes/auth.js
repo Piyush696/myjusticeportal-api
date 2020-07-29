@@ -33,34 +33,33 @@ router.get('/:id?', async function (req, res, next) {
 
 /* Login user. */
 router.post('/login', function (req, res, next) {
-    console.log('hj', req.body)
-    if (!req.body.email)
-        return next(new Error('missing_email'));
-    if (!req.body.password)
-        return next(new Error('missing_password'));
-
-    User.findOne({ where: { email: req.body.email.toLowerCase() }, raw: false }).then((user) => {
+    User.findOne({
+        where: {
+            $or: [
+                {
+                    username: req.body.user
+                },
+                {
+                    email: req.body.user
+                }
+            ]
+        }, raw: false
+    }).then((user) => {
         if (!user)
             return next(new Error('invalid_email'));
         if (!user.isValidPassword(req.body.password))
             return next(new Error('invalid_password'));
         let expiresIn = req.body.rememberMe ? '15d' : '1d';
         let token = jwt.sign({
-            id: user.id,
+            userId: user.userId,
             email: user.email.toLowerCase(),
             firstName: user.firstName,
             lastName: user.lastName
-
         }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
-
         res.json({
             success: true,
-            data: {
-                token: token
-            }
+            token: token
         });
-
-        User.update({ lastLogin: new Date() }, { where: { id: user.id } });
     }).catch(next)
 });
 
