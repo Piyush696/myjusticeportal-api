@@ -58,9 +58,7 @@ router.post('/login', function (req, res, next) {
         }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
         res.json({
             success: true,
-            data: {
-                token: token
-            }
+            token: token
         });
     }).catch(next)
 });
