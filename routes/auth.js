@@ -33,7 +33,6 @@ router.get('/:id?', async function (req, res, next) {
 
 /* Login user. */
 router.post('/login', function (req, res, next) {
-    console.log(req.body)
     User.findOne({
         where: {
             $or: [
@@ -57,7 +56,6 @@ router.post('/login', function (req, res, next) {
             firstName: user.firstName,
             lastName: user.lastName
         }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
-
         res.json({
             success: true,
             data: {
