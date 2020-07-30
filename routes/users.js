@@ -4,6 +4,8 @@ const utils = require('../config/utils');
 var passport = require('passport');
 const User = require('../models').User;
 const Role = require('../models').Role;
+const jwt = require('jsonwebtoken');
+const config = require('../config/config');
 /* Get user by ID or users list. */
 
 router.get('/:id?', passport.authenticate('jwt', { session: false }), async function (req, res, next) {
@@ -30,7 +32,14 @@ router.post('/registration', function (req, res, next) {
     }).then((user) => {
         Role.findAll({ where: { roleId: 1 } }).then((roles) => {
             Promise.resolve(user.setRoles(roles)).then(() => {
-                res.json({ success: true, data: user })
+                let expiresIn = req.body.rememberMe ? '15d' : '1d';
+                let token = jwt.sign({
+                    userId: user.userId,
+                    email: user.email.toLowerCase(),
+                    firstName: user.firstName,
+                    lastName: user.lastName
+                }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
+                res.json({ success: true, token: token })
             })
         }).catch(next);
     }).catch(next);
