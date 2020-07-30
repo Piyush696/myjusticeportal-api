@@ -37,7 +37,8 @@ router.post('/registration', function (req, res, next) {
                     userId: user.userId,
                     email: user.email.toLowerCase(),
                     firstName: user.firstName,
-                    lastName: user.lastName
+                    lastName: user.lastName,
+                    role: roles
                 }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
                 res.json({ success: true, token: token })
             })
@@ -104,7 +105,6 @@ router.get('/allUser/user', passport.authenticate('jwt', { session: false }), fu
 router.put('/:userId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
     let newData = {};
     let query = {};
-    console.log("Piyush", req.body)
     if (req.body.password && req.body.password.length)
         newData.password = User.generateHash(req.body.password);
     if (newData.errors)
