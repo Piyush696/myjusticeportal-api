@@ -53,7 +53,6 @@ router.post('/login', function (req, res, next) {
             ]
         }, raw: false
     }).then((user) => {
-        console.log(user)
         if (!user)
             return next(new Error('invalid_email'));
         if (!user.isValidPassword(req.body.password))
