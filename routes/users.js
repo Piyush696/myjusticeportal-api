@@ -32,14 +32,26 @@ router.post('/registration', function (req, res, next) {
     }).then((user) => {
         Role.findAll({ where: { roleId: 1 } }).then((roles) => {
             Promise.resolve(user.setRoles(roles)).then(() => {
-                let expiresIn = req.body.rememberMe ? '15d' : '1d';
-                let token = jwt.sign({
-                    userId: user.userId,
-                    email: user.email.toLowerCase(),
-                    firstName: user.firstName,
-                    lastName: user.lastName
-                }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
-                res.json({ success: true, token: token })
+                User.findOne({
+                    include: [
+                        {
+                            model: Role, through: {
+                                attributes: []
+                            },
+                        }
+                    ], where: { userId: user.userId }
+                }).then((userData) => {
+                    console.log(userData)
+                    let expiresIn = req.body.rememberMe ? '15d' : '1d';
+                    let token = jwt.sign({
+                        userId: userData.userId,
+                        email: userData.email.toLowerCase(),
+                        firstName: userData.firstName,
+                        lastName: userData.lastName,
+                        role: userData.roles
+                    }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
+                    res.json({ success: true, token: token })
+                })
             })
         }).catch(next);
     }).catch(next);
