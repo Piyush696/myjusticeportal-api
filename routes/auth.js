@@ -19,27 +19,23 @@ router.get('/check-token', passport.authenticate('jwt', { session: false }), (re
 });
 
 router.get('/:id?', async function (req, res, next) {
-    const query = {};
-    if (req.query && req.query.email) {
-        query.where = query.where || {};
-        query.where.email = req.query.email
-        User.findAndCountAll(query).then((users) => {
-            if (users.count == 0) {
-                return res.json({ emailTaken: false });
-            }
-            return res.json({ emailTaken: true });
-        }).catch(next)
-    }
-    else {
-        query.where = query.where || {};
-        query.where.username = req.query.username
-        User.findAndCountAll(query).then((users) => {
-            if (users.count == 0) {
-                return res.json({ usernameTaken: false });
-            }
-            return res.json({ usernameTaken: true });
-        }).catch(next)
-    }
+    User.findAndCountAll({
+        where: {
+            $or: [
+                {
+                    username: req.query.user
+                },
+                {
+                    email: req.query.user
+                }
+            ]
+        }
+    }).then((users) => {
+        if (users.count == 0) {
+            return res.json({ taken: false });
+        }
+        return res.json({ taken: true });
+    }).catch(next)
 });
 
 /* Login user. */
