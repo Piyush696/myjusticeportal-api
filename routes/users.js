@@ -47,4 +47,18 @@ router.get('/', passport.authenticate('jwt', { session: false }), function (req,
     }).catch(next)
 })
 
+router.get('/:userId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+    User.findAll({
+        include: [
+            {
+                model: Role, through: {
+                    attributes: []
+                },
+            }
+        ], where: { userId: req.params.userId }
+    }).then((user) => {
+        res.json({ success: true, data: user });
+    }).catch(next)
+})
+
 module.exports = router;
