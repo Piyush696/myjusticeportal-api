@@ -66,7 +66,6 @@ router.get('/user', passport.authenticate('jwt', { session: false }), function (
 router.put('/password', passport.authenticate('jwt', { session: false }), function (req, res, next) {
     let newData = {};
     let query = {};
-    console.log("Piyush", req.body)
     if (req.body.password && req.body.password.length)
         newData.password = User.generateHash(req.body.password);
     if (newData.errors)
