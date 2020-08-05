@@ -47,30 +47,30 @@ router.get('/', passport.authenticate('jwt', { session: false }), function (req,
     }).catch(next)
 })
 
-router.get('/:userId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-    User.findAll({
+//single user
+router.get('/user', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+    User.findOne({
         include: [
             {
                 model: Role, through: {
                     attributes: []
                 },
             }
-        ], where: { userId: req.params.userId }
+        ], where: { userId: req.user.userId }
     }).then((user) => {
         res.json({ success: true, data: user });
     }).catch(next)
 })
 
 /*update Password */
-router.put('/:userId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+router.put('/password', passport.authenticate('jwt', { session: false }), function (req, res, next) {
     let newData = {};
     let query = {};
-    console.log("Piyush", req.body)
     if (req.body.password && req.body.password.length)
         newData.password = User.generateHash(req.body.password);
     if (newData.errors)
         return next(newData.errors[0]);
-    query.where = { userId: req.params.userId };
+    query.where = { userId: req.user.userId };
     User.update(newData, query).then(() => {
         res.json({ success: true });
     }).catch(next)
@@ -83,7 +83,7 @@ router.put('/', passport.authenticate('jwt', { session: false }), function (req,
         username: req.body.username, email: req.body.email, facility: req.body.facility, housingUnit: req.body.housingUnit,
         phone: req.body.phone
     }, {
-        where: { userId: req.body.userId }
+        where: { userId: req.user.userId }
     }).then((user) => {
         res.json({ success: true, data: user });
     }).catch(next);
