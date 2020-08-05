@@ -10,13 +10,29 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true,
             primaryKey: true,
         },
-        case: {
+        countyOfArrest: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        description: {
+        dateOfArrest: {
+            type: DataTypes.DATE,
+            allowNull: false,
+        },
+        caseRelatedTo: {
             type: DataTypes.STRING,
             allowNull: false,
+        },
+        caseJurisdiction: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        nextCourtDate: {
+            type: DataTypes.DATE,
+            allowNull: false,
+        },
+        legalRepresentation: {
+            type: DataTypes.STRING,
+            allowNull: true,
         }
     }, {
         tableName: 'case',

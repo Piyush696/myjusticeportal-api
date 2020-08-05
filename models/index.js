@@ -19,10 +19,12 @@ db.Sequelize = Sequelize;
 //Models
 db.User = require('./user')(sequelize, Sequelize);
 db.Role = require('./role')(sequelize, Sequelize);
+db.Case = require('./cases')(sequelize, Sequelize);
 
 //Mapings
 db.User.belongsToMany(db.Role, { through: 'user_role', foreignKey: 'userId' });
 db.Role.belongsToMany(db.User, { through: 'user_role', foreignKey: 'roleId' });
+db.Case.belongsTo(db.User, { foreignKey: 'userId', sourceKey: 'userId' });
 
 
 

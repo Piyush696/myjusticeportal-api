@@ -6,6 +6,7 @@ var passport = require('passport');
 const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
 const roleRouter = require('./routes/role');
+const caseRouter = require('./routes/cases');
 
 const env = process.env.NODE_ENV = process.env.NODE_ENV || 'local';
 
@@ -18,7 +19,6 @@ const originsWhitelist = [
 
 
 originsWhitelist.push('http://localhost:4200');
-originsWhitelist.push('http://localhost:4100');
 originsWhitelist.push('http://localhost:8000');
 originsWhitelist.push('https://dev-mjp-ui.herokuapp.com');
 
@@ -45,6 +45,7 @@ require('./config/passport')(passport);
 //Public routes
 app.use('/api/users', authRouter);
 app.use('/api/role', roleRouter);
+app.use('/api/case', caseRouter);
 
 //Private routes.
 // app.use(authMiddleware.verifyToken);
