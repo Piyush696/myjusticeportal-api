@@ -48,7 +48,7 @@ router.get('/', passport.authenticate('jwt', { session: false }), function (req,
 })
 
 router.get('/:userId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-    User.findAll({
+    User.findOne({
         include: [
             {
                 model: Role, through: {
