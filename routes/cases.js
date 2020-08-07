@@ -28,8 +28,8 @@ router.get('/', passport.authenticate('jwt', { session: false }), function (req,
 })
 
 //find case with caseId
-router.get('/case/:caseId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-    Case.findAll({
+router.get('/:caseId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+    Case.findOne({
         include: [
             {
                 model: User,
