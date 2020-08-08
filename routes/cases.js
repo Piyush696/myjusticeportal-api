@@ -41,4 +41,12 @@ router.get('/:caseId', passport.authenticate('jwt', { session: false }), functio
     })
 })
 
+
+/* edit case. */
+router.put('/:caseId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+    Case.update(req.body, { where: { caseId: req.params.caseId } }).then(data => {
+        res.json({ success: true, data: data });
+    })
+})
+
 module.exports = router;
