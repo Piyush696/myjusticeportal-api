@@ -2,6 +2,7 @@ const router = require('express').Router();
 const jwt = require('jsonwebtoken');
 var passport = require('passport');
 const User = require('../models').User;
+const Role = require('../models').Role;
 const config = require('../config/config');
 
 const request = require('request');
@@ -18,22 +19,35 @@ router.get('/check-token', passport.authenticate('jwt', { session: false }), (re
 });
 
 router.get('/:id?', async function (req, res, next) {
-    const query = {};
-    if (req.query && req.query.email) {
-        query.where = query.where || {};
-        query.where.email = req.query.email
-    }
-    User.findAndCountAll(query).then((users) => {
-        if (users.count == 0) {
-            return res.json({ emailTaken: false });
+    User.findAndCountAll({
+        where: {
+            $or: [
+                {
+                    username: req.query.user
+                },
+                {
+                    email: req.query.user
+                }
+            ]
         }
-        return res.json({ emailTaken: true });
+    }).then((users) => {
+        if (users.count == 0) {
+            return res.json({ taken: false });
+        }
+        return res.json({ taken: true });
     }).catch(next)
 });
 
 /* Login user. */
 router.post('/login', function (req, res, next) {
     User.findOne({
+        include: [
+            {
+                model: Role, through: {
+                    attributes: []
+                },
+            }
+        ],
         where: {
             $or: [
                 {
@@ -54,7 +68,8 @@ router.post('/login', function (req, res, next) {
             userId: user.userId,
             email: user.email.toLowerCase(),
             firstName: user.firstName,
-            lastName: user.lastName
+            lastName: user.lastName,
+            role: user.roles
         }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
         res.json({
             success: true,

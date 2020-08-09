@@ -5,6 +5,8 @@ const cors = require('cors');
 var passport = require('passport');
 const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
+const roleRouter = require('./routes/role');
+const caseRouter = require('./routes/cases');
 
 const env = process.env.NODE_ENV = process.env.NODE_ENV || 'local';
 
@@ -42,6 +44,8 @@ require('./config/passport')(passport);
 
 //Public routes
 app.use('/api/users', authRouter);
+app.use('/api/role', roleRouter);
+app.use('/api/case', caseRouter);
 
 //Private routes.
 // app.use(authMiddleware.verifyToken);
