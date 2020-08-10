@@ -69,6 +69,7 @@ router.post('/login', function (req, res, next) {
             email: user.email.toLowerCase(),
             firstName: user.firstName,
             lastName: user.lastName,
+            username: user.username,
             role: user.roles
         }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
         res.json({

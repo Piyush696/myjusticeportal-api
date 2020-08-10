@@ -79,10 +79,7 @@ router.put('/password', passport.authenticate('jwt', { session: false }), functi
 
 /*update user */
 router.put('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-    User.update({
-        username: req.body.username, email: req.body.email, facility: req.body.facility, housingUnit: req.body.housingUnit,
-        phone: req.body.phone
-    }, {
+    User.update(req.body, {
         where: { userId: req.user.userId }
     }).then((user) => {
         res.json({ success: true, data: user });
