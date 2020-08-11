@@ -1,13 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const utils = require('../config/utils');
 var passport = require('passport');
 const User = require('../models').User;
 const Role = require('../models').Role;
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
-/* Get user by ID or users list. */
 
+/* user registration. */
 router.post('/registration', function (req, res, next) {
     User.create({
         email: req.body.email,
@@ -32,7 +31,7 @@ router.post('/registration', function (req, res, next) {
     }).catch(next);
 });
 
-
+/*findAll user include role */
 router.get('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
     User.findAll({
         include: [
