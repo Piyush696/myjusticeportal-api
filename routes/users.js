@@ -1,13 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const utils = require('../config/utils');
 var passport = require('passport');
 const User = require('../models').User;
 const Role = require('../models').Role;
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
-/* Get user by ID or users list. */
 
+/* user registration. */
 router.post('/registration', function (req, res, next) {
     User.create({
         email: req.body.email,
@@ -32,7 +31,7 @@ router.post('/registration', function (req, res, next) {
     }).catch(next);
 });
 
-
+/*findAll user include role */
 router.get('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
     User.findAll({
         include: [
@@ -79,10 +78,7 @@ router.put('/password', passport.authenticate('jwt', { session: false }), functi
 
 /*update user */
 router.put('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-    User.update({
-        username: req.body.username, email: req.body.email, facility: req.body.facility, housingUnit: req.body.housingUnit,
-        phone: req.body.phone
-    }, {
+    User.update(req.body, {
         where: { userId: req.user.userId }
     }).then((user) => {
         res.json({ success: true, data: user });
