@@ -28,7 +28,7 @@ db.User.belongsToMany(db.Role, { through: 'user_role', foreignKey: 'userId' });
 db.Role.belongsToMany(db.User, { through: 'user_role', foreignKey: 'roleId' });
 
 db.Case.belongsTo(db.User, { foreignKey: 'userId', sourceKey: 'userId' });
-db.Case.belongsTo(db.User, { foreignKey: 'userId', sourceKey: 'userId' });
+
 db.SecurityQuestion.belongsTo(db.Role, { foreignKey: 'roleId', sourceKey: 'roleId' });
 
 db.User.belongsToMany(db.SecurityQuestion, { through: 'user_securityQuestion_Answers', foreignKey: 'userId' });
