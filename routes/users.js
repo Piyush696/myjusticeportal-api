@@ -13,7 +13,8 @@ router.post('/registration', function (req, res, next) {
         password: User.generateHash(req.body.password),
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        username: req.body.username
+        username: req.body.username,
+        status: false
     }).then((user) => {
         Role.findAll({ where: { roleId: req.body.roleId } }).then((roles) => {
             Promise.resolve(user.setRoles(roles)).then(() => {
