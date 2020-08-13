@@ -11,12 +11,24 @@ const User_SecurityQuestion_Answers = require('../models').User_SecurityQuestion
 // })
 
 router.post('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-    User_SecurityQuestion_Answers.create({
-        securityQuestionId: req.body.securityQuestionId,
-        answer: req.body.answer,
-        userId: req.user.userId
-    }).then(data => {
-        res.json({ success: true, data: data });
+    console.log(req.body)
+    User_SecurityQuestion_Answers.findOne({ where: { userId: req.user.userId, securityQuestionId: req.body.securityQuestionId } }).then(data => {
+        if (data && data.securityQuestionId == req.body.securityQuestionId) {
+            console.log('update')
+            User_SecurityQuestion_Answers.update({ answer: req.body.answer }, { where: { userId: data.userId, securityQuestionId: data.securityQuestionId } }).then((data) => {
+                res.json({ success: true, data: data });
+            })
+        }
+        else {
+            console.log('create')
+            User_SecurityQuestion_Answers.create({
+                securityQuestionId: req.body.securityQuestionId,
+                answer: req.body.answer,
+                userId: req.user.userId
+            }).then(data => {
+                res.json({ success: true, data: data });
+            })
+        }
     })
 })
 
