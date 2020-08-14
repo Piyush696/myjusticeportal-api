@@ -29,7 +29,11 @@ module.exports = (sequelize, DataTypes) => {
         password: {
             type: DataTypes.STRING,
             allowNull: false,
-        }
+        },
+        status: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+        },
     }, {
         tableName: 'user',
         paranoid: true,
