@@ -42,10 +42,10 @@ router.post('/login', function (req, res, next) {
         where: {
             $or: [
                 {
-                    username: req.body.user
+                    username: req.body.user, status: true
                 },
                 {
-                    email: req.body.user
+                    email: req.body.user, status: true
                 }
             ]
         }, raw: false

@@ -4,11 +4,6 @@ var passport = require('passport');
 const SecurityQuestion = require('../models').SecurityQuestion;
 const User_SecurityQuestion_Answers = require('../models').User_SecurityQuestion_Answers;
 
-// router.post('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-//     SecurityQuestion.create(req.body).then(securityQuestion => {
-//         res.json({ success: true, data: securityQuestion });
-//     })
-// })
 
 router.post('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
     console.log(req.body)
@@ -20,7 +15,6 @@ router.post('/', passport.authenticate('jwt', { session: false }), function (req
             })
         }
         else {
-            console.log('create')
             User_SecurityQuestion_Answers.create({
                 securityQuestionId: req.body.securityQuestionId,
                 answer: req.body.answer,
