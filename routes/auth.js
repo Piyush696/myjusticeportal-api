@@ -42,13 +42,14 @@ router.post('/login', function (req, res, next) {
         where: {
             $or: [
                 {
-                    username: req.body.user, status: true
+                    username: req.body.user
                 },
                 {
-                    email: req.body.user, status: true
+                    email: req.body.user
                 }
-            ]
-        }, raw: false
+            ],
+            status: true
+        }
     }).then((user) => {
         if (!user)
             return next(new Error('invalid_email'));
