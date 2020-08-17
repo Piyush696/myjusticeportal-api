@@ -8,13 +8,15 @@ const config = require('../config/config');
 
 /* user registration. */
 router.post('/registration', function (req, res, next) {
+    let number = 0;
     User.create({
         email: req.body.email,
         password: User.generateHash(req.body.password),
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         username: req.body.username,
-        status: false
+        status: false,
+        securityQuestionAnswered: number
     }).then((user) => {
         Role.findAll({ where: { roleId: req.body.roleId } }).then((roles) => {
             Promise.resolve(user.setRoles(roles)).then(() => {
@@ -85,6 +87,33 @@ router.put('/', passport.authenticate('jwt', { session: false }), function (req,
         res.json({ success: true, data: user });
     }).catch(next);
 })
+
+
+/*update Password */
+router.put('/reset-pass', function (req, res, next) {
+    let newData = {};
+    let query = {};
+    if (req.body.password && req.body.password.length) {
+        newData.password = User.generateHash(req.body.password);
+        newData.securityQuestionAnswered = 0;
+    }
+    if (newData.errors)
+        return next(newData.errors[0]);
+    query.where = {
+        $or: [
+            {
+                username: req.body.user
+            },
+            {
+                email: req.body.user
+            }
+        ]
+    };
+    User.update(newData, query).then(() => {
+        res.json({ success: true, newData });
+    }).catch(next)
+});
+
 
 
 module.exports = router;
