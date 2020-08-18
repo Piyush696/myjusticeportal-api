@@ -3,6 +3,7 @@ const router = express.Router();
 var passport = require('passport');
 const SecurityQuestion = require('../models').SecurityQuestion;
 const User = require('../models').User;
+const { Sequelize } = require("sequelize");
 const User_SecurityQuestion_Answers = require('../models').User_SecurityQuestion_Answers;
 
 
@@ -77,7 +78,7 @@ router.post('/check-answer', async function (req, res, next) {
             }
         }).then((answers) => {
             if (answers.dataValues.answer == req.body.answer) {
-                User.update({ securityQuestionAnswered: req.body.securityQuestionAnswered }, {
+                User.update({ securityQuestionAnswered: Sequelize.literal('securityQuestionAnswered + ' + 1) }, {
                     where: { userId: user.dataValues.userId }
                 }).then((data) => {
                     return res.json({ match: true });
