@@ -4,6 +4,7 @@ var passport = require('passport');
 const SecurityQuestion = require('../models').SecurityQuestion;
 const User = require('../models').User;
 const { Sequelize } = require("sequelize");
+const securityQuestion = require('../models/securityQuestion');
 const User_SecurityQuestion_Answers = require('../models').User_SecurityQuestion_Answers;
 
 
@@ -91,4 +92,40 @@ router.post('/check-answer', async function (req, res, next) {
     })
 });
 
+/*update postage Credencials */
+router.put('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+    SecurityQuestion.update(req.body, {
+        where: { postageAppId: 1 }
+    }).then((user) => {
+        res.json({ success: true, data: user });
+    }).catch(next);
+})
+
+/**get All security Questions */
+router.get('/user/securityQuestions', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+    User_SecurityQuestion_Answers.findAll({
+        where: { userId: req.user.userId }
+    }).then((data) => {
+        let count = 0;
+        data.forEach((element, index, array) => {
+            SecurityQuestion.findOne({ where: { securityQuestionId: element.dataValues.securityQuestionId } }).then((data1) => {
+                element.dataValues.question = data1.dataValues.question
+                if (count === array.length - 1) {
+                    res.json({ success: true, data: data });
+                }
+                count++
+            });
+        })
+    }).catch(next);
+})
+
+
+/*update securityQuestions Answers */
+router.put('/securityQuestion', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+    User_SecurityQuestion_Answers.update(req.body, {
+        where: { userId: req.user.userId, securityQuestionId: req.body.securityQuestionId }
+    }).then((user) => {
+        res.json({ success: true, data: user });
+    }).catch(next);
+})
 module.exports = router;
