@@ -13,8 +13,7 @@ router.post('/registration', function (req, res, next) {
         password: User.generateHash(req.body.password),
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        username: req.body.username,
-        status: false
+        username: req.body.username
     }).then((user) => {
         Role.findAll({ where: { roleId: req.body.roleId } }).then((roles) => {
             Promise.resolve(user.setRoles(roles)).then(() => {
@@ -85,6 +84,48 @@ router.put('/', passport.authenticate('jwt', { session: false }), function (req,
         res.json({ success: true, data: user });
     }).catch(next);
 })
+
+
+/*update Password */
+router.put('/reset-pass', function (req, res, next) {
+    let newData = {};
+    let query = {};
+    User.findOne({
+        where: {
+            $or: [
+                {
+                    username: req.body.user
+                },
+                {
+                    email: req.body.user
+                }
+            ]
+        }
+    }).then((user) => {
+        if (user.securityQuestionAnswered === 3) {
+            if (req.body.password && req.body.password.length) {
+                newData.password = User.generateHash(req.body.password);
+                newData.securityQuestionAnswered = 0;
+            }
+            if (newData.errors)
+                return next(newData.errors[0]);
+            query.where = {
+                $or: [
+                    {
+                        username: req.body.user
+                    },
+                    {
+                        email: req.body.user
+                    }
+                ]
+            };
+            User.update(newData, query).then(() => {
+                res.json({ success: true, newData });
+            }).catch(next)
+        }
+    })
+});
+
 
 
 module.exports = router;
