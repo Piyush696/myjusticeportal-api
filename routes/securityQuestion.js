@@ -3,7 +3,6 @@ const router = express.Router();
 var passport = require('passport');
 const SecurityQuestion = require('../models').SecurityQuestion;
 const User = require('../models').User;
-const { Sequelize } = require("sequelize");
 const User_SecurityQuestion_Answers = require('../models').User_SecurityQuestion_Answers;
 
 
