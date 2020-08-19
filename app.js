@@ -8,6 +8,7 @@ const authRouter = require('./routes/auth');
 const roleRouter = require('./routes/role');
 const caseRouter = require('./routes/cases');
 const postageAppRouter = require('./routes/postageapp');
+const twilioRouter = require('./routes/twilio');
 const securityQuestionRouter = require('./routes/securityQuestion');
 
 const env = process.env.NODE_ENV = process.env.NODE_ENV || 'local';
@@ -49,6 +50,7 @@ app.use('/api/users', authRouter);
 app.use('/api/role', roleRouter);
 app.use('/api/case', caseRouter);
 app.use('/api/postage', postageAppRouter);
+app.use('/api/twilio', twilioRouter);
 app.use('/api/securityQuestion', securityQuestionRouter);
 app.use('/api/user', /*roleMiddleware,*/ usersRouter);
 //Private routes.
