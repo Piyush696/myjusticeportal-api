@@ -3,12 +3,12 @@ var twilio = require('twilio');
 const router = express.Router();
 var passport = require('passport');
 const User = require('../models').User;
+const Twilio = require('../models').Twilio;
 var accountSid = 'AC5ed469836ea76d5e9354c184e4900479';
 var authToken = 'c11ba3fa21acb733e38f4f20eedb4ed9';
 var client = new twilio(accountSid, authToken);
 
-
-
+//function to generate random code
 function generateCode() {
     let digits = '0123456789';
     let Code = '';
@@ -39,7 +39,6 @@ router.post('/', async function (req, res, next) {
 
 
 router.post('/verify-sms', passport.authenticate('jwt', { session: false }), async function (req, res, next) {
-
     User.findOne({ where: { userId: req.user.userId } }).then((data) => {
         let date = new Date();
         let x = date - data.dataValues.updatedAt;
@@ -50,7 +49,33 @@ router.post('/verify-sms', passport.authenticate('jwt', { session: false }), asy
             res.json({ success: false, data: 'invalid otp' })
         }
     }).catch(next)
+})
 
+
+/* get twilio Credencials. */
+router.get('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+    Twilio.findOne({ where: { twilioId: 1 } }).then(twilio => {
+        res.json({ success: true, data: twilio });
+    })
+})
+
+
+/*update twilio Credencials */
+router.post('/twilio', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+    Twilio.findOne({ where: { twilioId: 1 } }).then(twilio => {
+        if (twilio) {
+            Twilio.update(req.body, {
+                where: { twilioId: 1 }
+            }).then((user) => {
+                res.json({ success: true, data: user });
+            }).catch(next);
+        }
+        else {
+            Twilio.create(req.body).then((user) => {
+                res.json({ success: true, data: user });
+            }).catch(next);
+        }
+    })
 })
 
 
