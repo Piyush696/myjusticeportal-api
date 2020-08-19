@@ -12,7 +12,7 @@ router.get('/', passport.authenticate('jwt', { session: false }), function (req,
 
 
 /*update postage Credencials */
-router.put('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+router.post('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
     Postage.findOne({ where: { postageAppId: 1 } }).then(postage => {
         if (postage) {
             Postage.update(req.body, {
