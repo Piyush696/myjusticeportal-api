@@ -21,6 +21,7 @@ db.User = require('./user')(sequelize, Sequelize);
 db.Role = require('./role')(sequelize, Sequelize);
 db.Case = require('./cases')(sequelize, Sequelize);
 db.Postage = require('./postageapp')(sequelize, Sequelize);
+db.Twilio = require('./twilio')(sequelize, Sequelize);
 db.SecurityQuestion = require('./securityQuestion')(sequelize, Sequelize);
 db.User_SecurityQuestion_Answers = require('./user_securityQuestion_Answers')(sequelize, Sequelize);
 
