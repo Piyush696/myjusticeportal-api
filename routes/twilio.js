@@ -4,9 +4,7 @@ const router = express.Router();
 var passport = require('passport');
 const User = require('../models').User;
 const Twilio = require('../models').Twilio;
-var accountSid = 'AC5ed469836ea76d5e9354c184e4900479';
-var authToken = 'c11ba3fa21acb733e38f4f20eedb4ed9';
-var client = new twilio(accountSid, authToken);
+
 
 //function to generate random code
 function generateCode() {
@@ -19,25 +17,27 @@ function generateCode() {
 }
 
 
+/**generate otp */
 router.post('/', async function (req, res, next) {
     let code = generateCode();
-
-    client.messages.create({
-        body: 'My Justice Portal' + ': ' + code + ' - This is your verification code.',
-        to: '+' + req.body.countryCode + req.body.mobile,  // Text this number
-        from: '+14048003419' // From a valid Twilio number
-    }).then((message) => {
-        User.update({ authCode: code }, { where: { email: req.body.email } }).then(() => {
-            res.json({ success: true })
-        }).catch(next)
-    }).catch((err) => {
-        res.json({ success: false })
+    Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
+        var client = new twilio(twilioCredentials.accountSid, twilioCredentials.authToken);
+        client.messages.create({
+            body: 'My Justice Portal' + ': ' + code + ' - This is your verification code.',
+            to: '+' + req.body.countryCode + req.body.mobile,  // Text this number
+            from: '+14048003419' // From a valid Twilio number
+        }).then((message) => {
+            User.update({ authCode: code }, { where: { email: req.body.email } }).then(() => {
+                res.json({ success: true })
+            }).catch(next)
+        }).catch((err) => {
+            res.json({ success: false })
+        })
     })
-
 });
 
 
-
+/**verify otp */
 router.post('/verify-sms', passport.authenticate('jwt', { session: false }), async function (req, res, next) {
     User.findOne({ where: { userId: req.user.userId } }).then((data) => {
         let date = new Date();
