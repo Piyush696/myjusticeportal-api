@@ -12,19 +12,19 @@ module.exports = (sequelize, DataTypes) => {
         },
         countyOfArrest: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
         dateOfArrest: {
             type: DataTypes.DATE,
-            allowNull: false,
+            allowNull: true,
         },
-        caseRelatedTo: {
+        briefDescriptionOfChargeOrLegalMatter: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        caseJurisdiction: {
+        attorneyName: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
         nextCourtDate: {
             type: DataTypes.DATE,
