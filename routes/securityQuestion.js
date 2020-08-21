@@ -121,11 +121,26 @@ router.get('/user/securityQuestions', passport.authenticate('jwt', { session: fa
 
 
 /*update securityQuestions Answers */
-router.put('/securityQuestion', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-    User_SecurityQuestion_Answers.update(req.body, {
-        where: { userId: req.user.userId, securityQuestionId: req.body.securityQuestionId }
-    }).then((user) => {
-        res.json({ success: true, data: user });
+
+router.post('/user/update/securityQuestion', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+    User_SecurityQuestion_Answers.findAll({
+        where: { userId: req.user.userId }
+    }).then((userQuestions) => {
+        let x = [];
+        userQuestions.forEach(element => {
+            x.push(element.dataValues.User_securityQuestion_AnswerId)
+        })
+        User_SecurityQuestion_Answers.destroy({
+            where: { User_securityQuestion_AnswerId: x }
+        }).then((securityQuestion) => {
+            req.body.securityQuestionData.map((element) => {
+                element['userId'] = req.user.userId
+            })
+            User_SecurityQuestion_Answers.bulkCreate(req.body.securityQuestionData).then((data) => {
+                res.json({ success: true, data: data });
+            }).catch(next);
+        }).catch(next);
     }).catch(next);
 })
+
 module.exports = router;

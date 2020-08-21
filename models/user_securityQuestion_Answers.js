@@ -16,8 +16,6 @@ module.exports = (sequelize, DataTypes) => {
         },
     }, {
         tableName: 'user_securityQuestion_Answers',
-        paranoid: true,
-        timestamps: true,
         freezeTableName: true
     });
     return user_SecurityQuestion_Answers;
