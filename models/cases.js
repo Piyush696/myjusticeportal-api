@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         briefDescriptionOfChargeOrLegalMatter: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: false,
         },
         attorneyName: {
             type: DataTypes.STRING,
