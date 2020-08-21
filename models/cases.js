@@ -30,9 +30,9 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE,
             allowNull: false,
         },
-        legalRepresentation: {
+        otherInformation: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: false,
         }
     }, {
         tableName: 'case',
