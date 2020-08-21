@@ -125,29 +125,21 @@ router.get('/user/securityQuestions', passport.authenticate('jwt', { session: fa
 router.post('/user/update/securityQuestion', passport.authenticate('jwt', { session: false }), function (req, res, next) {
     User_SecurityQuestion_Answers.findAll({
         where: { userId: req.user.userId }
-    }).then((user) => {
-        let count = 0;
-        user.forEach((element, index, array) => {
-            User_SecurityQuestion_Answers.destroy({
-                where: { securityQuestionId: element.dataValues.securityQuestionId }
-            }).then((securityQuestion) => {
-                if (count === array.length - 1) {
-                    let counter = 0;
-                    req.body.securityQuestionData.forEach((data, i, arr) => {
-                        User_SecurityQuestion_Answers.create({
-                            securityQuestionId: data.securityQuestionId,
-                            userId: req.user.userId, answer: data.answer
-                        }).then((data) => {
-                            if (counter === arr.length - 1) {
-                                res.json({ success: true, data: data });
-                            }
-                            counter++
-                        }).catch(next);
-                    })
-                }
-                count++
+    }).then((userQuestions) => {
+        let x = [];
+        userQuestions.forEach(element => {
+            x.push(element.dataValues.User_securityQuestion_AnswerId)
+        })
+        User_SecurityQuestion_Answers.destroy({
+            where: { User_securityQuestion_AnswerId: x }
+        }).then((securityQuestion) => {
+            req.body.securityQuestionData.map((element) => {
+                element['userId'] = req.user.userId
+            })
+            User_SecurityQuestion_Answers.bulkCreate(req.body.securityQuestionData).then((data) => {
+                res.json({ success: true, data: data });
             }).catch(next);
-        });
+        }).catch(next);
     }).catch(next);
 })
 
