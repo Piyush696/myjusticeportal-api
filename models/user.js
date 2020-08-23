@@ -29,7 +29,34 @@ module.exports = (sequelize, DataTypes) => {
         password: {
             type: DataTypes.STRING,
             allowNull: false,
-        }
+        },
+        status: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
+        securityQuestionAnswered: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
+        },
+        mobile: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        countryCode: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        authCode: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        isMFA: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
     }, {
         tableName: 'user',
         paranoid: true,
