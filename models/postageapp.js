@@ -4,41 +4,31 @@ const bcrypt = require('bcrypt');
 
 
 module.exports = (sequelize, DataTypes) => {
-    let Cases = sequelize.define('case', {
-        caseId: {
+    let PostageApp = sequelize.define('postageApp', {
+        postageAppId: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
         },
-        countyOfArrest: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
-        dateOfArrest: {
-            type: DataTypes.DATE,
-            allowNull: true,
-        },
-        briefDescriptionOfChargeOrLegalMatter: {
+        apiUrl: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        attorneyName: {
+        apiKey: {
             type: DataTypes.STRING,
-            allowNull: true,
-        },
-        nextCourtDate: {
-            type: DataTypes.DATE,
             allowNull: false,
         },
-        otherInformation: {
+        project: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        template: {
             type: DataTypes.STRING,
             allowNull: false,
         }
     }, {
-        tableName: 'case',
+        tableName: 'postageApp',
         freezeTableName: true
     });
-
-
-    return Cases;
+    return PostageApp;
 };
