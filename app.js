@@ -1,4 +1,3 @@
-require('appoptics-apm')
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
@@ -25,6 +24,7 @@ const originsWhitelist = [
 originsWhitelist.push('http://localhost:4200');
 originsWhitelist.push('http://localhost:8000');
 originsWhitelist.push('https://dev-mjp-ui.herokuapp.com');
+originsWhitelist.push('https://mip-ui.herokuapp.com');
 
 
 app.use(logger('dev'));
