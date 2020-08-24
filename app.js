@@ -24,7 +24,7 @@ const originsWhitelist = [
 originsWhitelist.push('http://localhost:4200');
 originsWhitelist.push('http://localhost:8000');
 originsWhitelist.push('https://dev-mjp-ui.herokuapp.com');
-originsWhitelist.push('https://mip-ui.herokuapp.com');
+originsWhitelist.push('https://mjp-ui.herokuapp.com');
 
 
 app.use(logger('dev'));
