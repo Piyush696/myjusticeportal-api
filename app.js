@@ -1,4 +1,3 @@
-require('appoptics-apm')
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
@@ -15,7 +14,6 @@ const securityQuestionRouter = require('./routes/securityQuestion');
 const env = process.env.NODE_ENV = process.env.NODE_ENV || 'local';
 
 const app = express();
-
 
 const originsWhitelist = [
     ''
@@ -56,10 +54,6 @@ app.use('/api/securityQuestion', securityQuestionRouter);
 app.use('/api/user', /*roleMiddleware,*/ usersRouter);
 //Private routes.
 // app.use(authMiddleware.verifyToken);
-
-
-
-
 
 
 // error handler, don't remove next
