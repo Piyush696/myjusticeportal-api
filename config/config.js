@@ -50,7 +50,7 @@ config.local = {
     db: {
         username: "root",
         password: "",
-        database: "myjustice-portal",
+        database: "rxt7scbg23giysn8",
         host: "localhost",
         dialect: "mysql",
         migrationStorage: "json",
@@ -65,7 +65,5 @@ config.local = {
         algorithm: 'HS512'
     },
 };
-
-console.log("Environment --> ", env);
 
 module.exports = config[env];
