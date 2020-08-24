@@ -18,7 +18,7 @@ function generateCode() {
 
 
 /**generate otp */
-router.post('/', async function (req, res, next) {
+router.post('/', passport.authenticate('jwt', { session: false }), async function (req, res, next) {
     let code = generateCode();
     Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
         var client = new twilio(twilioCredentials.accountSid, twilioCredentials.authToken);
@@ -27,7 +27,7 @@ router.post('/', async function (req, res, next) {
             to: '+' + req.body.countryCode + req.body.mobile,  // Text this number
             from: '+14048003419' // From a valid Twilio number
         }).then((message) => {
-            User.update({ authCode: code, mobile: req.body.mobile, countryCode: req.body.countryCode }, { where: { email: req.body.email } }).then(() => {
+            User.update({ authCode: code, mobile: req.body.mobile, countryCode: req.body.countryCode }, { where: { userId: req.user.userId } }).then(() => {
                 res.json({ success: true })
             }).catch(next)
         }).catch((err) => {
