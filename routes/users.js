@@ -15,7 +15,7 @@ router.post('/registration', function (req, res, next) {
         lastName: req.body.lastName,
         username: req.body.username
     }).then((user) => {
-        Role.findAll({ where: { roleId: req.body.roleId } }).then((roles) => {
+        Role.findAll({ where: { roleId: 1 } }).then((roles) => {
             Promise.resolve(user.setRoles(roles)).then(() => {
                 let expiresIn = req.body.rememberMe ? '15d' : '1d';
                 let token = jwt.sign({
