@@ -24,6 +24,7 @@ db.Postage = require('./postageapp')(sequelize, Sequelize);
 db.Twilio = require('./twilio')(sequelize, Sequelize);
 db.SecurityQuestion = require('./securityQuestion')(sequelize, Sequelize);
 db.User_SecurityQuestion_Answers = require('./user_securityQuestion_Answers')(sequelize, Sequelize);
+db.UserMeta = require('./userMeta')(sequelize, Sequelize);
 
 //Mapings
 db.User.belongsToMany(db.Role, { through: 'user_role', foreignKey: 'userId' });
@@ -35,5 +36,9 @@ db.SecurityQuestion.belongsTo(db.Role, { foreignKey: 'roleId', sourceKey: 'roleI
 
 db.User.belongsToMany(db.SecurityQuestion, { through: 'user_securityQuestion_Answers', foreignKey: 'userId' });
 db.SecurityQuestion.belongsToMany(db.User, { through: 'user_securityQuestion_Answers', foreignKey: 'securityQuestionId' });
+
+db.User.hasMany(db.UserMeta, { foreignKey: 'userId', sourceKey: 'userId' });
+
+
 
 module.exports = db;
