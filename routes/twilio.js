@@ -17,7 +17,7 @@ function generateCode() {
 }
 
 /**generate otp during registration*/
-router.post('/', async function (req, res, next) {
+router.post('/register/twilio', async function (req, res, next) {
     let code = generateCode();
     Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
         var client = new twilio(twilioCredentials.accountSid, twilioCredentials.authToken);
