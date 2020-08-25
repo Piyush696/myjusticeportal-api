@@ -10,6 +10,7 @@
     "restart": "nodemon ./bin/www"
   },
   "dependencies": {
+    "aws-sdk": "^2.739.0",
     "bcrypt": "^5.0.0",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
@@ -21,13 +22,14 @@
     "jsonwebtoken": "^8.4.0",
     "moment": "^2.27.0",
     "morgan": "~1.10.0",
+    "multer": "^1.4.2",
     "mysql2": "^1.7.0",
     "nodemon": "^2.0.4",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "request": "^2.88.2",
     "sequelize": "^4.44.4",
-    "uuid": "^3.4.0",
-    "twilio": "^3.48.2"
+    "twilio": "^3.48.2",
+    "uuid": "^3.4.0"
   }
 }
