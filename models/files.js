@@ -1,9 +1,7 @@
 'use strict';
 
-
 module.exports = (sequelize, DataTypes) => {
     let Files = sequelize.define('files', {
-
         fileId: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -11,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         fileName: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: true
         },
         downloadLink: {
             type: DataTypes.STRING(1000),
@@ -19,18 +17,20 @@ module.exports = (sequelize, DataTypes) => {
         },
         bucket: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: true
         },
         ACL: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: true
+        },
+        fileType: {
+            type: DataTypes.STRING,
+            allowNull: true
         }
     }, {
         tableName: 'files',
         freezeTableName: true,
         timestamps: true
-    }
-    );
-
+    });
     return Files;
 };

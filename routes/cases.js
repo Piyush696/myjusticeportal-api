@@ -3,6 +3,7 @@ const router = express.Router();
 var passport = require('passport');
 const Case = require('../models').Case;
 const User = require('../models').User;
+const Files = require('../models').Files;
 
 /* create case. */
 router.post('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
@@ -12,13 +13,12 @@ router.post('/', passport.authenticate('jwt', { session: false }), function (req
     })
 })
 
-
 /* get cases for user. */
 router.get('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
     Case.findAll({
         include: [
             {
-                model: User,
+                model: User
             }
         ],
         where: { userId: req.user.userId }
@@ -32,7 +32,10 @@ router.get('/:caseId', passport.authenticate('jwt', { session: false }), functio
     Case.findOne({
         include: [
             {
-                model: User,
+                model: User
+            },
+            {
+                model: Files, as: 'caseFile'
             }
         ],
         where: { caseId: req.params.caseId }
@@ -40,7 +43,6 @@ router.get('/:caseId', passport.authenticate('jwt', { session: false }), functio
         res.json({ success: true, data: data });
     })
 })
-
 
 /* edit case. */
 router.put('/:caseId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
