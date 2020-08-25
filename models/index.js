@@ -26,8 +26,8 @@ db.Twilio = require('./twilio')(sequelize, Sequelize);
 db.SecurityQuestion = require('./securityQuestion')(sequelize, Sequelize);
 db.User_SecurityQuestion_Answers = require('./user_securityQuestion_Answers')(sequelize, Sequelize);
 db.UserMeta = require('./userMeta')(sequelize, Sequelize);
-db.Files =  require('./files')(sequelize, Sequelize);
-
+db.Files = require('./files')(sequelize, Sequelize);
+db.LibraryLink = require('./libraryLink')(sequelize, Sequelize);
 /* Mapings */
 
 db.User.belongsToMany(db.Role, { through: 'user_role', foreignKey: 'userId' });
