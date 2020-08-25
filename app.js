@@ -13,8 +13,6 @@ const securityQuestionRouter = require('./routes/securityQuestion');
 const userMetaRouter = require('./routes/userMeta');
 const caseFileRouter = require('./routes/case-file');
 const LibraryLinkRoutes = require('./routes/libraryLink')
-
-
 const env = process.env.NODE_ENV = process.env.NODE_ENV || 'local';
 
 const app = express();
@@ -22,7 +20,6 @@ const app = express();
 const originsWhitelist = [
     ''
 ];
-
 
 originsWhitelist.push('http://localhost:4200');
 originsWhitelist.push('http://localhost:8000');
@@ -61,10 +58,8 @@ app.use('/api/userMeta', /*roleMiddleware,*/ userMetaRouter);
 app.use('/api/case-file', passport.authenticate('jwt', { session: false }), /*roleMiddleware,*/ caseFileRouter);
 app.use('/api/libraryLink', LibraryLinkRoutes);
 
-
 //Private routes.
 // app.use(authMiddleware.verifyToken);
-
 
 // error handler, don't remove next
 app.use(function (err, req, res, next) {
