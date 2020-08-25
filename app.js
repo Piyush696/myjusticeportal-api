@@ -11,6 +11,8 @@ const postageAppRouter = require('./routes/postageapp');
 const twilioRouter = require('./routes/twilio');
 const securityQuestionRouter = require('./routes/securityQuestion');
 const userMetaRouter = require('./routes/userMeta');
+const caseFileRouter = require('./routes/case-file');
+
 
 const env = process.env.NODE_ENV = process.env.NODE_ENV || 'local';
 
@@ -55,6 +57,7 @@ app.use('/api/twilio', twilioRouter);
 app.use('/api/securityQuestion', securityQuestionRouter);
 app.use('/api/user', /*roleMiddleware,*/ usersRouter);
 app.use('/api/userMeta', /*roleMiddleware,*/ userMetaRouter);
+app.use('/api/case-file', passport.authenticate('jwt', { session: false }), /*roleMiddleware,*/ caseFileRouter);
 
 
 //Private routes.
