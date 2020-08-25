@@ -11,16 +11,7 @@ router.get('/check-token', passport.authenticate('jwt', { session: false }), (re
 
 router.get('/:id?', async function (req, res, next) {
     User.findAndCountAll({
-        where: {
-            $or: [
-                {
-                    username: req.query.user
-                },
-                {
-                    email: req.query.user
-                }
-            ]
-        }
+        where: { userName: req.query.userName }
     }).then((users) => {
         if (users.count == 0) {
             return res.json({ taken: false });

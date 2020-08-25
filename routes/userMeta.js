@@ -31,7 +31,7 @@ router.post('/', passport.authenticate('jwt', { session: false }), async functio
 
 router.post('/createUserMetaList', async function (req, res, next) {
 
-    User.findOne({ attributes: ['userId'], where: { email: req.body.email } }).then((user) => {
+    User.findOne({ attributes: ['userId'], where: { userName: req.body.userName } }).then((user) => {
         var userMetaList = req.body.metaList;
         var userMetaCount = 0
         userMetaList.forEach((userMeta, userMetaIndex, userMetaArray) => {

@@ -13,19 +13,11 @@ router.post('/registration', function (req, res, next) {
         password: User.generateHash(req.body.password),
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        username: req.body.username
+        userName: req.body.userName
     }).then((user) => {
         Role.findAll({ where: { roleId: req.body.roleId } }).then((roles) => {
-            Promise.resolve(user.setRoles(roles)).then(() => {
-                let expiresIn = req.body.rememberMe ? '15d' : '1d';
-                let token = jwt.sign({
-                    userId: user.userId,
-                    email: user.email.toLowerCase(),
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    role: roles
-                }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
-                res.json({ success: true, token: token })
+            Promise.resolve(user.setRoles(roles)).then((userRole) => {
+                res.json({ success: true, data: user })
             })
         }).catch(next);
     }).catch(next);
@@ -77,11 +69,32 @@ router.put('/password', passport.authenticate('jwt', { session: false }), functi
 
 
 /*update user */
-router.put('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-    User.update(req.body, {
-        where: { userId: req.user.userId }
+router.put('/', function (req, res, next) {
+    console.log(req.body)
+    console.log(req.body.value.status)
+    User.update({ status: req.body.value.status }, {
+        where: { userName: req.body.value.userName }
     }).then((user) => {
-        res.json({ success: true, data: user });
+        User.findOne({
+            include: [
+                {
+                    model: Role, through: {
+                        attributes: []
+                    },
+                }
+            ],
+            where: { userName: req.body.value.userName }
+        }).then((user) => {
+            let expiresIn = req.body.rememberMe ? '15d' : '1d';
+            let token = jwt.sign({
+                userId: user.userId,
+                userName: user.userName,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                role: user.roles
+            }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
+            res.json({ success: true, token: token });
+        })
     }).catch(next);
 })
 
