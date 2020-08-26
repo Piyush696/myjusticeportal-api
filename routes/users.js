@@ -8,12 +8,21 @@ const config = require('../config/config');
 
 /* user registration. */
 router.post('/registration', function (req, res, next) {
+    let isMfa;
+
+    if (req.body.roleId == 1) {
+        isMfa = false;
+    }
+    else {
+        isMfa = true;
+    }
     User.create({
         email: req.body.email,
         password: User.generateHash(req.body.password),
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        userName: req.body.userName
+        userName: req.body.userName,
+        isMFA: isMfa
     }).then((user) => {
         Role.findAll({ where: { roleId: req.body.roleId } }).then((roles) => {
             Promise.resolve(user.setRoles(roles)).then((userRole) => {
