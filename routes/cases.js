@@ -6,19 +6,21 @@ const User = require('../models').User;
 const Files = require('../models').Files;
 
 /* create case. */
+
 router.post('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-    req.body['userId'] = req.user.userId
+    req.body['userId'] = req.user.userId;
     Case.create(req.body).then(data => {
         res.json({ success: true, data: data });
     })
 })
 
 /* get cases for user. */
+
 router.get('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
     Case.findAll({
         include: [
             {
-                model: User
+                model: User, attributes: ['userId', 'firstName', 'lastName', 'userName']
             }
         ],
         where: { userId: req.user.userId }
@@ -27,12 +29,13 @@ router.get('/', passport.authenticate('jwt', { session: false }), function (req,
     })
 })
 
-//find case with caseId
+// find case with caseId.
+
 router.get('/:caseId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
     Case.findOne({
         include: [
             {
-                model: User
+                model: User, attributes: ['userId', 'firstName', 'lastName', 'userName']
             },
             {
                 model: Files, as: 'caseFile'
@@ -45,6 +48,7 @@ router.get('/:caseId', passport.authenticate('jwt', { session: false }), functio
 })
 
 /* edit case. */
+
 router.put('/:caseId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
     Case.update(req.body, { where: { caseId: req.params.caseId } }).then(data => {
         res.json({ success: true, data: data });
