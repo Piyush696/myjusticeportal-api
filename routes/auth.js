@@ -111,10 +111,9 @@ router.post('/verify-otp', async function (req, res, next) {
         if (x <= 5 && user.dataValues.authCode == req.body.otp) {
             let token = jwt.sign({
                 userId: user.dataValues.userId,
-                email: user.dataValues.email.toLowerCase(),
                 firstName: user.dataValues.firstName,
                 lastName: user.dataValues.lastName,
-                username: user.dataValues.username,
+                userName: user.dataValues.userName,
                 role: user.dataValues.roles
             }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
             res.json({ success: true, token: token })
