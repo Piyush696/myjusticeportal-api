@@ -35,7 +35,6 @@ router.post('/login', function (req, res, next) {
         ],
         where: { userName: req.body.userName, status: true }
     }).then((user) => {
-        console.log(user)
         if (!user)
             return next(new Error('invalid_email'));
         if (!user.isValidPassword(req.body.password))
@@ -66,10 +65,9 @@ router.post('/login', function (req, res, next) {
             let expiresIn = req.body.rememberMe ? '15d' : '1d';
             let token = jwt.sign({
                 userId: user.userId,
-                email: user.email.toLowerCase(),
                 firstName: user.firstName,
                 lastName: user.lastName,
-                username: user.username,
+                userName: user.userName,
                 role: user.roles
             }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
             res.json({
