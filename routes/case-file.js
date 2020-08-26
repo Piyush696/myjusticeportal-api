@@ -10,7 +10,7 @@ router.post('/uploadFile', upload.any(), function (req, response, next) {
     let itemsProcessed = 0;
     let fileIds = [];
     req.files.forEach((file, index, array) => {
-        utils.uploadFile(file, file.mimetype, 'mjp-private', 'private', function (fileId) {
+        utils.uploadFile(file, file.mimetype, req.user.userId, 'mjp-private', 'private', function (fileId) {
             if (fileId) {
                 fileIds.push(fileId);
                 if (itemsProcessed === array.length - 1) {
