@@ -38,7 +38,13 @@ router.get('/:caseId', passport.authenticate('jwt', { session: false }), functio
                 model: User, attributes: ['userId', 'firstName', 'lastName', 'userName']
             },
             {
-                model: Files, as: 'caseFile'
+                model: Files, as: 'caseFile',
+                include: [
+                    {
+                        model: User, as: 'createdBy',
+                        attributes: ['userId', 'firstName', 'lastName', 'userName']
+                    }
+                ]
             }
         ],
         where: { caseId: req.params.caseId }
