@@ -69,15 +69,15 @@ module.exports = {
                 s3.getSignedUrl('getObject', signedParams, function (err, url) {
                     if (err) { }
                     if (url) // console.log('The URL is', url); // expires in 60 seconds
-                        file.downloadLink = url
+                        file.downloadLink = url;
                     if (itemsProcessed === array.length - 1) {
-                        callback(files)
+                        callback(files);
                     }
                     itemsProcessed++;
                 });
             } else {
                 if (itemsProcessed === array.length - 1) {
-                    callback(files)
+                    callback(files);
                 }
                 itemsProcessed++;
             }

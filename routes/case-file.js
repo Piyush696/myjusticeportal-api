@@ -36,4 +36,25 @@ router.delete('/deleteFile/:fileId', function (req, res, next) {
     })
 })
 
+// To get file DownloadLink.
+
+router.post('/fileDownloadLink', function (req, res, next) {
+    Case.findOne({
+        where: { userId: req.user.userId, caseId: req.body.caseId },
+        attributes: ['caseId'],
+        include: [
+            {
+                model: Files, as: 'caseFile',
+                where: { fileId: req.body.fileId }
+            }
+        ]
+    }).then((data) => {
+        utils.getSingleSignedURL(data.caseFile[0], function (downloadLink) {
+            if (downloadLink) {
+                res.json({ success: true, data: downloadLink });
+            }
+        })
+    }).catch(next);
+})
+
 module.exports = router;
