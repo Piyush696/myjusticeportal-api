@@ -49,7 +49,6 @@ router.post('/fileDownloadLink', function (req, res, next) {
             }
         ]
     }).then((data) => {
-        console.log(data);
         utils.getSingleSignedURL(data.caseFile[0], function (downloadLink) {
             if (downloadLink) {
                 res.json({ success: true, data: downloadLink });
