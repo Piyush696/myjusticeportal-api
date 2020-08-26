@@ -11,10 +11,10 @@ AWS.config.update({
 });
 
 module.exports = {
-    uploadFile: function (file, fileType, Bucket, ACL, callback) {
+    uploadFile: function (file, fileType, createdByUserId, Bucket, ACL, callback) {
         let timeStamp = new Date().getTime();
         let splitFile = file.originalname.split(".");
-        let uniqueFile = splitFile[0] + "_" + timeStamp + "." + splitFile[1]
+        let uniqueFile = splitFile[0] + "_" + timeStamp + "." + splitFile[1];
 
         const params = {
             Bucket: Bucket,
@@ -30,7 +30,8 @@ module.exports = {
             //   console.log(`File uploaded successfully. ${data.Location}`);
             Files.create({
                 fileName: uniqueFile, downloadLink: data.Location,
-                bucket: Bucket, ACL: ACL, fileType: fileType
+                bucket: Bucket, ACL: ACL, fileType: fileType,
+                createdByUserId: createdByUserId
             }).then((createdFile) => {
                 callback(createdFile.fileId);
             })
