@@ -28,15 +28,14 @@ module.exports = (sequelize, DataTypes) => {
         },
         nextCourtDate: {
             type: DataTypes.DATE,
-            allowNull: false,
+            allowNull: true,
         },
         otherInformation: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         }
     }, {
         tableName: 'case',
-        freezeTableName: true
     });
 
 
