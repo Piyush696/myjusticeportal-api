@@ -40,16 +40,14 @@ router.get('/:roleId', function (req, res, next) {
     })
 })
 
-router.post('/securityQues', function (req, res, next) {
+router.post('/forgot-password', function (req, res, next) {
     User.findOne({
         include: [
             {
-                model: SecurityQuestion, through: {
-                    attributes: []
-                },
-                model: Role, through: {
-                    attributes: []
-                }
+                model: SecurityQuestion, through: { attributes: [] }
+            },
+            {
+                model: Role, through: { attributes: [] }
             }
         ],
         where: { userName: req.body.userName }
@@ -62,6 +60,7 @@ router.post('/securityQues', function (req, res, next) {
             }, config.jwt.secret, { expiresIn: 60 * 60 });
             let uuid = uuidv1();
             let url = req.headers.origin + "/reset-password/";
+
             Postage.findOne({ where: { postageAppId: 1 } }).then((passwordResetDetails) => {
                 request.post({
                     headers: { 'content-type': 'application/json' },
@@ -85,12 +84,12 @@ router.post('/securityQues', function (req, res, next) {
                 }, function (error, response) {
                     if ((response.body.response.status !== 'unauthorized') && (response.body.response.status != 'bad_request')) {
                         if (response.body.data.message.status == 'queued') {
-                            res.json({ success: true });
+                            res.json({ success: true, data: 'Mail sent' });
                         } else {
-                            res.json({ success: false });
+                            res.json({ success: false, data: 'Mail not sent' });
                         }
                     } else {
-                        res.json({ success: false });
+                        res.json({ success: false, data: 'Mail not sent' });
                     }
                 });
             }).catch((next) => {
