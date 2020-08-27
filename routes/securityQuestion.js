@@ -6,11 +6,15 @@ const User = require('../models').User;
 const { Sequelize } = require("sequelize");
 const securityQuestion = require('../models/securityQuestion');
 const User_SecurityQuestion_Answers = require('../models').User_SecurityQuestion_Answers;
-
+const Role = require('../models').Role;
+const Postage = require('../models').Postage;
+const uuidv1 = require('uuid/v1');
+const jwt = require('jsonwebtoken');
+const config = require('../config/config');
+const request = require('request');
 
 router.post('/', function (req, res, next) {
     User.findOne({ where: { userName: req.body.userName } }).then((user) => {
-        console.log(user.dataValues.userId)
         User_SecurityQuestion_Answers.findOne({ where: { userId: user.dataValues.userId, securityQuestionId: req.body.securityQuestionId } }).then(data => {
             if (data && data.securityQuestionId == req.body.securityQuestionId) {
                 User_SecurityQuestion_Answers.update({ answer: req.body.answer }, { where: { userId: data.userId, securityQuestionId: data.securityQuestionId } }).then((data) => {
@@ -36,7 +40,6 @@ router.get('/:roleId', function (req, res, next) {
     })
 })
 
-
 router.post('/securityQues', function (req, res, next) {
     User.findOne({
         include: [
@@ -44,36 +47,82 @@ router.post('/securityQues', function (req, res, next) {
                 model: SecurityQuestion, through: {
                     attributes: []
                 },
+                model: Role, through: {
+                    attributes: []
+                }
             }
         ],
-        where: {
-            $or: [
-                {
-                    username: req.body.user
-                },
-                {
-                    email: req.body.user
-                }
-            ],
+        where: { userName: req.body.userName }
+    }).then(userDetails => {
+        if (userDetails.dataValues.roles[0].roleId == 1) {
+            res.json({ success: true, data: userDetails });
+        } else {
+            let token = jwt.sign({
+                data: userDetails.dataValues
+            }, config.jwt.secret, { expiresIn: 60 * 60 });
+            let uuid = uuidv1();
+            let url = req.headers.origin + "/reset-password/";
+            Postage.findOne({ where: { postageAppId: 1 } }).then((passwordResetDetails) => {
+                request.post({
+                    headers: { 'content-type': 'application/json' },
+                    url: `${passwordResetDetails.dataValues.apiUrl}`,
+                    json: {
+                        "api_key": `${passwordResetDetails.dataValues.apiKey}`,
+                        "uid": `${uuid}`,
+                        "arguments": {
+                            "recipients": [`${userDetails.dataValues.userName}`],
+                            // "recipients": ["rajesh.sialia@gmail.com"],
+                            "headers": {
+                                "subject": `${passwordResetDetails.dataValues.project}` + ": Password Reset Request"
+                            },
+                            "template": `${passwordResetDetails.dataValues.template}`,
+                            "variables": {
+                                "name": `${userDetails.dataValues.firstName + userDetails.dataValues.lastName}`,
+                                "resetlink": `${url}` + `${token}`
+                            }
+                        }
+                    }
+                }, function (error, response) {
+                    if ((response.body.response.status !== 'unauthorized') && (response.body.response.status != 'bad_request')) {
+                        if (response.body.data.message.status == 'queued') {
+                            res.json({ success: true });
+                        } else {
+                            res.json({ success: false });
+                        }
+                    } else {
+                        res.json({ success: false });
+                    }
+                });
+            }).catch((next) => {
+                console.log(next);
+            })
         }
-    }).then(user => {
-        res.json({ success: true, data: user });
     })
 })
 
+// reset password.
+
+router.patch('/', function (req, res, next) {
+    var decoded = jwt.verify(req.body.token, config.jwt.secret);
+    let newData = {};
+    let query = {};
+    if (req.body.password && req.body.password.length) {
+        newData.password = User.generateHash(req.body.password);
+    }
+    if (newData.errors) {
+        return next(newData.errors[0]);
+    }
+    query.where = { userId: decoded.data.userId };
+    User.update(newData, query).then(() => {
+        res.json({ success: true });
+    }).catch((next) => {
+        console.log(next);
+    })
+});
 
 router.post('/check-answer', async function (req, res, next) {
     User.findOne({
-        where: {
-            $or: [
-                {
-                    username: req.body.user
-                },
-                {
-                    email: req.body.user
-                }
-            ],
-        }
+        where: { userName: req.body.userName }
     }).then((user) => {
         User_SecurityQuestion_Answers.findOne({
             where: {
@@ -121,7 +170,6 @@ router.get('/user/securityQuestions', passport.authenticate('jwt', { session: fa
         })
     }).catch(next);
 })
-
 
 /*update securityQuestions Answers */
 

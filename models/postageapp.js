@@ -1,7 +1,5 @@
 'use strict';
-
 const bcrypt = require('bcrypt');
-
 
 module.exports = (sequelize, DataTypes) => {
     let PostageApp = sequelize.define('postageApp', {
