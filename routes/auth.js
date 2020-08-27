@@ -33,47 +33,51 @@ router.post('/login', function (req, res, next) {
                 },
             }
         ],
-        where: { userName: req.body.userName, status: true }
+        where: { userName: req.body.userName }
     }).then((user) => {
-        if (!user)
-            return next(new Error('invalid_email'));
-        if (!user.isValidPassword(req.body.password))
-            return next(new Error('invalid_password'));
-        if (user.isMFA) {
-            if (user.mobile && user.countryCode) {
-                Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
-                    let code = generateCode();
-                    var client = new twilio(twilioCredentials.accountSid, twilioCredentials.authToken);
-                    client.messages.create({
-                        body: 'My Justice Portal' + ': ' + code + ' - This is your verification code.',
-                        to: '+' + user.countryCode + user.mobile,  // Text this number
-                        from: '+14048003419' // From a valid Twilio number
-                    }).then((message) => {
-                        User.update({ authCode: code }, { where: { userId: user.dataValues.userId } }).then(() => {
-                            res.json({ success: false, data: 'Please Enter Your Otp.' })
-                        }).catch(next)
-                    }).catch((err) => {
-                        res.json({ success: false })
-                    })
-                })
-            }
-            else {
-                res.json({ success: false, data: 'Please Register your Mobile Number.' })
-            }
+        if (!user) {
+            res.json({ success: false, data: 'Invalid Email.' })
+        }
+        else if (!user.isValidPassword(req.body.password)) {
+            res.json({ success: false, data: 'Invalid Password.' })
         }
         else {
-            let expiresIn = req.body.rememberMe ? '15d' : '1d';
-            let token = jwt.sign({
-                userId: user.userId,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                userName: user.userName,
-                role: user.roles
-            }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
-            res.json({
-                success: true,
-                token: token
-            });
+            if (user.isMFA) {
+                if (user.mobile && user.countryCode) {
+                    Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
+                        let code = generateCode();
+                        var client = new twilio(twilioCredentials.accountSid, twilioCredentials.authToken);
+                        client.messages.create({
+                            body: 'My Justice Portal' + ': ' + code + ' - This is your verification code.',
+                            to: '+' + user.countryCode + user.mobile,  // Text this number
+                            from: '+14048003419' // From a valid Twilio number
+                        }).then((message) => {
+                            User.update({ authCode: code }, { where: { userId: user.dataValues.userId } }).then(() => {
+                                res.json({ success: false, data: 'Please Enter Your Otp.' })
+                            }).catch(next)
+                        }).catch((err) => {
+                            res.json({ success: false })
+                        })
+                    })
+                }
+                else {
+                    res.json({ success: false, data: 'Please Register your Mobile Number.' })
+                }
+            }
+            else {
+                let expiresIn = req.body.rememberMe ? '15d' : '1d';
+                let token = jwt.sign({
+                    userId: user.userId,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    userName: user.userName,
+                    role: user.roles
+                }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
+                res.json({
+                    success: true,
+                    token: token
+                });
+            }
         }
     }).catch(next)
 });
