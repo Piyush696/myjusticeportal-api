@@ -107,22 +107,13 @@ router.put('/', function (req, res, next) {
     }).catch(next);
 })
 
-
 /*update Password */
+
 router.put('/reset-pass', function (req, res, next) {
     let newData = {};
     let query = {};
     User.findOne({
-        where: {
-            $or: [
-                {
-                    username: req.body.user
-                },
-                {
-                    email: req.body.user
-                }
-            ]
-        }
+        where: { userName: req.body.userName }
     }).then((user) => {
         if (user.securityQuestionAnswered === 3) {
             if (req.body.password && req.body.password.length) {
@@ -131,23 +122,12 @@ router.put('/reset-pass', function (req, res, next) {
             }
             if (newData.errors)
                 return next(newData.errors[0]);
-            query.where = {
-                $or: [
-                    {
-                        username: req.body.user
-                    },
-                    {
-                        email: req.body.user
-                    }
-                ]
-            };
+            query.where = { userName: req.body.userName }
             User.update(newData, query).then(() => {
                 res.json({ success: true, newData });
             }).catch(next)
         }
     })
 });
-
-
 
 module.exports = router;
