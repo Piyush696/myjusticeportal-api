@@ -17,6 +17,10 @@ module.exports = (sequelize, DataTypes) => {
         authToken: {
             type: DataTypes.STRING,
             allowNull: false,
+        },
+        from: {
+            type: DataTypes.STRING,
+            allowNull: false,
         }
     }, {
         tableName: 'twilio',
