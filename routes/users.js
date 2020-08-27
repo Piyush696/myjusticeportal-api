@@ -148,6 +148,29 @@ router.put('/reset-pass', function (req, res, next) {
     })
 });
 
+//jwt set after login
+router.get('/:userName', function (req, res, next) {
+    User.findOne({
+        include: [
+            {
+                model: Role, through: {
+                    attributes: []
+                },
+            }
+        ], where: { userName: req.params.userName }
+    }).then((user) => {
+        let expiresIn = req.body.rememberMe ? '15d' : '1d';
+        let token = jwt.sign({
+            userId: user.dataValues.userId,
+            firstName: user.dataValues.firstName,
+            lastName: user.dataValues.lastName,
+            userName: user.dataValues.userName,
+            role: user.dataValues.roles
+        }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
+        res.json({ success: true, token: token });
+    }).catch(next)
+})
+
 
 
 module.exports = router;
