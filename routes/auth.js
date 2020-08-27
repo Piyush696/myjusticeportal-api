@@ -36,7 +36,7 @@ router.post('/login', function (req, res, next) {
         where: { userName: req.body.userName }
     }).then((user) => {
         if (!user) {
-            res.json({ success: false, data: 'Invalid Email.' })
+            res.json({ success: false, data: 'Invalid User.' })
         }
         else if (!user.isValidPassword(req.body.password)) {
             res.json({ success: false, data: 'Invalid Password.' })
