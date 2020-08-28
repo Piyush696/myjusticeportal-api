@@ -79,8 +79,6 @@ router.put('/password', passport.authenticate('jwt', { session: false }), functi
 
 /*update user */
 router.put('/', function (req, res, next) {
-    console.log(req.body)
-    console.log(req.body.value.status)
     User.update({ status: req.body.value.status }, {
         where: { userName: req.body.value.userName }
     }).then((user) => {
@@ -106,6 +104,22 @@ router.put('/', function (req, res, next) {
         })
     }).catch(next);
 })
+
+// myacc User Update
+
+router.put('/updateUser', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    User.update({
+        userName: req.body.userName,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        isMFA: req.body.isMFA
+    }, {
+        where: { userName: req.body.userName }
+    }).then(result => {
+        res.json({ success: true, data: result });
+    }).catch(nex);
+})
+
 
 /*update Password */
 
