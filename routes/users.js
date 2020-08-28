@@ -22,6 +22,7 @@ router.post('/registration', function (req, res, next) {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         userName: req.body.userName,
+        middleName: req.body.middleName,
         isMFA: isMfa
     }).then((user) => {
         Role.findAll({ where: { roleId: req.body.roleId } }).then((roles) => {
@@ -79,8 +80,6 @@ router.put('/password', passport.authenticate('jwt', { session: false }), functi
 
 /*update user */
 router.put('/', function (req, res, next) {
-    console.log(req.body)
-    console.log(req.body.value.status)
     User.update({ status: req.body.value.status }, {
         where: { userName: req.body.value.userName }
     }).then((user) => {
@@ -99,6 +98,7 @@ router.put('/', function (req, res, next) {
                 userId: user.userId,
                 userName: user.userName,
                 firstName: user.firstName,
+                middleName: req.body.middleName,
                 lastName: user.lastName,
                 role: user.roles
             }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
@@ -106,6 +106,17 @@ router.put('/', function (req, res, next) {
         })
     }).catch(next);
 })
+
+// myacc User Update
+
+router.put('/updateUser', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    User.update(req.body, {
+        where: { userId: req.user.userId }
+    }).then(result => {
+        res.json({ success: true, data: result });
+    }).catch(nex);
+})
+
 
 /*update Password */
 
