@@ -33,6 +33,10 @@ module.exports = (sequelize, DataTypes) => {
         otherInformation: {
             type: DataTypes.STRING,
             allowNull: true,
+        },
+        notes: {
+            type: DataTypes.STRING(5000),
+            allowNull: true,
         }
     }, {
         tableName: 'case',
