@@ -9,11 +9,9 @@ const config = require('../config/config');
 /* user registration. */
 router.post('/registration', function (req, res, next) {
     let isMfa;
-
     if (req.body.roleId == 1) {
         isMfa = false;
-    }
-    else {
+    } else {
         isMfa = true;
     }
     User.create({
@@ -77,7 +75,6 @@ router.put('/password', passport.authenticate('jwt', { session: false }), functi
     }).catch(next)
 });
 
-
 /*update user */
 router.put('/', function (req, res, next) {
     User.update({ status: req.body.value.status }, {
@@ -139,6 +136,33 @@ router.put('/reset-pass', function (req, res, next) {
             }).catch(next)
         }
     })
+});
+
+// delete user.
+
+router.delete('/:userId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+    User.findOne({
+        include: [
+            {
+                model: Role, through: {
+                    attributes: ['roleId']
+                }
+            }
+        ],
+        where: { userId: req.user.userId }
+    }).then((currentUserDetails) => {
+        if (currentUserDetails.dataValues.roles[0].roleId === 7 && currentUserDetails.dataValues.userId !== req.params.userId) {
+            User.destroy({
+                where: { userId: req.params.userId }
+            }).then(() => {
+                res.json({ success: true });
+            }).catch(next);
+        } else {
+            res.json({ success: false });
+        }
+    }).catch((next) => {
+        console.log(next);
+    });
 });
 
 module.exports = router;
