@@ -12,7 +12,6 @@ const twilioRouter = require('./routes/twilio');
 const securityQuestionRouter = require('./routes/securityQuestion');
 const userMetaRouter = require('./routes/userMeta');
 const caseFileRouter = require('./routes/case-file');
-const LibraryLinkRoutes = require('./routes/libraryLink')
 const facilityRoutes = require('./routes/facility')
 
 const env = process.env.NODE_ENV = process.env.NODE_ENV || 'local';
