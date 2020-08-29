@@ -27,7 +27,6 @@ db.SecurityQuestion = require('./securityQuestion')(sequelize, Sequelize);
 db.User_SecurityQuestion_Answers = require('./user_securityQuestion_Answers')(sequelize, Sequelize);
 db.UserMeta = require('./userMeta')(sequelize, Sequelize);
 db.Files = require('./files')(sequelize, Sequelize);
-db.LibraryLink = require('./libraryLink')(sequelize, Sequelize);
 db.Facility = require('./facility')(sequelize, Sequelize);
 
 /* Mapings */
