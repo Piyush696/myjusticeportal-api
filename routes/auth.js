@@ -41,7 +41,7 @@ router.post('/login', function (req, res, next) {
             res.json({ success: false, data: 'Invalid Password.' })
         }
         else {
-            if (user.isMFA && user.status == true) {
+            if (user.isMFA && user.status) {
                 if (user.mobile && user.countryCode) {
                     Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
                         let code = generateCode();
