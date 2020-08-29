@@ -28,6 +28,7 @@ db.User_SecurityQuestion_Answers = require('./user_securityQuestion_Answers')(se
 db.UserMeta = require('./userMeta')(sequelize, Sequelize);
 db.Files = require('./files')(sequelize, Sequelize);
 db.LibraryLink = require('./libraryLink')(sequelize, Sequelize);
+db.Facility = require('./facility')(sequelize, Sequelize);
 
 /* Mapings */
 
@@ -46,5 +47,9 @@ db.User.hasMany(db.UserMeta, { foreignKey: 'userId', sourceKey: 'userId' });
 db.Files.belongsTo(db.User, { as: 'createdBy' });
 db.Case.belongsToMany(db.Files, { as: 'caseFile', through: 'file_case', foreignKey: 'caseId' });
 db.Files.belongsToMany(db.Case, { through: 'file_case', foreignKey: 'fileId' });
+
+db.Facility.belongsToMany(db.User, { through: 'user_facility', foreignKey: 'facilityId' })
+db.User.belongsToMany(db.Facility, { through: 'user_facility', foreignKey: 'userId' })
+
 
 module.exports = db;
