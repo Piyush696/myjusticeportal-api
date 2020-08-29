@@ -1,9 +1,9 @@
 const express = require('express');
 var twilio = require('twilio');
 const router = express.Router();
-var passport = require('passport');
 const User = require('../models').User;
 const Twilio = require('../models').Twilio;
+
 
 //function to generate random code
 function generateCode() {
@@ -14,7 +14,6 @@ function generateCode() {
     }
     return Code;
 }
-
 
 /**generate otp after registration*/
 router.post('/', async function (req, res, next) {
@@ -49,7 +48,6 @@ router.post('/verify-sms', async function (req, res, next) {
         }
     }).catch(next)
 })
-
 
 
 /* get twilio Credencials. */

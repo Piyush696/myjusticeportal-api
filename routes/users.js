@@ -11,11 +11,9 @@ var twilio = require('twilio');
 /* user registration. */
 router.post('/registration', function (req, res, next) {
     let isMfa;
-
     if (req.body.roleId == 1) {
         isMfa = false;
-    }
-    else {
+    } else {
         isMfa = true;
     }
     User.create({
@@ -78,7 +76,6 @@ router.put('/password', passport.authenticate('jwt', { session: false }), functi
         res.json({ success: true });
     }).catch(next)
 });
-
 
 /*update user */
 router.put('/', function (req, res, next) {
@@ -143,6 +140,32 @@ router.put('/reset-pass', function (req, res, next) {
     })
 });
 
+// delete user.
+
+router.delete('/:userId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+    User.findOne({
+        include: [
+            {
+                model: Role, through: {
+                    attributes: ['roleId']
+                }
+            }
+        ],
+        where: { userId: req.user.userId }
+    }).then((currentUserDetails) => {
+        if (currentUserDetails.dataValues.roles[0].roleId === 7 && currentUserDetails.dataValues.userId !== req.params.userId) {
+            User.destroy({
+                where: { userId: req.params.userId }
+            }).then(() => {
+                res.json({ success: true });
+            }).catch(next);
+        } else {
+            res.json({ success: false });
+        }
+    }).catch((next) => {
+        console.log(next);
+    });
+});
 
 /**generate otp during registration*/
 router.post('/auth/register', async function (req, res, next) {
@@ -163,7 +186,7 @@ router.post('/auth/register', async function (req, res, next) {
     })
 });
 
-/**verify otp during registration*/
+/**verify otp */
 router.post('/register/verify-sms', async function (req, res, next) {
     User.findOne({
         include: [
@@ -179,7 +202,7 @@ router.post('/register/verify-sms', async function (req, res, next) {
         let x = date - data.dataValues.updatedAt;
         x = Math.round((x / 1000) / 60);
         if (x <= 5 && data.dataValues.authCode == req.body.otp) {
-            User.update({ status: true }, {
+            User.update({ status: false }, {
                 where: { userName: req.body.userName }
             }).then((user) => {
                 let expiresIn = req.body.rememberMe ? '15d' : '1d';
@@ -197,6 +220,7 @@ router.post('/register/verify-sms', async function (req, res, next) {
         }
     }).catch(next)
 })
+
 
 //function to generate random code
 function generateCode() {
