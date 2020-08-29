@@ -59,7 +59,7 @@ app.use('/api/user', /*roleMiddleware,*/ usersRouter);
 app.use('/api/userMeta', /*roleMiddleware,*/ userMetaRouter);
 app.use('/api/case-file', passport.authenticate('jwt', { session: false }), /*roleMiddleware,*/ caseFileRouter);
 app.use('/api/libraryLink', LibraryLinkRoutes);
-app.use('/api/facility', facilityRoutes);
+app.use('/api/facility', passport.authenticate('jwt', { session: false }), facilityRoutes);
 
 //Private routes.
 // app.use(authMiddleware.verifyToken);

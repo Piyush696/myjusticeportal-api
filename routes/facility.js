@@ -6,39 +6,29 @@ const Facility = require('../models').Facility;
 
 // create Facility
 
-router.post('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+router.post('/', function (req, res, next) {
     Facility.create(req.body).then(facility => {
-        User.findOne({ where: { userId: req.user.userId } }).then((user) => {
-            Promise.resolve(user.addFacility(facility)).then((userFacility) => {
-                res.json({ success: true, data: userFacility });
-            }).catch(next)
-        }).catch(next)
+        res.json({ success: true, data: facility });
     }).catch(next)
 })
+
 // get all Facility
 
-router.get('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-    User.findOne({
-        include: [
-            {
-                model: Facility, through: { attributes: [] }
-            }
-        ],
-        where: { userId: req.user.userId }
-    }).then(data => {
+router.get('/', function (req, res, next) {
+    Facility.findAll().then(data => {
         res.json({ success: true, data: data });
     })
 })
 
 // udate facility
 
-router.put('/:facilityId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+router.put('/:facilityId', function (req, res, next) {
     Facility.update(req.body, { where: { facilityId: req.params.facilityId } }).then(data => {
         res.json({ success: true, data: data });
     })
 })
 
-router.delete('/:facilityId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+router.delete('/:facilityId', function (req, res, next) {
     Facility.destroy({ where: { facilityId: req.params.facilityId } }).then(data => {
         res.json({ success: true, data: data });
     })
