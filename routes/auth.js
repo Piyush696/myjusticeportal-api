@@ -24,7 +24,6 @@ router.get('/:id?', async function (req, res, next) {
 
 /* Login user. */
 router.post('/login', function (req, res, next) {
-    console.log(req.body)
     User.findOne({
         include: [
             {
@@ -38,11 +37,11 @@ router.post('/login', function (req, res, next) {
         if (!user) {
             res.json({ success: false, data: 'Invalid User.' })
         }
-        else if (!user.isValidPassword(req.body.password)) {
+        else if (user && !user.isValidPassword(req.body.password)) {
             res.json({ success: false, data: 'Invalid Password.' })
         }
         else {
-            if (user.isMFA) {
+            if (user.isMFA && user.status) {
                 if (user.mobile && user.countryCode) {
                     Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
                         let code = generateCode();
@@ -53,7 +52,7 @@ router.post('/login', function (req, res, next) {
                             from: twilioCredentials.from // From a valid Twilio number
                         }).then((message) => {
                             User.update({ authCode: code }, { where: { userId: user.dataValues.userId } }).then(() => {
-                                res.json({ success: false, data: 'Please Enter Your Otp.' })
+                                res.json({ success: false, data: 'Please Enter Your auth code.' })
                             }).catch(next)
                         }).catch((err) => {
                             res.json({ success: false })
@@ -64,19 +63,27 @@ router.post('/login', function (req, res, next) {
                     res.json({ success: false, data: 'Please Register your Mobile Number.' })
                 }
             }
+            else if (user.isMFA && !user.status) {
+                res.json({ success: false, data: 'Your account is under review. Please contact Administrator to activate your account.' })
+            }
             else {
-                let expiresIn = req.body.rememberMe ? '15d' : '1d';
-                let token = jwt.sign({
-                    userId: user.userId,
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    userName: user.userName,
-                    role: user.roles
-                }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
-                res.json({
-                    success: true,
-                    token: token
-                });
+                if (!user.isMFA && !user.status) {
+                    res.json({ success: false, data: 'Please complete your registration.' })
+                }
+                else {
+                    let expiresIn = req.body.rememberMe ? '15d' : '1d';
+                    let token = jwt.sign({
+                        userId: user.userId,
+                        firstName: user.firstName,
+                        lastName: user.lastName,
+                        userName: user.userName,
+                        role: user.roles
+                    }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
+                    res.json({
+                        success: true,
+                        token: token
+                    });
+                }
             }
         }
     }).catch(next)
@@ -95,7 +102,6 @@ function generateCode() {
 
 /** if ismfa verify otp */
 router.post('/verify-otp', async function (req, res, next) {
-    console.log('ytf', req.body)
     User.findOne({
         include: [
             {

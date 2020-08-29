@@ -12,7 +12,8 @@ const twilioRouter = require('./routes/twilio');
 const securityQuestionRouter = require('./routes/securityQuestion');
 const userMetaRouter = require('./routes/userMeta');
 const caseFileRouter = require('./routes/case-file');
-const LibraryLinkRoutes = require('./routes/libraryLink')
+const facilityRoutes = require('./routes/facility')
+
 const env = process.env.NODE_ENV = process.env.NODE_ENV || 'local';
 
 const app = express();
@@ -49,14 +50,14 @@ require('./config/passport')(passport);
 //Public routes
 app.use('/api/users', authRouter);
 app.use('/api/role', roleRouter);
-app.use('/api/case', caseRouter);
-app.use('/api/postage', postageAppRouter);
-app.use('/api/twilio', twilioRouter);
+app.use('/api/case', passport.authenticate('jwt', { session: false }), /*roleMiddleware,*/ caseRouter);
+app.use('/api/postage', passport.authenticate('jwt', { session: false }), postageAppRouter);
+app.use('/api/twilio', passport.authenticate('jwt', { session: false }), twilioRouter);
 app.use('/api/securityQuestion', securityQuestionRouter);
 app.use('/api/user', /*roleMiddleware,*/ usersRouter);
 app.use('/api/userMeta', /*roleMiddleware,*/ userMetaRouter);
 app.use('/api/case-file', passport.authenticate('jwt', { session: false }), /*roleMiddleware,*/ caseFileRouter);
-app.use('/api/libraryLink', LibraryLinkRoutes);
+app.use('/api/facility', passport.authenticate('jwt', { session: false }), facilityRoutes);
 
 //Private routes.
 // app.use(authMiddleware.verifyToken);
