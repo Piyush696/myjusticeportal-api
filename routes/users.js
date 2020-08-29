@@ -212,7 +212,7 @@ router.post('/register/verify-sms', async function (req, res, next) {
             }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
             res.json({ success: true, token: token });
         } else {
-            res.json({ success: false, data: 'invalid otp' })
+            res.json({ success: false, data: 'invalid auth code' })
         }
     }).catch(next)
 })
