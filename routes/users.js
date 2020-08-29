@@ -5,6 +5,8 @@ const User = require('../models').User;
 const Role = require('../models').Role;
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
+const Twilio = require('../models').Twilio;
+var twilio = require('twilio');
 
 /* user registration. */
 router.post('/registration', function (req, res, next) {
@@ -140,5 +142,70 @@ router.put('/reset-pass', function (req, res, next) {
         }
     })
 });
+
+
+/**generate otp during registration*/
+router.post('/auth/register', async function (req, res, next) {
+    let code = generateCode();
+    Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
+        var client = new twilio(twilioCredentials.accountSid, twilioCredentials.authToken);
+        client.messages.create({
+            body: 'My Justice Portal' + ': ' + code + ' - This is your verification code.',
+            to: '+' + req.body.countryCode + req.body.mobile,  // Text this number
+            from: twilioCredentials.from // From a valid Twilio number
+        }).then((message) => {
+            User.update({ authCode: code, mobile: req.body.mobile, countryCode: req.body.countryCode }, { where: { userName: req.body.userName } }).then(() => {
+                res.json({ success: true })
+            }).catch(next)
+        }).catch((err) => {
+            res.json({ success: false })
+        })
+    })
+});
+
+/**verify otp during registration*/
+router.post('/register/verify-sms', async function (req, res, next) {
+    User.findOne({
+        include: [
+            {
+                model: Role, through: {
+                    attributes: []
+                },
+            }
+        ],
+        where: { userName: req.body.userName }
+    }).then((data) => {
+        let date = new Date();
+        let x = date - data.dataValues.updatedAt;
+        x = Math.round((x / 1000) / 60);
+        if (x <= 5 && data.dataValues.authCode == req.body.otp) {
+            User.update({ status: true }, {
+                where: { userName: req.body.userName }
+            }).then((user) => {
+                let expiresIn = req.body.rememberMe ? '15d' : '1d';
+                let token = jwt.sign({
+                    userId: data.dataValues.userId,
+                    userName: data.dataValues.userName,
+                    firstName: data.dataValues.firstName,
+                    lastName: data.dataValues.lastName,
+                    role: data.dataValues.roles
+                }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
+                res.json({ success: true, token: token });
+            }).catch(next);
+        } else {
+            res.json({ success: false, data: 'invalid otp' })
+        }
+    }).catch(next)
+})
+
+//function to generate random code
+function generateCode() {
+    let digits = '0123456789';
+    let Code = '';
+    for (let i = 0; i < 6; i++) {
+        Code += digits[Math.floor(Math.random() * 10)];
+    }
+    return Code;
+}
 
 module.exports = router;

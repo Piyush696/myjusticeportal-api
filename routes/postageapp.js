@@ -4,7 +4,7 @@ var passport = require('passport');
 const Postage = require('../models').Postage;
 
 /* get postage Credencials. */
-router.get('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+router.get('/', function (req, res, next) {
     Postage.findOne({ where: { postageAppId: 1 } }).then(postage => {
         res.json({ success: true, data: postage });
     })
@@ -12,7 +12,7 @@ router.get('/', passport.authenticate('jwt', { session: false }), function (req,
 
 
 /*update postage Credencials */
-router.post('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+router.post('/', function (req, res, next) {
     Postage.findOne({ where: { postageAppId: 1 } }).then(postage => {
         if (postage) {
             Postage.update(req.body, {
