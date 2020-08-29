@@ -202,19 +202,15 @@ router.post('/register/verify-sms', async function (req, res, next) {
         let x = date - data.dataValues.updatedAt;
         x = Math.round((x / 1000) / 60);
         if (x <= 5 && data.dataValues.authCode == req.body.otp) {
-            User.update({ status: false }, {
-                where: { userName: req.body.userName }
-            }).then((user) => {
-                let expiresIn = req.body.rememberMe ? '15d' : '1d';
-                let token = jwt.sign({
-                    userId: data.dataValues.userId,
-                    userName: data.dataValues.userName,
-                    firstName: data.dataValues.firstName,
-                    lastName: data.dataValues.lastName,
-                    role: data.dataValues.roles
-                }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
-                res.json({ success: true, token: token });
-            }).catch(next);
+            let expiresIn = req.body.rememberMe ? '15d' : '1d';
+            let token = jwt.sign({
+                userId: data.dataValues.userId,
+                userName: data.dataValues.userName,
+                firstName: data.dataValues.firstName,
+                lastName: data.dataValues.lastName,
+                role: data.dataValues.roles
+            }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
+            res.json({ success: true, token: token });
         } else {
             res.json({ success: false, data: 'invalid otp' })
         }
