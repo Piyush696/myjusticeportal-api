@@ -13,6 +13,8 @@ const securityQuestionRouter = require('./routes/securityQuestion');
 const userMetaRouter = require('./routes/userMeta');
 const caseFileRouter = require('./routes/case-file');
 const LibraryLinkRoutes = require('./routes/libraryLink')
+const facilityRoutes = require('./routes/facility')
+
 const env = process.env.NODE_ENV = process.env.NODE_ENV || 'local';
 
 const app = express();
@@ -57,6 +59,7 @@ app.use('/api/user', /*roleMiddleware,*/ usersRouter);
 app.use('/api/userMeta', /*roleMiddleware,*/ userMetaRouter);
 app.use('/api/case-file', passport.authenticate('jwt', { session: false }), /*roleMiddleware,*/ caseFileRouter);
 app.use('/api/libraryLink', LibraryLinkRoutes);
+app.use('/api/facility', facilityRoutes);
 
 //Private routes.
 // app.use(authMiddleware.verifyToken);
