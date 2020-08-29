@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         libraryLink: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         }
 
     }, {

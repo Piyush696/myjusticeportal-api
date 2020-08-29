@@ -7,10 +7,13 @@ const Facility = require('../models').Facility;
 // create Facility
 
 router.post('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-    req.body['userId'] = req.user.userId;
     Facility.create(req.body).then(facility => {
-        res.json({ success: true, data: facility });
-    })
+        User.findOne({ where: { userId: req.user.userId } }).then((user) => {
+            Promise.resolve(user.addFacility(facility)).then((userFacility) => {
+                res.json({ success: true, data: userFacility });
+            }).catch(next)
+        }).catch(next)
+    }).catch(next)
 })
 // get all Facility
 
