@@ -48,19 +48,20 @@ router.get('/', passport.authenticate('jwt', { session: false }), function (req,
     }).catch(next)
 })
 
-//single user
+// single user.
+
 router.get('/user', passport.authenticate('jwt', { session: false }), function (req, res, next) {
     User.findOne({
         include: [
             {
                 model: Role, through: {
                     attributes: []
-                },
+                }
             }
         ], where: { userId: req.user.userId }
     }).then((user) => {
         res.json({ success: true, data: user });
-    }).catch(next)
+    }).catch(next);
 })
 
 /*update Password */
@@ -113,9 +114,8 @@ router.put('/updateUser', passport.authenticate('jwt', { session: false }), (req
         where: { userId: req.user.userId }
     }).then(result => {
         res.json({ success: true, data: result });
-    }).catch(nex);
+    }).catch(next);
 })
-
 
 /*update Password */
 
@@ -143,31 +143,75 @@ router.put('/reset-pass', function (req, res, next) {
 // delete user.
 
 router.delete('/:userId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-    User.findOne({
-        include: [
-            {
-                model: Role, through: {
-                    attributes: ['roleId']
-                }
-            }
-        ],
-        where: { userId: req.user.userId }
-    }).then((currentUserDetails) => {
-        if (currentUserDetails.dataValues.roles[0].roleId === 7 && currentUserDetails.dataValues.userId !== req.params.userId) {
-            User.destroy({
-                where: { userId: req.params.userId }
-            }).then(() => {
-                res.json({ success: true });
-            }).catch(next);
-        } else {
-            res.json({ success: false });
-        }
-    }).catch((next) => {
-        console.log(next);
-    });
+    if (req.user.role[0].roleId === 7 && req.user.userId !== req.params.userId) {
+        User.destroy({
+            where: { userId: req.params.userId }
+        }).then(() => {
+            res.json({ success: true });
+        }).catch(next);
+    } else {
+        res.json({ success: false });
+    }
 });
 
+// single user.
+
+router.get('/singleUser/:userId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+    if (req.user.role[0].roleId === 7) {
+        User.findOne({
+            include: [
+                {
+                    model: Role, through: {
+                        attributes: []
+                    }
+                }
+            ], where: { userId: req.params.userId }
+        }).then((userData) => {
+            res.json({ success: true, data: userData });
+        }).catch(next);
+    } else {
+        res.json({ success: false });
+    }
+})
+
+// Update User by userId.
+
+router.put('/updateSingleUser', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    if (req.user.role[0].roleId === 7) {
+        User.update(req.body, {
+            where: { userId: req.body.userId }
+        }).then(result => {
+            res.json({ success: true, data: result });
+        }).catch(next);
+    } else {
+        res.json({ success: false });
+    }
+})
+
+// Change Role.
+
+router.put('/changeRole', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    if (req.user.role[0].roleId === 7) {
+        User.findOne({
+            include: [
+                {
+                    model: Role, through: {
+                        attributes: []
+                    }
+                }
+            ], where: { userId: req.body.userId }
+        }).then((userData) => {
+            Promise.resolve(userData.setRoles(req.body.roleId)).then((userRole) => {
+                res.json({ success: true, data: userData });
+            })
+        }).catch(next);
+    } else {
+        res.json({ success: false });
+    }
+})
+
 /**generate otp during registration*/
+
 router.post('/auth/register', async function (req, res, next) {
     let code = generateCode();
     Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
@@ -187,6 +231,7 @@ router.post('/auth/register', async function (req, res, next) {
 });
 
 /**verify otp */
+
 router.post('/register/verify-sms', async function (req, res, next) {
     User.findOne({
         include: [
@@ -217,8 +262,8 @@ router.post('/register/verify-sms', async function (req, res, next) {
     }).catch(next)
 })
 
-
 //function to generate random code
+
 function generateCode() {
     let digits = '0123456789';
     let Code = '';
