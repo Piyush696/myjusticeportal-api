@@ -33,7 +33,7 @@ router.post('/login', function (req, res, next) {
                 },
             }
         ],
-        where: { userName: req.body.userName }
+        where: { userName: req.body.userName, status: true }
     }).then((user) => {
         if (!user) {
             res.json({ success: false, data: 'Invalid User.' })

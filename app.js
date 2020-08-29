@@ -49,9 +49,9 @@ require('./config/passport')(passport);
 //Public routes
 app.use('/api/users', authRouter);
 app.use('/api/role', roleRouter);
-app.use('/api/case', caseRouter);
-app.use('/api/postage', postageAppRouter);
-app.use('/api/twilio', twilioRouter);
+app.use('/api/case', passport.authenticate('jwt', { session: false }), /*roleMiddleware,*/ caseRouter);
+app.use('/api/postage', passport.authenticate('jwt', { session: false }), postageAppRouter);
+app.use('/api/twilio', passport.authenticate('jwt', { session: false }), twilioRouter);
 app.use('/api/securityQuestion', securityQuestionRouter);
 app.use('/api/user', /*roleMiddleware,*/ usersRouter);
 app.use('/api/userMeta', /*roleMiddleware,*/ userMetaRouter);
