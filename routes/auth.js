@@ -6,6 +6,7 @@ const Role = require('../models').Role;
 const config = require('../config/config');
 const Twilio = require('../models').Twilio;
 var twilio = require('twilio');
+const Facility = require('../models').Facility;
 
 router.get('/check-token', passport.authenticate('jwt', { session: false }), (req, res) => {
     return res.send({ success: true, user: req.user });
@@ -131,4 +132,17 @@ router.post('/verify-otp', async function (req, res, next) {
     }).catch(next)
 })
 
+// check facility code
+
+router.get('/facilityCode/check/:id?', async function (req, res, next) {
+    console.log(req.query)
+    Facility.findAndCountAll({
+        where: { facilityCode: req.query.facilityCode }
+    }).then((facility) => {
+        if (facility.count == 0) {
+            return res.json({ taken: false });
+        }
+        return res.json({ taken: true });
+    }).catch(next)
+});
 module.exports = router;
