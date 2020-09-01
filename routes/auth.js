@@ -6,6 +6,7 @@ const Role = require('../models').Role;
 const config = require('../config/config');
 const Twilio = require('../models').Twilio;
 var twilio = require('twilio');
+const Facility = require('../models').Facility;
 
 router.get('/check-token', passport.authenticate('jwt', { session: false }), (req, res) => {
     return res.send({ success: true, user: req.user });
@@ -28,6 +29,11 @@ router.post('/login', function (req, res, next) {
         include: [
             {
                 model: Role, through: {
+                    attributes: []
+                },
+            },
+            {
+                model: Facility, through: {
                     attributes: []
                 },
             }
@@ -77,7 +83,8 @@ router.post('/login', function (req, res, next) {
                         firstName: user.firstName,
                         lastName: user.lastName,
                         userName: user.userName,
-                        role: user.roles
+                        role: user.roles,
+                        facilityCode: user.facilities[0].facilityCode
                     }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
                     res.json({
                         success: true,
