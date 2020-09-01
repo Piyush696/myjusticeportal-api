@@ -18,6 +18,8 @@ db.Sequelize = Sequelize;
 
 /* Models */
 
+db.Organization = require('./organization')(sequelize, Sequelize);
+db.Address = require('./address')(sequelize, Sequelize);
 db.User = require('./user')(sequelize, Sequelize);
 db.Role = require('./role')(sequelize, Sequelize);
 db.Case = require('./cases')(sequelize, Sequelize);
@@ -30,6 +32,9 @@ db.Files = require('./files')(sequelize, Sequelize);
 db.Facility = require('./facility')(sequelize, Sequelize);
 
 /* Mapings */
+
+db.Organization.hasMany(db.User, { foreignKey: 'organizationId', sourceKey: 'organizationId' });
+db.Organization.belongsTo(db.Address, { foreignKey: 'addressId' });
 
 db.User.belongsToMany(db.Role, { through: 'user_role', foreignKey: 'userId' });
 db.Role.belongsToMany(db.User, { through: 'user_role', foreignKey: 'roleId' });
@@ -47,8 +52,11 @@ db.Files.belongsTo(db.User, { as: 'createdBy' });
 db.Case.belongsToMany(db.Files, { as: 'caseFile', through: 'file_case', foreignKey: 'caseId' });
 db.Files.belongsToMany(db.Case, { through: 'file_case', foreignKey: 'fileId' });
 
-db.Facility.belongsToMany(db.User, { through: 'user_facility', foreignKey: 'facilityId' })
-db.User.belongsToMany(db.Facility, { through: 'user_facility', foreignKey: 'userId' })
+db.Facility.belongsToMany(db.Organization, { through: 'org_facility', foreignKey: 'facilityId' });
+db.Organization.belongsToMany(db.Facility, { through: 'org_facility', foreignKey: 'organizationId' });
+db.Facility.belongsTo(db.Address, { foreignKey: 'addressId' });
+db.Facility.belongsToMany(db.User, { through: 'user_facility', foreignKey: 'facilityId' });
+db.User.belongsToMany(db.Facility, { through: 'user_facility', foreignKey: 'userId' });
 
 
 module.exports = db;
