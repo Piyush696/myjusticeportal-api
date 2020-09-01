@@ -10,6 +10,7 @@ var twilio = require('twilio');
 var Facility = require('../models').Facility;
 
 /* user registration. */
+
 router.post('/registration', function (req, res, next) {
     let isMfa;
     if (req.body.roleId == 1) {
@@ -39,6 +40,7 @@ router.post('/registration', function (req, res, next) {
 });
 
 /*findAll user include role */
+
 router.get('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
     User.findAll({
         include: [
