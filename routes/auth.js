@@ -138,17 +138,4 @@ router.post('/verify-otp', async function (req, res, next) {
     }).catch(next)
 })
 
-// check facility code
-
-router.get('/facilityCode/check/:id?', async function (req, res, next) {
-    console.log(req.query)
-    Facility.findAndCountAll({
-        where: { facilityCode: req.query.facilityCode }
-    }).then((facility) => {
-        if (facility.count == 0) {
-            return res.json({ taken: false });
-        }
-        return res.json({ taken: true });
-    }).catch(next)
-});
 module.exports = router;

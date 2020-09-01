@@ -60,4 +60,17 @@ router.delete('/:facilityId', function (req, res, next) {
     })
 })
 
+// check facility code
+
+router.get('/facilityCode/check/:code?', async function (req, res, next) {
+    Facility.findAndCountAll({
+        where: { facilityCode: req.params.code }
+    }).then((facility) => {
+        if (facility.count == 0) {
+            return res.json({ taken: false });
+        }
+        return res.json({ taken: true });
+    }).catch(next)
+});
+
 module.exports = router;
