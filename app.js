@@ -13,6 +13,8 @@ const securityQuestionRouter = require('./routes/securityQuestion');
 const userMetaRouter = require('./routes/userMeta');
 const caseFileRouter = require('./routes/case-file');
 const facilityRoutes = require('./routes/facility')
+const userRegistrationRoutes = require('./routes/registration/user-registration')
+const useLoginRoutes = require('./routes/login/user-login')
 
 const env = process.env.NODE_ENV = process.env.NODE_ENV || 'local';
 
@@ -49,6 +51,8 @@ require('./config/passport')(passport);
 
 //Public routes
 app.use('/api/users', authRouter);
+app.use('/api/userRegistration', userRegistrationRoutes);
+app.use('/api/userLogin', useLoginRoutes);
 app.use('/api/role', roleRouter);
 app.use('/api/case', passport.authenticate('jwt', { session: false }), /*roleMiddleware,*/ caseRouter);
 app.use('/api/postage', passport.authenticate('jwt', { session: false }), postageAppRouter);
