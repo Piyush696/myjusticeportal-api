@@ -42,7 +42,7 @@ router.post('/', function (req, res, next) {
                                         lastName: user.lastName,
                                         userName: user.userName,
                                         role: roles,
-                                        facilityCode: req.body.facilityCode
+                                        facility: facility
                                     }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
                                     res.json({ success: true, token: token });
                                 }).catch(next);
