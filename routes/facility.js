@@ -8,7 +8,6 @@ const Address = require('../models').Address
 // create Facility
 
 router.post('/', function (req, res, next) {
-    console.log(req.body)
     let address = req.body.facilityAddress
     let fac = req.body.facility
     Address.create({
@@ -19,7 +18,6 @@ router.post('/', function (req, res, next) {
         zip: address.zip,
         country: address.country
     }).then(addressData => {
-        console.log(addressData)
         Facility.create({
             facilityCode: fac.facilityCode,
             facilityName: fac.facilityName,
