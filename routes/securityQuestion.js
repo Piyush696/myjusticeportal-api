@@ -15,22 +15,25 @@ const request = require('request');
 
 router.post('/', function (req, res, next) {
     User.findOne({ where: { userName: req.body.userName } }).then((user) => {
-        User_SecurityQuestion_Answers.findOne({ where: { userId: user.dataValues.userId, securityQuestionId: req.body.securityQuestionId } }).then(data => {
+        User_SecurityQuestion_Answers.findOne({
+            where: { userId: user.dataValues.userId, securityQuestionId: req.body.securityQuestionId }
+        }).then(data => {
             if (data && data.securityQuestionId == req.body.securityQuestionId) {
-                User_SecurityQuestion_Answers.update({ answer: req.body.answer }, { where: { userId: data.userId, securityQuestionId: data.securityQuestionId } }).then((data) => {
+                User_SecurityQuestion_Answers.update({ answer: req.body.answer }, {
+                    where: { userId: data.userId, securityQuestionId: data.securityQuestionId }
+                }).then((data) => {
                     res.json({ success: true, data: data });
                 })
             }
             else {
                 User_SecurityQuestion_Answers.create({
                     securityQuestionId: req.body.securityQuestionId,
-                    answer: req.body.answer,
-                    userId: user.userId
+                    answer: req.body.answer, userId: user.userId
                 }).then(data => {
                     res.json({ success: true, data: data });
                 })
             }
-        })
+        });
     })
 })
 

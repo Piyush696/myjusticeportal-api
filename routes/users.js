@@ -7,8 +7,10 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 const Twilio = require('../models').Twilio;
 var twilio = require('twilio');
+var Facility = require('../models').Facility;
 
 /* user registration. */
+
 router.post('/registration', function (req, res, next) {
     let isMfa;
     if (req.body.roleId == 1) {
@@ -27,13 +29,18 @@ router.post('/registration', function (req, res, next) {
     }).then((user) => {
         Role.findAll({ where: { roleId: req.body.roleId } }).then((roles) => {
             Promise.resolve(user.setRoles(roles)).then((userRole) => {
-                res.json({ success: true, data: user })
+                Facility.findOne({ where: { facilityCode: req.body.facilityCode } }).then((facility) => {
+                    Promise.resolve(user.addFacility(facility)).then((userFacility) => {
+                        res.json({ success: true, data: user })
+                    })
+                })
             })
         }).catch(next);
     }).catch(next);
 });
 
 /*findAll user include role */
+
 router.get('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
     User.findAll({
         include: [
@@ -89,6 +96,11 @@ router.put('/', function (req, res, next) {
                     model: Role, through: {
                         attributes: []
                     },
+                },
+                {
+                    model: Facility, through: {
+                        attributes: []
+                    },
                 }
             ],
             where: { userName: req.body.value.userName }
@@ -100,7 +112,8 @@ router.put('/', function (req, res, next) {
                 firstName: user.firstName,
                 middleName: req.body.middleName,
                 lastName: user.lastName,
-                role: user.roles
+                role: user.roles,
+                facilityCode: user.facilities[0].facilityCode
             }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
             res.json({ success: true, token: token });
         })
