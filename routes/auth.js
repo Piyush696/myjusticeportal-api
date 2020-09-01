@@ -31,6 +31,11 @@ router.post('/login', function (req, res, next) {
                 model: Role, through: {
                     attributes: []
                 },
+            },
+            {
+                model: Facility, through: {
+                    attributes: []
+                },
             }
         ],
         where: { userName: req.body.userName }
@@ -78,7 +83,8 @@ router.post('/login', function (req, res, next) {
                         firstName: user.firstName,
                         lastName: user.lastName,
                         userName: user.userName,
-                        role: user.roles
+                        role: user.roles,
+                        facilityCode: user.facilities[0].facilityCode
                     }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
                     res.json({
                         success: true,
