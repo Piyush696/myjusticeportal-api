@@ -10,7 +10,6 @@ var Facility = require('../../models').Facility;
 
 
 router.post('/', function (req, res, next) {
-    console.log(req.body)
     User.findOne({
         include: [
             {
@@ -42,7 +41,7 @@ router.post('/', function (req, res, next) {
                         lastName: user.lastName,
                         userName: user.userName,
                         role: user.roles,
-                        facilityCode: req.body.facilityCode
+                        facility: user.facilities
                     }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
                     res.json({ success: true, token: token })
                 }
@@ -51,7 +50,7 @@ router.post('/', function (req, res, next) {
                 }
             }
             else {
-                res.json({ success: false, data: 'No User with this Facility code.' })
+                res.json({ success: false, data: 'User not registered to this facility.' })
             }
         }
     }).catch(next)
