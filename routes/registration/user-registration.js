@@ -11,13 +11,11 @@ var Facility = require('../../models').Facility;
 // User registration.
 
 router.post('/', function (req, res, next) {
-    console.log(req.body)
     User.create({
         password: User.generateHash(req.body.password),
         firstName: req.body.firstName, lastName: req.body.lastName,
         userName: req.body.userName, middleName: req.body.middleName, isMFA: false
     }).then((user) => {
-        console.log(user.userId)
         req.body.userMeta.map((element) => {
             element['userId'] = user.userId
             element['createdBy'] = user.userId
@@ -25,7 +23,6 @@ router.post('/', function (req, res, next) {
         req.body.securityQuestionData.map((element) => {
             element['userId'] = user.userId
         })
-        console.log(req.body.securityQuestionData, req.body.userMeta)
         UserMeta.bulkCreate(req.body.userMeta).then((result) => {
             User_SecurityQuestion_Answers.bulkCreate(req.body.securityQuestionData).then(data => {
                 Role.findAll({ where: { roleId: 1 } }).then((roles) => {
