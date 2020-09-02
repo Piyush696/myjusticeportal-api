@@ -286,4 +286,12 @@ function generateCode() {
     return Code;
 }
 
+// get all Facility
+
+router.get('/roleFacility', function (req, res, next) {
+    Facility.findAll().then(data => {
+        res.json({ success: true, data: data });
+    })
+})
+
 module.exports = router;
