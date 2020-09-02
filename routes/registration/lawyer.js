@@ -95,7 +95,8 @@ router.post('/verify-sms/registration', async function (req, res, next) {
                 userName: data.dataValues.userName,
                 firstName: data.dataValues.firstName,
                 lastName: data.dataValues.lastName,
-                role: data.dataValues.roles
+                role: data.dataValues.roles,
+                facilities: user.facilities
             }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
             res.json({ success: true, token: token });
         } else {

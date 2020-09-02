@@ -16,6 +16,7 @@ const caseFileRouter = require('./routes/case-file');
 const facilityRoutes = require('./routes/facility');
 const userRegistrationRoutes = require('./routes/registration/user');
 const useLoginRoutes = require('./routes/login/user');
+const userLawyerLoginRoutes = require('./routes/login/lawyer');
 const lawyerRegistrationRouter = require('./routes/registration/lawyer');
 
 const env = process.env.NODE_ENV = process.env.NODE_ENV || 'local';
@@ -55,6 +56,7 @@ require('./config/passport')(passport);
 app.use('/api/users', authRouter);
 app.use('/api/userRegistration', userRegistrationRoutes);
 app.use('/api/userLogin', useLoginRoutes);
+app.use('/api/lawyerLogin', userLawyerLoginRoutes);
 app.use('/api/lawyer-registration', lawyerRegistrationRouter);
 app.use('/api/role', roleRouter);
 app.use('/api/case', passport.authenticate('jwt', { session: false }), /*roleMiddleware,*/ caseRouter);
