@@ -18,6 +18,9 @@ const userRegistrationRoutes = require('./routes/registration/user');
 const useLoginRoutes = require('./routes/login/user');
 const userLawyerLoginRoutes = require('./routes/login/lawyer');
 const lawyerRegistrationRouter = require('./routes/registration/lawyer');
+const paralegalRegistrationRouter = require('./routes/registration/paralegal');
+const publicDefenderRegistrationRouter = require('./routes/registration/public-defender');
+const bondsmanRegistrationRouter = require('./routes/registration/bondsman');
 
 const env = process.env.NODE_ENV = process.env.NODE_ENV || 'local';
 
@@ -58,6 +61,9 @@ app.use('/api/userRegistration', userRegistrationRoutes);
 app.use('/api/userLogin', useLoginRoutes);
 app.use('/api/lawyerLogin', userLawyerLoginRoutes);
 app.use('/api/lawyer-registration', lawyerRegistrationRouter);
+app.use('/api/paralegal-registration', paralegalRegistrationRouter);
+app.use('/api/public-defender-registration', publicDefenderRegistrationRouter);
+app.use('/api/bondsman-registration', bondsmanRegistrationRouter);
 app.use('/api/role', roleRouter);
 app.use('/api/case', passport.authenticate('jwt', { session: false }), /*roleMiddleware,*/ caseRouter);
 app.use('/api/postage', passport.authenticate('jwt', { session: false }), postageAppRouter);

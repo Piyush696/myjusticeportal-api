@@ -51,8 +51,6 @@ function generateOrgCode() {
     return Code;
 }
 
-
-
 router.post('/authenticate/registration', async function (req, res, next) {
     let code = generateCode();
     Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
@@ -66,10 +64,10 @@ router.post('/authenticate/registration', async function (req, res, next) {
                 {
                     where: { userName: req.body.userName }
                 }).then(() => {
-                    res.json({ success: true })
+                    res.json({ success: true });
                 }).catch(next)
         }).catch((err) => {
-            res.json({ success: false })
+            res.json({ success: false });
         })
     })
 });
@@ -105,9 +103,9 @@ router.post('/verify-sms/registration', async function (req, res, next) {
             }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
             res.json({ success: true, token: token });
         } else {
-            res.json({ success: false, data: 'invalid auth code' })
+            res.json({ success: false, data: 'invalid auth code' });
         }
-    }).catch(next)
+    }).catch(next);
 })
 
 module.exports = router;
