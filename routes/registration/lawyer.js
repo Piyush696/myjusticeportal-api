@@ -25,7 +25,7 @@ router.post('/registration', function (req, res, next) {
                 ).then((updatedUser) => {
                     Facility.findAll({ where: { facilityId: req.body.facilityIds } }).then((foundFacility) => {
                         Promise.resolve(createdUser.addFacility(foundFacility)).then((userFacility) => {
-                            Role.findOne({ where: { roleId: 2 } }).then((roles) => {
+                            Role.findOne({ where: { roleId: 3 } }).then((roles) => {
                                 Promise.resolve(createdUser.addRole(roles)).then((userRole) => {
                                     Promise.resolve(createdOrg.addFacility(foundFacility)).then((userOrg) => {
                                         res.json({ success: true, data: createdUser });
@@ -79,6 +79,11 @@ router.post('/verify-sms/registration', async function (req, res, next) {
                 model: Role, through: {
                     attributes: []
                 }
+            },
+            {
+                model: Facility, through: {
+                    attributes: []
+                },
             }
         ],
         where: { userName: req.body.userName }
@@ -94,7 +99,7 @@ router.post('/verify-sms/registration', async function (req, res, next) {
                 firstName: data.dataValues.firstName,
                 lastName: data.dataValues.lastName,
                 role: data.dataValues.roles,
-                facilities: user.facilities
+                facilities: user.dataValues.facilities
             }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
             res.json({ success: true, token: token });
         } else {
