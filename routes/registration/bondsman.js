@@ -25,7 +25,7 @@ router.post('/registration', function (req, res, next) {
                 ).then((updatedUser) => {
                     Facility.findAll({ where: { facilityId: req.body.facilityIds } }).then((foundFacility) => {
                         Promise.resolve(createdUser.addFacility(foundFacility)).then((userFacility) => {
-                            Role.findOne({ where: { roleId: 2 } }).then((roles) => {
+                            Role.findOne({ where: { roleId: 6 } }).then((roles) => {
                                 Promise.resolve(createdUser.addRole(roles)).then((userRole) => {
                                     Promise.resolve(createdOrg.addFacility(foundFacility)).then((userOrg) => {
                                         res.json({ success: true, data: createdUser });
