@@ -5,7 +5,7 @@ var passport = require('passport');
 const Organization = require('../models').Organization;
 const Address = require('../models').Address;
 const User = require('../models').User;
-var Facility = require('../models').Facility;
+const Facility = require('../models').Facility;
 
 // To create a new Organization.
 

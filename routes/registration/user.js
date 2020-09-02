@@ -6,7 +6,7 @@ const User = require('../../models').User;
 const UserMeta = require('../../models').UserMeta;
 const User_SecurityQuestion_Answers = require('../../models').User_SecurityQuestion_Answers;
 const Role = require('../../models').Role;
-var Facility = require('../../models').Facility;
+const Facility = require('../../models').Facility;
 
 // User registration.
 

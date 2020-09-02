@@ -3,6 +3,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
 var passport = require('passport');
+
 const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
 const roleRouter = require('./routes/role');
@@ -12,9 +13,10 @@ const twilioRouter = require('./routes/twilio');
 const securityQuestionRouter = require('./routes/securityQuestion');
 const userMetaRouter = require('./routes/userMeta');
 const caseFileRouter = require('./routes/case-file');
-const facilityRoutes = require('./routes/facility')
-const userRegistrationRoutes = require('./routes/registration/user-registration')
-const useLoginRoutes = require('./routes/login/user-login')
+const facilityRoutes = require('./routes/facility');
+const userRegistrationRoutes = require('./routes/registration/user');
+const useLoginRoutes = require('./routes/login/user');
+const lawyerRegistrationRouter = require('./routes/registration/lawyer');
 
 const env = process.env.NODE_ENV = process.env.NODE_ENV || 'local';
 
@@ -28,7 +30,6 @@ originsWhitelist.push('http://localhost:4200');
 originsWhitelist.push('http://localhost:8000');
 originsWhitelist.push('https://dev-mjp-ui.herokuapp.com');
 originsWhitelist.push('https://mjp-ui.herokuapp.com');
-
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -49,10 +50,12 @@ app.use(cors({
 app.use(passport.initialize());
 require('./config/passport')(passport);
 
-//Public routes
+// Public routes.
+
 app.use('/api/users', authRouter);
 app.use('/api/userRegistration', userRegistrationRoutes);
 app.use('/api/userLogin', useLoginRoutes);
+app.use('/api/lawyer-registration', lawyerRegistrationRouter);
 app.use('/api/role', roleRouter);
 app.use('/api/case', passport.authenticate('jwt', { session: false }), /*roleMiddleware,*/ caseRouter);
 app.use('/api/postage', passport.authenticate('jwt', { session: false }), postageAppRouter);
