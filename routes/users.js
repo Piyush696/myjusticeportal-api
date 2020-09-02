@@ -234,9 +234,12 @@ router.post('/auth/register', async function (req, res, next) {
             to: '+' + req.body.countryCode + req.body.mobile,  // Text this number
             from: twilioCredentials.from // From a valid Twilio number
         }).then((message) => {
-            User.update({ authCode: code, mobile: req.body.mobile, countryCode: req.body.countryCode }, { where: { userName: req.body.userName } }).then(() => {
-                res.json({ success: true })
-            }).catch(next)
+            User.update({ authCode: code, mobile: req.body.mobile, countryCode: req.body.countryCode },
+                {
+                    where: { userName: req.body.userName }
+                }).then(() => {
+                    res.json({ success: true })
+                }).catch(next)
         }).catch((err) => {
             res.json({ success: false })
         })
@@ -251,7 +254,7 @@ router.post('/register/verify-sms', async function (req, res, next) {
             {
                 model: Role, through: {
                     attributes: []
-                },
+                }
             }
         ],
         where: { userName: req.body.userName }
@@ -275,7 +278,7 @@ router.post('/register/verify-sms', async function (req, res, next) {
     }).catch(next)
 })
 
-//function to generate random code
+// function to generate random code.
 
 function generateCode() {
     let digits = '0123456789';
@@ -285,5 +288,13 @@ function generateCode() {
     }
     return Code;
 }
+
+// get all Facility
+
+router.get('/roleFacility', function (req, res, next) {
+    Facility.findAll().then(data => {
+        res.json({ success: true, data: data });
+    })
+})
 
 module.exports = router;
