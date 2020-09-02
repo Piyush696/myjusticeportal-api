@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const config = require('../../config/config');
-const facility = require('../../models/facility');
 
 const User = require('../../models').User;
 const Address = require('../../models').Address;
@@ -51,5 +50,58 @@ function generateOrgCode() {
     }
     return Code;
 }
+
+
+
+router.post('/authenticate/registration', async function (req, res, next) {
+    let code = generateCode();
+    Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
+        var client = new twilio(twilioCredentials.accountSid, twilioCredentials.authToken);
+        client.messages.create({
+            body: 'My Justice Portal' + ': ' + code + ' - This is your verification code.',
+            to: '+' + req.body.countryCode + req.body.mobile,  // Text this number
+            from: twilioCredentials.from // From a valid Twilio number
+        }).then((message) => {
+            User.update({ authCode: code, mobile: req.body.mobile, countryCode: req.body.countryCode },
+                {
+                    where: { userName: req.body.userName }
+                }).then(() => {
+                    res.json({ success: true })
+                }).catch(next)
+        }).catch((err) => {
+            res.json({ success: false })
+        })
+    })
+});
+
+router.post('/verify-sms/registration', async function (req, res, next) {
+    User.findOne({
+        include: [
+            {
+                model: Role, through: {
+                    attributes: []
+                }
+            }
+        ],
+        where: { userName: req.body.userName }
+    }).then((data) => {
+        let date = new Date();
+        let x = date - data.dataValues.updatedAt;
+        x = Math.round((x / 1000) / 60);
+        if (x <= 5 && data.dataValues.authCode == req.body.otp) {
+            let expiresIn = req.body.rememberMe ? '15d' : '1d';
+            let token = jwt.sign({
+                userId: data.dataValues.userId,
+                userName: data.dataValues.userName,
+                firstName: data.dataValues.firstName,
+                lastName: data.dataValues.lastName,
+                role: data.dataValues.roles
+            }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
+            res.json({ success: true, token: token });
+        } else {
+            res.json({ success: false, data: 'invalid auth code' })
+        }
+    }).catch(next)
+})
 
 module.exports = router;
