@@ -95,9 +95,7 @@ router.post('/forgot-password', function (req, res, next) {
                         res.json({ success: false, data: 'Mail not sent' });
                     }
                 });
-            }).catch((next) => {
-                console.log(next);
-            })
+            }).catch(next)
         }
     })
 })
@@ -117,9 +115,7 @@ router.patch('/', function (req, res, next) {
     query.where = { userId: decoded.data.userId };
     User.update(newData, query).then(() => {
         res.json({ success: true });
-    }).catch((next) => {
-        console.log(next);
-    })
+    }).catch(next)
 });
 
 router.post('/check-answer', async function (req, res, next) {
