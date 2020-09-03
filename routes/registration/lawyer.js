@@ -2,15 +2,16 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const config = require('../../config/config');
-const Twilio = require('../../models').Twilio;
 var twilio = require('twilio');
+
+const Twilio = require('../../models').Twilio;
 const User = require('../../models').User;
 const Address = require('../../models').Address;
 const Organization = require('../../models').Organization;
 const Facility = require('../../models').Facility;
 const Role = require('../../models').Role;
 
-// To a admin lawyer.
+// To create a admin lawyer.
 
 router.post('/registration', function (req, res, next) {
     req.body.user.password = User.generateHash(req.body.user.password);
@@ -44,7 +45,6 @@ router.post('/registration', function (req, res, next) {
 router.post('/authenticate/registration', async function (req, res, next) {
     let code = generateCode();
     Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
-        console.log(twilioCredentials.accountSid, twilioCredentials.authToken)
         var client = new twilio(twilioCredentials.accountSid, twilioCredentials.authToken);
         client.messages.create({
             body: 'My Justice Portal' + ': ' + code + ' - This is your verification code.',
@@ -74,7 +74,7 @@ router.post('/verify-sms/registration', async function (req, res, next) {
             {
                 model: Facility, through: {
                     attributes: []
-                },
+                }
             }
         ],
         where: { userName: req.body.userName }
@@ -111,7 +111,6 @@ function generateOrgCode() {
     return Code;
 }
 
-
 function generateCode() {
     let digits = '0123456789';
     let Code = '';
@@ -120,4 +119,5 @@ function generateCode() {
     }
     return Code;
 }
+
 module.exports = router;
