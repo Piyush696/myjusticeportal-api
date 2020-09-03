@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const config = require('../../config/config');
-
+const Twilio = require('../../models').Twilio;
+var twilio = require('twilio');
 const User = require('../../models').User;
 const Address = require('../../models').Address;
 const Organization = require('../../models').Organization;
@@ -40,20 +41,10 @@ router.post('/registration', function (req, res, next) {
     }).catch(next);
 });
 
-// function to generate random code.
-
-function generateOrgCode() {
-    let digits = '0123456789';
-    let Code = '';
-    for (let i = 0; i < 10; i++) {
-        Code += digits[Math.floor(Math.random() * 10)];
-    }
-    return Code;
-}
-
 router.post('/authenticate/registration', async function (req, res, next) {
     let code = generateCode();
     Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
+        console.log(twilioCredentials.accountSid, twilioCredentials.authToken)
         var client = new twilio(twilioCredentials.accountSid, twilioCredentials.authToken);
         client.messages.create({
             body: 'My Justice Portal' + ': ' + code + ' - This is your verification code.',
@@ -63,7 +54,7 @@ router.post('/authenticate/registration', async function (req, res, next) {
             User.update({ authCode: code, mobile: req.body.mobile, countryCode: req.body.countryCode },
                 {
                     where: { userName: req.body.userName }
-                }).then(() => {
+                }).then((user) => {
                     res.json({ success: true });
                 }).catch(next)
         }).catch((err) => {
@@ -99,7 +90,8 @@ router.post('/verify-sms/registration', async function (req, res, next) {
                 firstName: data.dataValues.firstName,
                 lastName: data.dataValues.lastName,
                 role: data.dataValues.roles,
-                facilities: user.dataValues.facilities
+                facilities: data.dataValues.facilities,
+                status: data.dataValues.status,
             }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
             res.json({ success: true, token: token });
         } else {
@@ -108,4 +100,24 @@ router.post('/verify-sms/registration', async function (req, res, next) {
     }).catch(next);
 })
 
+// function to generate random code.
+
+function generateOrgCode() {
+    let digits = '0123456789';
+    let Code = '';
+    for (let i = 0; i < 10; i++) {
+        Code += digits[Math.floor(Math.random() * 10)];
+    }
+    return Code;
+}
+
+
+function generateCode() {
+    let digits = '0123456789';
+    let Code = '';
+    for (let i = 0; i < 6; i++) {
+        Code += digits[Math.floor(Math.random() * 10)];
+    }
+    return Code;
+}
 module.exports = router;
