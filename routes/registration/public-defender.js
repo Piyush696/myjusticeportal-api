@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const config = require('../../config/config');
-
+const Twilio = require('../../models').Twilio;
+var twilio = require('twilio');
 const User = require('../../models').User;
 const Address = require('../../models').Address;
 const Organization = require('../../models').Organization;
@@ -94,7 +95,8 @@ router.post('/verify-sms/registration', async function (req, res, next) {
                 firstName: data.dataValues.firstName,
                 lastName: data.dataValues.lastName,
                 role: data.dataValues.roles,
-                facilities: user.facilities
+                facilities: data.dataValues.facilities,
+                status: data.dataValues.status
             }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
             res.json({ success: true, token: token });
         } else {
@@ -103,4 +105,12 @@ router.post('/verify-sms/registration', async function (req, res, next) {
     }).catch(next);
 })
 
+function generateCode() {
+    let digits = '0123456789';
+    let Code = '';
+    for (let i = 0; i < 6; i++) {
+        Code += digits[Math.floor(Math.random() * 10)];
+    }
+    return Code;
+}
 module.exports = router;
