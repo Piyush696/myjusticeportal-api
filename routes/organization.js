@@ -2,8 +2,10 @@ const express = require('express');
 const router = express.Router();
 const uuidv1 = require('uuid/v1');
 const request = require('request');
-
+const User = require('../models').User;
 const Organization = require('../models').Organization;
+const Address = require('../models').Address;
+const Facility = require('../models').Facility;
 const Postage = require('../models').Postage;
 
 // To invite a user by mail.
@@ -48,5 +50,26 @@ router.post('/invite-user', function (req, res, next) {
         console.log(next);
     })
 });
+
+
+router.get('/', function (req, res, next) {
+    User.findOne({
+        include: [
+            {
+                model: Organization,
+                include: [
+                    {
+                        model: Address
+                    }
+                ]
+            }
+        ],
+        where: { userId: req.user.userId }
+    }).then(data => {
+        res.json({ success: true, data: data });
+    }).catch((next) => {
+        console.log(next);
+    })
+})
 
 module.exports = router;
