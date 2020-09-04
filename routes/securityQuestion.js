@@ -73,7 +73,6 @@ router.post('/forgot-password', function (req, res, next) {
                         "uid": `${uuid}`,
                         "arguments": {
                             "recipients": [`${userDetails.dataValues.userName}`],
-                            // "recipients": ["rajesh.sialia@gmail.com"],
                             "headers": {
                                 "subject": `${passwordResetDetails.dataValues.project}` + ": Password Reset Request"
                             },
@@ -97,8 +96,8 @@ router.post('/forgot-password', function (req, res, next) {
                 });
             }).catch(next)
         }
-    })
-})
+    });
+});
 
 // reset password.
 
@@ -163,7 +162,7 @@ router.get('/user/securityQuestions', passport.authenticate('jwt', { session: fa
                 if (count === array.length - 1) {
                     res.json({ success: true, data: data });
                 }
-                count++
+                count++;
             });
         })
     }).catch(next);
