@@ -8,7 +8,7 @@ const config = require('../config/config');
 const Twilio = require('../models').Twilio;
 var twilio = require('twilio');
 var Facility = require('../models').Facility;
-
+const userMeta = require('../models').UserMeta;
 /* user registration. */
 
 router.post('/registration', function (req, res, next) {
@@ -64,6 +64,9 @@ router.get('/user', passport.authenticate('jwt', { session: false }), function (
                 model: Role, through: {
                     attributes: []
                 }
+            },
+            {
+                model: userMeta
             }
         ], where: { userId: req.user.userId }
     }).then((user) => {
@@ -72,17 +75,24 @@ router.get('/user', passport.authenticate('jwt', { session: false }), function (
 })
 
 /*update Password */
+
 router.put('/password', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-    let newData = {};
+    let newData = {}
     let query = {};
-    if (req.body.password && req.body.password.length)
-        newData.password = User.generateHash(req.body.password);
-    if (newData.errors)
-        return next(newData.errors[0]);
-    query.where = { userId: req.user.userId };
-    User.update(newData, query).then(() => {
-        res.json({ success: true });
-    }).catch(next)
+    User.findOne({ where: { userId: req.user.userId } }).then(curUser => {
+        if (!curUser.isValidPassword(req.body.oldPassword)) {
+            return res.json({ success: false, data: 'Invalid current password.' })
+        } else {
+            newData.password = User.generateHash(req.body.password)
+        }
+        if (newData.errors) {
+            return next(newData.errors[0]);
+        }
+        query.where = { userId: req.user.userId };
+        User.update(newData, query).then(() => {
+            res.json({ success: true });
+        }).catch(next)
+    })
 });
 
 /*update user */
