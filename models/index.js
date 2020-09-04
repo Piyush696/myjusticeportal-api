@@ -34,7 +34,9 @@ db.Facility = require('./facility')(sequelize, Sequelize);
 /* Mapings */
 
 db.Organization.hasMany(db.User, { foreignKey: 'organizationId', sourceKey: 'organizationId' });
+db.User.belongsTo(db.Organization, { foreignKey: 'organizationId', sourceKey: 'organizationId' });
 db.Organization.belongsTo(db.Address, { foreignKey: 'addressId' });
+db.Address.hasOne(db.Organization, { foreignKey: 'addressId' });
 
 db.User.belongsToMany(db.Role, { through: 'user_role', foreignKey: 'userId' });
 db.Role.belongsToMany(db.User, { through: 'user_role', foreignKey: 'roleId' });

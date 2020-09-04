@@ -7,6 +7,12 @@ var passport = require('passport');
 const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
 const roleRouter = require('./routes/role');
+const facilityRegistrationRouter = require('./routes/registration/facility');
+const lawyerRegistrationRouter = require('./routes/registration/lawyer');
+const paralegalRegistrationRouter = require('./routes/registration/paralegal');
+const publicDefenderRegistrationRouter = require('./routes/registration/public-defender');
+const bondsmanRegistrationRouter = require('./routes/registration/bondsman');
+
 const caseRouter = require('./routes/cases');
 const postageAppRouter = require('./routes/postageapp');
 const twilioRouter = require('./routes/twilio');
@@ -17,12 +23,7 @@ const facilityRoutes = require('./routes/facility');
 const userRegistrationRoutes = require('./routes/registration/user');
 const useLoginRoutes = require('./routes/login/user');
 const userLawyerLoginRoutes = require('./routes/login/lawyer');
-
-const facilityRegistrationRouter = require('./routes/registration/facility');
-const lawyerRegistrationRouter = require('./routes/registration/lawyer');
-const paralegalRegistrationRouter = require('./routes/registration/paralegal');
-const publicDefenderRegistrationRouter = require('./routes/registration/public-defender');
-const bondsmanRegistrationRouter = require('./routes/registration/bondsman');
+const organizationRouter = require('./routes/organization');
 
 const env = process.env.NODE_ENV = process.env.NODE_ENV || 'local';
 
@@ -78,6 +79,7 @@ app.use('/api/user', /*roleMiddleware,*/ usersRouter);
 app.use('/api/userMeta', /*roleMiddleware,*/ userMetaRouter);
 app.use('/api/case-file', passport.authenticate('jwt', { session: false }), /*roleMiddleware,*/ caseFileRouter);
 app.use('/api/facility', passport.authenticate('jwt', { session: false }), facilityRoutes);
+app.use('/api/organization', passport.authenticate('jwt', { session: false }), organizationRouter);
 
 //Private routes.
 // app.use(authMiddleware.verifyToken);
