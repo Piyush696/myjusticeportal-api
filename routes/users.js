@@ -81,7 +81,7 @@ router.put('/password', passport.authenticate('jwt', { session: false }), functi
     let query = {};
     User.findOne({ where: { userId: req.user.userId } }).then(curUser => {
         if (!curUser.isValidPassword(req.body.oldPassword)) {
-            return res.json({ success: false, data: 'Invalid Password.' })
+            return res.json({ success: false, data: 'Invalid current password.' })
         } else {
             newData.password = User.generateHash(req.body.password)
         }
