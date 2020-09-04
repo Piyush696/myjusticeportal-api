@@ -9,11 +9,20 @@ const Postage = require('../models').Postage;
 // To invite a user by mail.
 
 router.post('/invite-user', function (req, res, next) {
+
     let url = req.headers.origin + "/" + req.body.facilityCode + "/registration/";
     let uuid = uuidv1();
-    console.log("req.headers", req.headers);
     console.log("url", url);
     console.log("req.body", req.body);
+    console.log("req.user", req.user);
+    let name = '';
+    if (req.user.middleName) {
+        name = req.user.firstName + ' ' + req.user.middleName + ' ' + req.user.lastName;
+        console.log("name1", name);
+    } else {
+        name = req.user.firstName + ' ' + req.user.lastName;
+        console.log("name22", name);
+    }
     Postage.findOne({ where: { postageAppId: 1 } }).then((postageDetails) => {
         request.post({
             headers: { 'content-type': 'application/json' },
@@ -28,8 +37,8 @@ router.post('/invite-user', function (req, res, next) {
                     },
                     "template": "registration_invitation",
                     "variables": {
-                        "name": `${req.user.firstName + ' ' + req.user.lastName}`,
-                        "invitationLink": `${url}`
+                        "invitationlink": `${url}`,
+                        "name": `${name}`
                     }
                 }
             }
@@ -46,7 +55,7 @@ router.post('/invite-user', function (req, res, next) {
         });
     }).catch((next) => {
         console.log(next);
-    })
+    });
 });
 
 module.exports = router;
