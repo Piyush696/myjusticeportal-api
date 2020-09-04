@@ -8,7 +8,7 @@ const config = require('../config/config');
 const Twilio = require('../models').Twilio;
 var twilio = require('twilio');
 var Facility = require('../models').Facility;
-
+const userMeta = require('../models').UserMeta;
 /* user registration. */
 
 router.post('/registration', function (req, res, next) {
