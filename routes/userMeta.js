@@ -63,4 +63,14 @@ router.post('/getValue', passport.authenticate('jwt', { session: false }), async
     }).catch(next);
 });
 
+// userMeta update from myacc
+router.put('/update', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+    for (let data of req.body) {
+        UserMeta.update({ metaValue: data.metaValue }, { where: { userId: req.user.userId, userMetaId: data.userMetaId } }).then((data) => {
+            res.json({ success: true, data: data });
+        }).catch(next);
+    }
+})
+
+
 module.exports = router;

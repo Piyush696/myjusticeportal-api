@@ -1,25 +1,27 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const uuidv1 = require('uuid/v1');
+var twilio = require('twilio');
+
 const config = require('../../config/config');
 const Twilio = require('../../models').Twilio;
-var twilio = require('twilio');
 const User = require('../../models').User;
 const Address = require('../../models').Address;
 const Organization = require('../../models').Organization;
 const Facility = require('../../models').Facility;
 const Role = require('../../models').Role;
+const utilsMail = require('../../utils/admin-notification');
 
-
-// To a admin lawyer.
+// To a admin paralegal.
 
 router.post('/registration', function (req, res, next) {
     req.body.user.password = User.generateHash(req.body.user.password);
     req.body.user.isAdmin = true;
-    req.body.user.isMFA = true;
-    req.body.organization.orgCode = generateOrgCode();
     User.create(req.body.user).then((createdUser) => {
         Address.create(req.body.organization.address).then((createdAddress) => {
+            req.body.organization.orgCode = uuidv1();
+            req.body.organization.type = 'paralegal';
             req.body.organization.addressId = createdAddress.addressId;
             Organization.create(req.body.organization).then((createdOrg) => {
                 User.update({ organizationId: createdOrg.organizationId },
@@ -43,15 +45,6 @@ router.post('/registration', function (req, res, next) {
 });
 
 // function to generate random code.
-
-function generateOrgCode() {
-    let digits = '0123456789';
-    let Code = '';
-    for (let i = 0; i < 10; i++) {
-        Code += digits[Math.floor(Math.random() * 10)];
-    }
-    return Code;
-}
 
 router.post('/authenticate/registration', async function (req, res, next) {
     let code = generateCode();
@@ -107,6 +100,7 @@ router.post('/verify-sms/registration', async function (req, res, next) {
                 status: data.dataValues.status,
                 organizationId: data.dataValues.organizationId
             }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
+            utilsMail.notifyAdmin(data.dataValues, req);
             res.json({ success: true, token: token });
         } else {
             res.json({ success: false, data: 'invalid auth code' });

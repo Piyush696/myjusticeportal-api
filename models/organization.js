@@ -15,6 +15,10 @@ module.exports = (sequelize, DataTypes) => {
         orgCode: {
             type: DataTypes.STRING(10),
             allowNull: false
+        },
+        type: {
+            type: DataTypes.STRING(20),
+            allowNull: false
         }
     }, {
         tableName: 'organization',
