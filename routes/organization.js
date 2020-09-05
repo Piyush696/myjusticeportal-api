@@ -60,13 +60,6 @@ router.post('/invite-user', function (req, res, next) {
     }).catch(next);
 });
 
-// To invite a user by mail.
-
-router.post('/notify-admin', function (req, res, next) {
-    utilsMail.notifyAdmin(req.body);
-    res.json({ success: true, data: 'Notification mail sent' });
-});
-
 router.get('/', function (req, res, next) {
     User.findOne({
         include: [

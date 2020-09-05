@@ -92,7 +92,7 @@ router.post('/verify-sms/registration', async function (req, res, next) {
                 facilities: data.dataValues.facilities,
                 status: data.dataValues.status
             }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
-            utilsMail.notifyAdmin(data.dataValues);
+            utilsMail.notifyAdmin(data.dataValues, req);
             res.json({ success: true, token: token });
         } else {
             res.json({ success: false, data: 'invalid auth code' });

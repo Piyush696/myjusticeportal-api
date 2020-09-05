@@ -8,7 +8,7 @@ const User = require('../models').User;
 const Postage = require('../models').Postage;
 
 module.exports = {
-    notifyAdmin: function (userDetails) {
+    notifyAdmin: function (userDetails, req) {
         Role.findOne({
             include: [
                 {
@@ -41,6 +41,7 @@ module.exports = {
                                 "template": "admin_notification",
                                 "variables": {
                                     "name": `${userDetails.firstName + ' ' + userDetails.middleName + ' ' + userDetails.lastName}`,
+                                    "email": `${userDetails.userName}`,
                                     "link": `${url}`
                                 }
                             }
