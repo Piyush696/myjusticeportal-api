@@ -107,6 +107,16 @@ router.post('/verify-sms/registration', async function (req, res, next) {
     }).catch(next);
 })
 
+// To update invited user data.
+
+router.post('/invitedUserUpdate', async function (req, res, next) {
+    User.update(req.body, {
+        where: { userName: req.body.userName }
+    }).then((updatedUser) => {
+        res.json({ success: true });
+    });
+});
+
 // function to generate random code.
 
 function generateCode() {

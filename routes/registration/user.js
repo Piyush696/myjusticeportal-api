@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const config = require('../../config/config');
+
 const User = require('../../models').User;
 const UserMeta = require('../../models').UserMeta;
 const User_SecurityQuestion_Answers = require('../../models').User_SecurityQuestion_Answers;
