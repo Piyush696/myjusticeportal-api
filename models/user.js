@@ -13,22 +13,64 @@ module.exports = (sequelize, DataTypes) => {
         firstName: {
             type: DataTypes.STRING,
             allowNull: true,
+            validate: {
+                len: {
+                    args: [3, 50],
+                    msg: "first Name must be between 3 and 50 characters in length"
+                },
+                isAlpha: {
+                    msg: 'first name must contanis only Alphabets'
+                }
+            }
         },
         middleName: {
             type: DataTypes.STRING,
             allowNull: true,
+            validate: {
+                len: {
+                    args: [3, 50],
+                    msg: "Middle name  must be between 3 and 50 characters in length"
+                },
+                isAlpha: {
+                    msg: 'Middle name must contanis only Alphabets'
+                }
+            }
         },
         lastName: {
             type: DataTypes.STRING,
             allowNull: true,
+            validate: {
+                len: {
+                    args: [3, 50],
+                    msg: "Last name must be between 3 and 50 characters in length"
+                },
+                isAlpha: {
+                    msg: 'Last name must contanis only Alphabets'
+                }
+            }
         },
         userName: {
             type: DataTypes.STRING(100),
-            allowNull: true
+            allowNull: true,
+            validate: {
+                len: {
+                    args: [8, 25],
+                    msg: "User name must be between 8 and 25 characters in length"
+                },
+                isAlphanumeric: {
+                    msg: 'User name must contanis only Numbers and Alphabets'
+                }
+            }
         },
         password: {
             type: DataTypes.STRING,
             allowNull: false,
+            validate: {
+                len: {
+                    args: 8,
+                    msg: "Password must 8 characters in length"
+                }
+            }
         },
         isAdmin: {
             type: DataTypes.BOOLEAN,

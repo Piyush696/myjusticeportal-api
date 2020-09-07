@@ -4,6 +4,8 @@ var passport = require('passport');
 const User = require('../models').User;
 const Facility = require('../models').Facility;
 const Address = require('../models').Address
+const utils = require('../utils/validation');
+
 
 // create Facility
 
@@ -25,8 +27,16 @@ router.post('/', function (req, res, next) {
             addressId: addressData.addressId
         }).then(facility => {
             res.json({ success: true, data: facility });
-        }).catch(next)
-    }).catch(next)
+        }).catch(next => {
+            utils.validator(next, function (err) {
+                res.status(400).json(err)
+            })
+        })
+    }).catch(next => {
+        utils.validator(next, function (err) {
+            res.status(400).json(err)
+        })
+    })
 })
 
 // get all Facility
@@ -51,7 +61,11 @@ router.put('/:facilityId', function (req, res, next) {
         Address.update(req.body.facilityAddress, { where: { addressId: req.body.facilityAddressId } }).then((data) => {
             res.json({ success: true, data: data });
         })
-    })
+    }).catch(next => {
+        utils.validator(next, function (err) {
+            res.status(400).json(err)
+        })
+    });
 })
 
 router.delete('/:facilityId', function (req, res, next) {
@@ -70,7 +84,7 @@ router.get('/facilityCode/check/:code?', async function (req, res, next) {
             return res.json({ taken: false });
         }
         return res.json({ taken: true });
-    }).catch(next)
+    }).catch(next);
 });
 
 module.exports = router;
