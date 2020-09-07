@@ -2,11 +2,13 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const config = require('../../config/config');
+
 const User = require('../../models').User;
 const UserMeta = require('../../models').UserMeta;
 const User_SecurityQuestion_Answers = require('../../models').User_SecurityQuestion_Answers;
 const Role = require('../../models').Role;
 const Facility = require('../../models').Facility;
+const utils = require('../../utils/validation');
 
 // User registration.
 
@@ -49,7 +51,10 @@ router.post('/', function (req, res, next) {
                 }).catch(next);
             }).catch(next);
         }).catch(next);
-    }).catch(next);
-});
-
+    }).catch(next => {
+        utils.validator(next, function (err) {
+            res.status(400).json(err)
+        })
+    });
+})
 module.exports = router;

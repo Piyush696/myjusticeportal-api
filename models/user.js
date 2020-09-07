@@ -1,7 +1,5 @@
 'use strict';
-
 const bcrypt = require('bcrypt');
-
 
 module.exports = (sequelize, DataTypes) => {
     let User = sequelize.define('user', {
@@ -12,23 +10,56 @@ module.exports = (sequelize, DataTypes) => {
         },
         firstName: {
             type: DataTypes.STRING,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                len: {
+                    args: [2, 50],
+                    msg: "First Name must be between 2 and 50 characters in length"
+                },
+                isAlpha: {
+                    msg: 'First name must contanis only Alphabets'
+                }
+            }
         },
         middleName: {
             type: DataTypes.STRING,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                len: {
+                    args: [2, 50],
+                    msg: "Middle name  must be between 2 and 50 characters in length"
+                },
+                isAlpha: {
+                    msg: 'Middle name must contanis only Alphabets'
+                }
+            }
         },
         lastName: {
             type: DataTypes.STRING,
-            allowNull: true
+            allowNull: true,
+            validate: {
+                len: {
+                    args: [2, 50],
+                    msg: "Last name must be between 2 and 50 characters in length"
+                },
+                isAlpha: {
+                    msg: 'Last name must contanis only Alphabets'
+                }
+            }
         },
         userName: {
             type: DataTypes.STRING(100),
-            allowNull: true
+            allowNull: true,
         },
         password: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
+            validate: {
+                len: {
+                    args: 8,
+                    msg: "Password must be 8 characters in length"
+                }
+            }
         },
         isSelfPaid: {
             type: DataTypes.BOOLEAN,
