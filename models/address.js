@@ -10,7 +10,13 @@ module.exports = (sequelize, DataTypes) => {
         },
         street1: {
             type: DataTypes.STRING(100),
-            allowNull: false
+            allowNull: false,
+            validate: {
+                len: {
+                    args: [3, 50],
+                    msg: "Street 1 must be between 3 and 50 characters in length"
+                }
+            }
         },
         street2: {
             type: DataTypes.STRING(100),
@@ -18,19 +24,43 @@ module.exports = (sequelize, DataTypes) => {
         },
         city: {
             type: DataTypes.STRING(50),
-            allowNull: false
+            allowNull: false,
+            validate: {
+                len: {
+                    args: [3, 50],
+                    msg: "City must be between 3 and 50 characters in length"
+                }
+            }
         },
         state: {
             type: DataTypes.STRING(50),
-            allowNull: false
+            allowNull: false,
+            validate: {
+                len: {
+                    args: [3, 50],
+                    msg: "State must be between 3 and 50 characters in length"
+                }
+            }
         },
         zip: {
             type: DataTypes.STRING(20),
-            allowNull: false
+            allowNull: false,
+            validate: {
+                len: {
+                    args: [3, 20],
+                    msg: "Zip  must be between 3 and 20 characters in length"
+                }
+            }
         },
         country: {
             type: DataTypes.STRING(50),
-            allowNull: false
+            allowNull: false,
+            validate: {
+                len: {
+                    args: [3, 50],
+                    msg: "Country must be between 3 and 50 characters in length"
+                }
+            }
         }
     }, {
         tableName: 'address',
