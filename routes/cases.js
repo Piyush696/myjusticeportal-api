@@ -4,7 +4,7 @@ var passport = require('passport');
 const Case = require('../models').Case;
 const User = require('../models').User;
 const Files = require('../models').Files;
-
+const validator = require('validator');
 /* create case. */
 
 router.post('/', function (req, res, next) {
