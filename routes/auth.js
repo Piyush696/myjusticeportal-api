@@ -1,11 +1,13 @@
 const router = require('express').Router();
 const jwt = require('jsonwebtoken');
 var passport = require('passport');
+var twilio = require('twilio');
+const { token } = require('morgan');
+
+const config = require('../config/config');
 const User = require('../models').User;
 const Role = require('../models').Role;
-const config = require('../config/config');
 const Twilio = require('../models').Twilio;
-var twilio = require('twilio');
 const Facility = require('../models').Facility;
 
 router.get('/check-token', passport.authenticate('jwt', { session: false }), (req, res) => {
@@ -106,7 +108,6 @@ function generateCode() {
     return Code;
 }
 
-
 /** if ismfa verify otp */
 router.post('/verify-otp', async function (req, res, next) {
     User.findOne({
@@ -137,5 +138,16 @@ router.post('/verify-otp', async function (req, res, next) {
         }
     }).catch(next)
 })
+
+// To get email by token.
+
+router.patch('/getTokenEmail', function (req, res, next) {
+    var decoded = jwt.verify(req.body.token, config.jwt.secret);
+    if (decoded) {
+        res.json({ success: true, data: decoded.data.userName });
+    } else {
+        res.json({ success: false, data: 'Somthing went wrong' });
+    }
+});
 
 module.exports = router;

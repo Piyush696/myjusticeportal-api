@@ -12,15 +12,15 @@ module.exports = (sequelize, DataTypes) => {
         },
         firstName: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: true
         },
         middleName: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: true
         },
         lastName: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: true
         },
         userName: {
             type: DataTypes.STRING(100),
@@ -28,7 +28,12 @@ module.exports = (sequelize, DataTypes) => {
         },
         password: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: false
+        },
+        isSelfPaid: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: false
         },
         isAdmin: {
             type: DataTypes.BOOLEAN,
@@ -51,16 +56,16 @@ module.exports = (sequelize, DataTypes) => {
         },
         countryCode: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: true
         },
         authCode: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: true
         },
         isMFA: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
-            defaultValue: true,
+            defaultValue: true
         },
     }, {
         tableName: 'user',
