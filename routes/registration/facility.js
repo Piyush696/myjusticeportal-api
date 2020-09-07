@@ -8,6 +8,7 @@ const Twilio = require('../../models').Twilio;
 const User = require('../../models').User;
 const Facility = require('../../models').Facility;
 const Role = require('../../models').Role;
+const utils = require('../../utils/validation');
 
 // To create a facility user.
 
@@ -23,8 +24,12 @@ router.post('/registration', function (req, res, next) {
                 });
             }).catch(next);
         }).catch(next);
-    }).catch(next);
-});
+    }).catch(next => {
+        utils.validator(next, function (err) {
+            res.status(400).json(err)
+        });
+    });
+})
 
 router.post('/authenticate/registration', async function (req, res, next) {
     let code = generateCode();
