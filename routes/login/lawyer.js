@@ -127,7 +127,7 @@ router.post('/verify-otp', async function (req, res, next) {
                 lastName: user.dataValues.lastName,
                 userName: user.dataValues.userName,
                 role: user.dataValues.roles,
-                facilities: user.facilities,
+                facilities: user.dataValues.facilities,
                 organizationId: user.dataValues.organizationId
             }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
             res.json({ success: true, token: token })

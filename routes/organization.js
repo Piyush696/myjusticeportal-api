@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const uuidv1 = require('uuid/v1');
 const request = require('request');
-
 const User = require('../models').User;
 const Organization = require('../models').Organization;
 const Role = require('../models').Role;
@@ -146,5 +145,15 @@ router.post('/remove-facility', function (req, res, next) {
     }).catch(next);
 })
 
+
+
+//update 
+router.put('/:addressId', function (req, res, next) {
+    Organization.update(req.body.organization, { where: { organizationId: req.user.organizationId } }).then(() => {
+        Address.update(req.body.address, { where: { addressId: req.params.addressId } }).then((data) => {
+            res.json({ success: true, data: data });
+        })
+    }).catch(next)
+})
 
 module.exports = router;
