@@ -2,7 +2,6 @@ const router = require('express').Router();
 const jwt = require('jsonwebtoken');
 var passport = require('passport');
 var twilio = require('twilio');
-const { token } = require('morgan');
 
 const config = require('../config/config');
 const User = require('../models').User;
@@ -88,10 +87,7 @@ router.post('/login', function (req, res, next) {
                         role: user.roles,
                         facilityCode: user.facilities[0].facilityCode
                     }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
-                    res.json({
-                        success: true,
-                        token: token
-                    });
+                    res.json({ success: true, token: token });
                 }
             }
         }
