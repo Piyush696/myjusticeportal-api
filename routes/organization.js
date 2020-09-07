@@ -63,7 +63,7 @@ router.get('/', function (req, res, next) {
     User.findOne({
         include: [
             {
-                model: Organization,
+                model: Organization, attributes: ['organizationId', 'name'],
                 include: [
                     {
                         model: Address
@@ -71,7 +71,8 @@ router.get('/', function (req, res, next) {
                 ]
             }
         ],
-        where: { userId: req.user.userId }
+        where: { userId: req.user.userId },
+        attributes: ['userId', 'firstName', 'lastName', 'userName', 'createdAt']
     }).then(data => {
         res.json({ success: true, data: data });
     }).catch(next)
@@ -82,7 +83,7 @@ router.get('/all-user', function (req, res, next) {
     Organization.findOne({
         include: [
             {
-                model: User,
+                model: User, attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'createdAt'],
                 include: [
                     {
                         model: Role, through: {
@@ -92,7 +93,8 @@ router.get('/all-user', function (req, res, next) {
                 ]
             }
         ],
-        where: { organizationId: req.user.organizationId }
+        where: { organizationId: req.user.organizationId },
+        attributes: ['organizationId']
     }).then(data => {
         res.json({ success: true, data: data });
     }).catch((next) => {
@@ -110,7 +112,8 @@ router.get('/all-facilities', function (req, res, next) {
                 }
             },
         ],
-        where: { organizationId: req.user.organizationId }
+        where: { organizationId: req.user.organizationId },
+        attributes: ['organizationId']
     }).then(data => {
         res.json({ success: true, data: data });
     }).catch((next) => {
@@ -147,7 +150,7 @@ router.post('/remove-facility', function (req, res, next) {
 
 
 
-//update 
+//update organization
 router.put('/:addressId', function (req, res, next) {
     Organization.update(req.body.organization, { where: { organizationId: req.user.organizationId } }).then(() => {
         Address.update(req.body.address, { where: { addressId: req.params.addressId } }).then((data) => {
