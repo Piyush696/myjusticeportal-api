@@ -11,6 +11,7 @@ const Address = require('../../models').Address;
 const Organization = require('../../models').Organization;
 const Facility = require('../../models').Facility;
 const Role = require('../../models').Role;
+const utilsMail = require('../../utils/admin-notification');
 
 // To a admin bondsman.
 
@@ -73,10 +74,20 @@ router.post('/verify-sms/registration', async function (req, res, next) {
                 model: Role, through: {
                     attributes: []
                 }
+            },
+            {
+                model: Facility, through: {
+                    attributes: []
+                }
+            },
+            {
+                model: Organization,
             }
         ],
         where: { userName: req.body.userName }
     }).then((data) => {
+        console.log(data.dataValues.organizationId)
+        console.log(data.dataValues.Organization)
         let date = new Date();
         let x = date - data.dataValues.updatedAt;
         x = Math.round((x / 1000) / 60);
@@ -89,8 +100,10 @@ router.post('/verify-sms/registration', async function (req, res, next) {
                 lastName: data.dataValues.lastName,
                 role: data.dataValues.roles,
                 facilities: data.dataValues.facilities,
-                status: data.dataValues.status
+                status: data.dataValues.status,
+                organizationId: data.dataValues.organizationId
             }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
+            utilsMail.notifyAdmin(data.dataValues, req);
             res.json({ success: true, token: token });
         } else {
             res.json({ success: false, data: 'invalid auth code' });
