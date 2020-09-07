@@ -28,7 +28,7 @@ router.post('/invite-user', function (req, res, next) {
                 where: { userId: req.user.userId },
                 attributes: ['userId', 'userName', 'firstName', 'middleName', 'lastName']
             }).then(foundUserData => {
-                req.body.password = User.generateHash('Rj@123');
+                req.body.password = User.generateHash('Raj@1234');
                 req.body.organizationId = req.user.role[0].roleId;
                 User.create(req.body).then((createdUser) => {
                     if (foundUserData && createdUser) {
