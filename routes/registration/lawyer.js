@@ -77,6 +77,9 @@ router.post('/verify-sms/registration', async function (req, res, next) {
                 model: Facility, through: {
                     attributes: []
                 }
+            },
+            {
+                model: Organization,
             }
         ],
         where: { userName: req.body.userName }
@@ -94,6 +97,7 @@ router.post('/verify-sms/registration', async function (req, res, next) {
                 role: data.dataValues.roles,
                 facilities: data.dataValues.facilities,
                 status: data.dataValues.status,
+                organizationId: data.dataValues.organizationId
             }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
             utilsMail.notifyAdmin(data.dataValues, req);
             res.json({ success: true, token: token });

@@ -6,6 +6,7 @@ const config = require('../../config/config');
 const Twilio = require('../../models').Twilio;
 var twilio = require('twilio');
 const Role = require('../../models').Role;
+const Organization = require('../../models').Organization;
 var Facility = require('../../models').Facility;
 
 
@@ -106,7 +107,12 @@ router.post('/verify-otp', async function (req, res, next) {
                 model: Facility, through: {
                     attributes: []
                 },
+            },
+            {
+
+                model: Organization,
             }
+
         ],
         where: { userName: req.body.userName }
     }).then((user) => {
@@ -121,12 +127,15 @@ router.post('/verify-otp', async function (req, res, next) {
                 lastName: user.dataValues.lastName,
                 userName: user.dataValues.userName,
                 role: user.dataValues.roles,
-                facilities: user.facilities
+                facilities: user.dataValues.facilities,
+                organizationId: user.dataValues.organizationId
             }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
             res.json({ success: true, token: token })
         } else {
             res.json({ success: false, data: 'invalid otp' })
         }
-    }).catch(next)
+    }).catch((next) => {
+        console.log(next)
+    })
 })
 module.exports = router;

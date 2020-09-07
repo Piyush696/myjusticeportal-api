@@ -2,14 +2,12 @@ const express = require('express');
 const router = express.Router();
 const uuidv1 = require('uuid/v1');
 const request = require('request');
-
 const User = require('../models').User;
 const Organization = require('../models').Organization;
 const Role = require('../models').Role;
 const Address = require('../models').Address;
 const Facility = require('../models').Facility;
 const Postage = require('../models').Postage;
-const utilsMail = require('../utils/admin-notification');
 
 // To invite a user by mail.
 
@@ -60,11 +58,12 @@ router.post('/invite-user', function (req, res, next) {
     }).catch(next);
 });
 
+//get Organisation and Address
 router.get('/', function (req, res, next) {
     User.findOne({
         include: [
             {
-                model: Organization,
+                model: Organization, attributes: ['organizationId', 'name'],
                 include: [
                     {
                         model: Address
@@ -72,12 +71,92 @@ router.get('/', function (req, res, next) {
                 ]
             }
         ],
-        where: { userId: req.user.userId }
+        where: { userId: req.user.userId },
+        attributes: ['userId', 'firstName', 'lastName', 'userName', 'createdAt']
+    }).then(data => {
+        res.json({ success: true, data: data });
+    }).catch(next)
+})
+
+// get users of organisation
+router.get('/all-user', function (req, res, next) {
+    Organization.findOne({
+        include: [
+            {
+                model: User, attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'createdAt'],
+                include: [
+                    {
+                        model: Role, through: {
+                            attributes: []
+                        },
+                    }
+                ]
+            }
+        ],
+        where: { organizationId: req.user.organizationId },
+        attributes: ['organizationId']
     }).then(data => {
         res.json({ success: true, data: data });
     }).catch((next) => {
         console.log(next);
     })
+})
+
+// get facilities of organisation
+router.get('/all-facilities', function (req, res, next) {
+    Organization.findOne({
+        include: [
+            {
+                model: Facility, through: {
+                    attributes: []
+                }
+            },
+        ],
+        where: { organizationId: req.user.organizationId },
+        attributes: ['organizationId']
+    }).then(data => {
+        res.json({ success: true, data: data });
+    }).catch((next) => {
+        console.log(next);
+    })
+})
+
+
+// Add facilities to Organisation
+router.post('/add-facility', function (req, res, next) {
+    Organization.findOne(
+        { where: { organizationId: req.user.organizationId } }
+    ).then((org) => {
+        Facility.findAll({ where: { facilityId: req.body.facilityIds } }).then((foundFacility) => {
+            Promise.resolve(org.addFacility(foundFacility)).then((userFacility) => {
+                res.json({ success: true, data: userFacility });
+            }).catch(next);
+        }).catch(next);
+    }).catch(next);
+})
+
+// Remove facility to Organisation
+router.post('/remove-facility', function (req, res, next) {
+    Organization.findOne(
+        { where: { organizationId: req.user.organizationId } }
+    ).then((org) => {
+        Facility.findOne({ where: { facilityId: req.body.facilityId } }).then((foundFacility) => {
+            Promise.resolve(org.removeFacility(foundFacility)).then((userFacility) => {
+                res.json({ success: true, data: userFacility });
+            }).catch(next);
+        }).catch(next);
+    }).catch(next);
+})
+
+
+
+//update organization
+router.put('/:addressId', function (req, res, next) {
+    Organization.update(req.body.organization, { where: { organizationId: req.user.organizationId } }).then(() => {
+        Address.update(req.body.address, { where: { addressId: req.params.addressId } }).then((data) => {
+            res.json({ success: true, data: data });
+        })
+    }).catch(next)
 })
 
 module.exports = router;
