@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             validate: {
                 len: {
-                    args: 3,
+                    args: [1, 50],
                     msg: "facility Name must be atleast 3 characters in length"
                 }
             }
@@ -33,11 +33,6 @@ module.exports = (sequelize, DataTypes) => {
         libraryLink: {
             type: DataTypes.STRING,
             allowNull: true,
-            validate: {
-                isURL: {
-                    msg: "libraryLink  must be a URL"
-                }
-            }
         }
 
     }, {
