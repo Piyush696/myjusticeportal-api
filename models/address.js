@@ -13,8 +13,8 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             validate: {
                 len: {
-                    args: [3, 50],
-                    msg: "Street 1 must be between 3 and 50 characters in length"
+                    args: [1, 50],
+                    msg: "Street 1 must be between 1 and 50 characters in length"
                 }
             }
         },
@@ -27,8 +27,8 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             validate: {
                 len: {
-                    args: [3, 50],
-                    msg: "City must be between 3 and 50 characters in length"
+                    args: [1, 50],
+                    msg: "City must be between 1 and 50 characters in length"
                 }
             }
         },
@@ -37,8 +37,8 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             validate: {
                 len: {
-                    args: [3, 50],
-                    msg: "State must be between 3 and 50 characters in length"
+                    args: [1, 50],
+                    msg: "State must be between 1 and 50 characters in length"
                 }
             }
         },
@@ -47,8 +47,8 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             validate: {
                 len: {
-                    args: [3, 20],
-                    msg: "Zip  must be between 3 and 20 characters in length"
+                    args: [1, 20],
+                    msg: "Zip  must be between 1 and 20 characters in length"
                 }
             }
         },
@@ -57,8 +57,8 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             validate: {
                 len: {
-                    args: [3, 50],
-                    msg: "Country must be between 3 and 50 characters in length"
+                    args: [1, 50],
+                    msg: "Country must be between 1 and 50 characters in length"
                 }
             }
         }
