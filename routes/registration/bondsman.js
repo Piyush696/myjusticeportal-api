@@ -86,8 +86,6 @@ router.post('/verify-sms/registration', async function (req, res, next) {
         ],
         where: { userName: req.body.userName }
     }).then((data) => {
-        console.log(data.dataValues.organizationId)
-        console.log(data.dataValues.Organization)
         let date = new Date();
         let x = date - data.dataValues.updatedAt;
         x = Math.round((x / 1000) / 60);
@@ -110,6 +108,16 @@ router.post('/verify-sms/registration', async function (req, res, next) {
         }
     }).catch(next);
 })
+
+// To update invited user data.
+
+router.post('/invitedUserUpdate', async function (req, res, next) {
+    User.update(req.body, {
+        where: { userName: req.body.userName }
+    }).then((updatedUser) => {
+        res.json({ success: true });
+    });
+});
 
 function generateCode() {
     let digits = '0123456789';

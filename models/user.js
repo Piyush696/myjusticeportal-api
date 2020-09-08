@@ -1,7 +1,5 @@
 'use strict';
-
 const bcrypt = require('bcrypt');
-
 
 module.exports = (sequelize, DataTypes) => {
     let User = sequelize.define('user', {
@@ -63,6 +61,11 @@ module.exports = (sequelize, DataTypes) => {
                 }
             }
         },
+        isSelfPaid: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: false
+        },
         isAdmin: {
             type: DataTypes.BOOLEAN,
             allowNull: true,
@@ -84,16 +87,16 @@ module.exports = (sequelize, DataTypes) => {
         },
         countryCode: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: true
         },
         authCode: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: true
         },
         isMFA: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
-            defaultValue: true,
+            defaultValue: true
         },
     }, {
         tableName: 'user',

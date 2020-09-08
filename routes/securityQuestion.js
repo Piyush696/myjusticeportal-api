@@ -4,6 +4,7 @@ var passport = require('passport');
 const SecurityQuestion = require('../models').SecurityQuestion;
 const User = require('../models').User;
 const { Sequelize } = require("sequelize");
+
 const securityQuestion = require('../models/securityQuestion');
 const User_SecurityQuestion_Answers = require('../models').User_SecurityQuestion_Answers;
 const Role = require('../models').Role;
@@ -55,46 +56,49 @@ router.post('/forgot-password', function (req, res, next) {
         ],
         where: { userName: req.body.userName }
     }).then(userDetails => {
-        if (userDetails.dataValues.roles[0].roleId == 1) {
-            res.json({ success: true, data: userDetails });
-        } else {
-            let token = jwt.sign({
-                data: userDetails.dataValues
-            }, config.jwt.secret, { expiresIn: 60 * 60 });
-            let uuid = uuidv1();
-            let url = req.headers.origin + "/reset-password/";
-
-            Postage.findOne({ where: { postageAppId: 1 } }).then((passwordResetDetails) => {
-                request.post({
-                    headers: { 'content-type': 'application/json' },
-                    url: `${passwordResetDetails.dataValues.apiUrl}`,
-                    json: {
-                        "api_key": `${passwordResetDetails.dataValues.apiKey}`,
-                        "uid": `${uuid}`,
-                        "arguments": {
-                            "recipients": [`${userDetails.dataValues.userName}`],
-                            "headers": {
-                                "subject": `${passwordResetDetails.dataValues.project}` + ": Password Reset Request"
-                            },
-                            "template": `${passwordResetDetails.dataValues.template}`,
-                            "variables": {
-                                "name": `${userDetails.dataValues.firstName + userDetails.dataValues.lastName}`,
-                                "resetlink": `${url}` + `${token}`
+        if (userDetails) {
+            if (userDetails.dataValues.roles[0].roleId == 1) {
+                res.json({ success: true, data: userDetails });
+            } else {
+                let token = jwt.sign({
+                    data: userDetails.dataValues
+                }, config.jwt.secret, { expiresIn: 60 * 60 });
+                let uuid = uuidv1();
+                let url = req.headers.origin + "/reset-password/";
+                Postage.findOne({ where: { postageAppId: 1 } }).then((passwordResetDetails) => {
+                    request.post({
+                        headers: { 'content-type': 'application/json' },
+                        url: `${passwordResetDetails.dataValues.apiUrl}`,
+                        json: {
+                            "api_key": `${passwordResetDetails.dataValues.apiKey}`,
+                            "uid": `${uuid}`,
+                            "arguments": {
+                                "recipients": [`${userDetails.dataValues.userName}`],
+                                "headers": {
+                                    "subject": `${passwordResetDetails.dataValues.project}` + ": Password Reset Request"
+                                },
+                                "template": `${passwordResetDetails.dataValues.template}`,
+                                "variables": {
+                                    "name": `${userDetails.dataValues.firstName + userDetails.dataValues.lastName}`,
+                                    "resetlink": `${url}` + `${token}`
+                                }
                             }
                         }
-                    }
-                }, function (error, response) {
-                    if ((response.body.response.status !== 'unauthorized') && (response.body.response.status != 'bad_request')) {
-                        if (response.body.data.message.status == 'queued') {
-                            res.json({ success: true, data: 'Mail sent' });
+                    }, function (error, response) {
+                        if ((response.body.response.status !== 'unauthorized') && (response.body.response.status != 'bad_request')) {
+                            if (response.body.data.message.status == 'queued') {
+                                res.json({ success: true, data: 'Mail sent' });
+                            } else {
+                                res.json({ success: false, data: 'Mail not sent' });
+                            }
                         } else {
                             res.json({ success: false, data: 'Mail not sent' });
                         }
-                    } else {
-                        res.json({ success: false, data: 'Mail not sent' });
-                    }
-                });
-            }).catch(next)
+                    });
+                }).catch(next)
+            }
+        } else {
+            res.json({ success: false, data: 'Invalid input' });
         }
     });
 });

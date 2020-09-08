@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const uuidv1 = require('uuid/v1');
 const request = require('request');
+const jwt = require('jsonwebtoken');
+
+const config = require('../config/config');
 const User = require('../models').User;
 const Organization = require('../models').Organization;
 const Role = require('../models').Role;
@@ -12,53 +15,74 @@ const Postage = require('../models').Postage;
 // To invite a user by mail.
 
 router.post('/invite-user', function (req, res, next) {
-    User.findOne({
-        include: [
-            {
-                model: Organization
-            }
-        ],
-        where: { userId: req.user.userId },
-        attributes: ['userId', 'userName', 'firstName', 'middleName', 'lastName']
-    }).then(foundUserData => {
-        let url = req.headers.origin + '/' + foundUserData.Organization.dataValues.orgCode
-            + '/' + foundUserData.Organization.dataValues.type + '/registration/';
-        let uuid = uuidv1();
-        Postage.findOne({ where: { postageAppId: 1 } }).then((postageDetails) => {
-            request.post({
-                headers: { 'content-type': 'application/json' },
-                url: `${postageDetails.dataValues.apiUrl}`,
-                json: {
-                    "api_key": `${postageDetails.dataValues.apiKey}`,
-                    "uid": `${uuid}`,
-                    "arguments": {
-                        "recipients": [`${req.body.email}`],
-                        "headers": {
-                            "subject": `${postageDetails.dataValues.project}` + ": New User Registration"
-                        },
-                        "template": "registration_invitation",
-                        "variables": {
-                            "name": `${foundUserData.dataValues.firstName + ' ' + foundUserData.dataValues.middleName + ' ' + foundUserData.dataValues.lastName}`,
-                            "invitationlink": `${url}`
-                        }
+    User.findOne({ where: { userName: req.body.userName } }).then(singleUserData => {
+        if (singleUserData) {
+            res.json({ success: false, data: 'Email exist' });
+        } else {
+            User.findOne({
+                include: [
+                    {
+                        model: Organization
                     }
-                }
-            }, function (error, response) {
-                if ((response.body.response.status !== 'unauthorized') && (response.body.response.status != 'bad_request')) {
-                    if (response.body.data.message.status == 'queued') {
-                        res.json({ success: true, data: 'Invitation sent' });
+                ],
+                where: { userId: req.user.userId },
+                attributes: ['userId', 'userName', 'firstName', 'middleName', 'lastName']
+            }).then(foundUserData => {
+                req.body.password = User.generateHash('Raj@1234');
+                req.body.organizationId = req.user.role[0].roleId;
+                User.create(req.body).then((createdUser) => {
+                    if (foundUserData && createdUser) {
+                        Role.findOne({ where: { roleId: req.user.role[0].roleId } }).then((roles) => {
+                            Promise.resolve(createdUser.addRole(roles)).then((userRole) => {
+                                let url = req.headers.origin + '/' + foundUserData.Organization.dataValues.type + '/registration/';
+                                let token = jwt.sign({
+                                    data: createdUser.dataValues
+                                }, config.jwt.secret, { expiresIn: 60 * 60 });
+                                let uuid = uuidv1();
+                                Postage.findOne({ where: { postageAppId: 1 } }).then((postageDetails) => {
+                                    request.post({
+                                        headers: { 'content-type': 'application/json' },
+                                        url: `${postageDetails.dataValues.apiUrl}`,
+                                        json: {
+                                            "api_key": `${postageDetails.dataValues.apiKey}`,
+                                            "uid": `${uuid}`,
+                                            "arguments": {
+                                                "recipients": [`${req.body.userName}`],
+                                                "headers": {
+                                                    "subject": `${postageDetails.dataValues.project}` + ": New User Registration"
+                                                },
+                                                "template": "registration_invitation",
+                                                "variables": {
+                                                    "name": `${foundUserData.dataValues.firstName + ' ' + foundUserData.dataValues.middleName + ' ' + foundUserData.dataValues.lastName}`,
+                                                    "invitationlink": `${url}` + `${token}`
+                                                }
+                                            }
+                                        }
+                                    }, function (error, response) {
+                                        if ((response.body.response.status !== 'unauthorized') && (response.body.response.status != 'bad_request')) {
+                                            if (response.body.data.message.status == 'queued') {
+                                                res.json({ success: true, data: 'Invitation sent' });
+                                            } else {
+                                                res.json({ success: false, data: 'Invitation not sent' });
+                                            }
+                                        } else {
+                                            res.json({ success: false, data: 'Invitation not sent' });
+                                        }
+                                    });
+                                }).catch(next);
+                            });
+                        }).catch(next);
                     } else {
-                        res.json({ success: false, data: 'Invitation not sent' });
+                        res.json({ success: false, data: 'Something went wrong' });
                     }
-                } else {
-                    res.json({ success: false, data: 'Invitation not sent' });
-                }
-            });
-        }).catch(next);
-    }).catch(next);
+                }).catch(next);
+            }).catch(next);
+        }
+    });
 });
 
-//get Organisation and Address
+// get Organisation and Address.
+
 router.get('/', function (req, res, next) {
     User.findOne({
         include: [
@@ -78,7 +102,8 @@ router.get('/', function (req, res, next) {
     }).catch(next)
 })
 
-// get users of organisation
+// get users of organisation.
+
 router.get('/all-user', function (req, res, next) {
     Organization.findOne({
         include: [
@@ -88,7 +113,7 @@ router.get('/all-user', function (req, res, next) {
                     {
                         model: Role, through: {
                             attributes: []
-                        },
+                        }
                     }
                 ]
             }
@@ -102,7 +127,8 @@ router.get('/all-user', function (req, res, next) {
     })
 })
 
-// get facilities of organisation
+// get facilities of organisation.
+
 router.get('/all-facilities', function (req, res, next) {
     Organization.findOne({
         include: [
@@ -121,8 +147,8 @@ router.get('/all-facilities', function (req, res, next) {
     })
 })
 
+// Add facilities to Organisation.
 
-// Add facilities to Organisation
 router.post('/add-facility', function (req, res, next) {
     Organization.findOne(
         { where: { organizationId: req.user.organizationId } }
@@ -135,7 +161,8 @@ router.post('/add-facility', function (req, res, next) {
     }).catch(next);
 })
 
-// Remove facility to Organisation
+// Remove facility to Organisation.
+
 router.post('/remove-facility', function (req, res, next) {
     Organization.findOne(
         { where: { organizationId: req.user.organizationId } }
@@ -148,9 +175,8 @@ router.post('/remove-facility', function (req, res, next) {
     }).catch(next);
 })
 
+// update organization.
 
-
-//update organization
 router.put('/:addressId', function (req, res, next) {
     Organization.update(req.body.organization, { where: { organizationId: req.user.organizationId } }).then(() => {
         Address.update(req.body.address, { where: { addressId: req.params.addressId } }).then((data) => {
