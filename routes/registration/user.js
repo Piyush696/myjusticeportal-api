@@ -16,7 +16,7 @@ router.post('/', function (req, res, next) {
     User.create({
         password: User.generateHash(req.body.password),
         firstName: req.body.firstName, lastName: req.body.lastName,
-        userName: req.body.userName, middleName: req.body.middleName, isMFA: false
+        userName: req.body.userName, middleName: req.body.middleName, isMFA: false, status: true
     }).then((user) => {
         req.body.userMeta.map((element) => {
             element['userId'] = user.userId
@@ -25,26 +25,22 @@ router.post('/', function (req, res, next) {
         req.body.securityQuestionData.map((element) => {
             element['userId'] = user.userId
         })
-        UserMeta.bulkCreate(req.body.userMeta).then((result) => {
-            User_SecurityQuestion_Answers.bulkCreate(req.body.securityQuestionData).then(data => {
-                Role.findAll({ where: { roleId: 1 } }).then((roles) => {
-                    Promise.resolve(user.setRoles(roles)).then((userRole) => {
-                        Facility.findOne({ where: { facilityCode: req.body.facilityCode } }).then((facility) => {
-                            Promise.resolve(user.addFacility(facility)).then((userFacility) => {
-                                User.update({ status: true }, {
-                                    where: { userId: user.userId }
-                                }).then((updateUser) => {
-                                    let expiresIn = req.body.rememberMe ? '15d' : '1d';
-                                    let token = jwt.sign({
-                                        userId: user.userId,
-                                        firstName: user.firstName,
-                                        lastName: user.lastName,
-                                        userName: user.userName,
-                                        role: roles,
-                                        facility: facility
-                                    }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
-                                    res.json({ success: true, token: token });
-                                }).catch(next);
+        UserMeta.bulkCreate(req.body.userMeta).then(() => {
+            User_SecurityQuestion_Answers.bulkCreate(req.body.securityQuestionData).then(() => {
+                return Role.findAll({ where: { roleId: 1 } }).then((roles) => {
+                    Promise.resolve(user.setRoles(roles)).then(() => {
+                        return Facility.findOne({ where: { facilityCode: req.body.facilityCode } }).then((facility) => {
+                            Promise.resolve(user.addFacility(facility)).then(() => {
+                                let expiresIn = req.body.rememberMe ? '15d' : '1d';
+                                let token = jwt.sign({
+                                    userId: user.userId,
+                                    firstName: user.firstName,
+                                    lastName: user.lastName,
+                                    userName: user.userName,
+                                    role: roles,
+                                    facility: facility
+                                }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
+                                return res.json({ success: true, token: token });
                             })
                         })
                     })
