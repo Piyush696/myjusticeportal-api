@@ -28,8 +28,9 @@ router.post('/invite-user', function (req, res, next) {
                 where: { userId: req.user.userId },
                 attributes: ['userId', 'userName', 'firstName', 'middleName', 'lastName']
             }).then(foundUserData => {
-                req.body.password = User.generateHash('Raj@1234');
-                req.body.organizationId = req.user.role[0].roleId;
+                req.body.password = User.generateHash(' ');
+                req.body.organizationId = req.user.organizationId;
+                req.body.isMFA = true;
                 User.create(req.body).then((createdUser) => {
                     if (foundUserData && createdUser) {
                         Role.findOne({ where: { roleId: req.user.role[0].roleId } }).then((roles) => {
