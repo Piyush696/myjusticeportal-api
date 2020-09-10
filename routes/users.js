@@ -1,14 +1,18 @@
 const express = require('express');
 const router = express.Router();
 var passport = require('passport');
+const request = require('request');
 const User = require('../models').User;
 const Role = require('../models').Role;
+
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 const Twilio = require('../models').Twilio;
 var twilio = require('twilio');
 var Facility = require('../models').Facility;
 const userMeta = require('../models').UserMeta;
+const Postage = require('../models').Postage;
+const uuidv1 = require('uuid/v1');
 /* user registration. */
 
 router.post('/registration', function (req, res, next) {
@@ -205,6 +209,62 @@ router.put('/updateSingleUser', passport.authenticate('jwt', { session: false })
             where: { userId: req.body.userId }
         }).then(result => {
             res.json({ success: true, data: result });
+        }).catch(next);
+    } else {
+        res.json({ success: false });
+    }
+})
+
+router.put('/updateStatus', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    if (req.user.role[0].roleId === 7) {
+        User.update(req.body, {
+            where: { userId: req.body.userId }
+        }).then(result => {
+            console.log(result)
+            User.findOne({ where: { userId: req.body.userId } }).then((user) => {
+                let url = req.headers.origin + '/login/';
+                let uuid = uuidv1();
+                let message;
+                if (req.body.status) {
+                    message = 'Your account has been approved and is now active please login.'
+                }
+                else {
+                    message = 'Your account has been deactivated.'
+                }
+                Postage.findOne({ where: { postageAppId: 1 } }).then((postageDetails) => {
+                    request.post({
+                        headers: { 'content-type': 'application/json' },
+                        url: `${postageDetails.dataValues.apiUrl}`,
+                        json: {
+                            "api_key": `${postageDetails.dataValues.apiKey}`,
+                            "uid": `${uuid}`,
+                            "arguments": {
+                                "recipients": [`${user.dataValues.userName}`],
+                                "headers": {
+                                    "subject": `${postageDetails.dataValues.project}`
+                                },
+                                "template": "account_approval_notification",
+                                "variables": {
+                                    "link": `${url}`,
+                                    "message": `${message}`
+                                }
+                            }
+                        }
+                    }, function (error, response) {
+                        if ((response.body.response.status !== 'unauthorized') && (response.body.response.status != 'bad_request')) {
+                            if (response.body.data.message.status == 'queued') {
+                                res.json({ success: true, data: 'Invitation sent' });
+                            } else {
+                                res.json({ success: false, data: 'Invitation not sent' });
+                            }
+                        } else {
+                            res.json({ success: false, data: 'Invitation not sent' });
+                        }
+                    });
+                }).catch((next) => {
+                    console.log(next)
+                });
+            })
         }).catch(next);
     } else {
         res.json({ success: false });
