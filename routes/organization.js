@@ -31,7 +31,7 @@ router.post('/invite-user', function (req, res, next) {
                         where: { userId: req.user.userId },
                         attributes: ['userId', 'userName', 'firstName', 'middleName', 'lastName']
                     }).then(foundUserData => {
-                        req.body.password = User.generateHash('Raj@1234');
+                        req.body.password = User.generateHash(' ');
                         req.body.organizationId = req.user.role[0].roleId;
                         User.create(req.body).then((createdUser) => {
                             if (foundUserData && createdUser) {
@@ -40,7 +40,7 @@ router.post('/invite-user', function (req, res, next) {
                                         let url = req.headers.origin + '/' + foundUserData.Organization.dataValues.type + '/registration/';
                                         let token = jwt.sign({
                                             data: createdUser.dataValues
-                                        }, config.jwt.secret, { expiresIn: 60 * 60 });
+                                        }, config.jwt.secret, { expiresIn: '1d' });
                                         let uuid = uuidv1();
                                         Postage.findOne({ where: { postageAppId: 1 } }).then((postageDetails) => {
                                             request.post({
