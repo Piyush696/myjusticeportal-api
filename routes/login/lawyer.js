@@ -64,7 +64,7 @@ router.post('/login', function (req, res, next) {
                     res.json({ success: false, data: 'Please complete your registration.' })
                 }
                 else {
-                    let expiresIn = req.body.rememberMe ? '15d' : '1d';
+                    let expiresIn = req.body.rememberMe ? '15d' : '2h';
                     let token = jwt.sign({
                         userId: user.userId,
                         firstName: user.firstName,
