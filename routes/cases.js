@@ -4,6 +4,7 @@ var passport = require('passport');
 const Case = require('../models').Case;
 const User = require('../models').User;
 const Files = require('../models').Files;
+const Facility = require('../models').Facility;
 const util = require('../utils/validateUser');
 /* create case. */
 
@@ -89,5 +90,21 @@ router.put('/:caseId', function (req, res, next) {
     })
 })
 
+
+
+router.get('/hirealawyers/lawyer', function (req, res, next) {
+    console.log(req.user.userId)
+    User.findOne({
+        include: [
+            {
+                model: Facility, through: { attributes: [] }
+            }
+        ],
+        where: { userId: req.body.userId }
+    }).then((user) => {
+        console.log(user)
+
+    })
+})
 
 module.exports = router;
