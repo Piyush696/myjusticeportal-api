@@ -9,11 +9,11 @@ const Case = require('../models').Case;
 const Lawyer_case = require('../models').lawyer_case;
 
 //list of all organizations those who are linked to a facility and role is lawyer.
-router.get('/users', function (req, res, next) {
+router.get('/organizations', function (req, res, next) {
     User.findOne({
         include: [
             {
-                model: Facility, through: { attributes: [] },
+                model: Facility, through: { attributes: [] }, attributes: ['facilityId', 'facilityName', 'libraryLink'],
                 include: [
                     {
                         model: Organization, through: { attributes: [] }, attributes: ['organizationId', 'name', 'orgCode', 'type'],
@@ -36,21 +36,14 @@ router.get('/users', function (req, res, next) {
 
 
 // get users of organisation.
-router.get('/users/:organizationId', function (req, res, next) {
+router.get('/organizations/:organizationId', function (req, res, next) {
     Organization.findOne({
         include: [
             {
                 model: Address
             },
             {
-                model: User, attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'createdAt'],
-                include: [
-                    {
-                        model: Role, through: {
-                            attributes: []
-                        }
-                    }
-                ]
+                model: User, attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'createdAt']
             }
         ],
         where: { organizationId: parseInt(req.params.organizationId) },
@@ -63,11 +56,10 @@ router.get('/users/:organizationId', function (req, res, next) {
 
 //set lawyer case
 router.post('/', function (req, res, next) {
-    req.body.caseIds.map((element) => {
-        element['lawyerId'] = req.user.userId
+    req.body.selectedCases.map((element) => {
         element['status'] = 'Requested'
     })
-    Lawyer_case.bulkCreate(req.body.caseIds).then((lawyerCases) => {
+    Lawyer_case.bulkCreate(req.body.selectedCases).then((lawyerCases) => {
         res.json({ success: true, data: lawyerCases });
     }).catch(next)
 })
