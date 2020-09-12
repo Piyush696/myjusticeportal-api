@@ -5,7 +5,8 @@ const Facility = require('../models').Facility;
 const Organization = require('../models').Organization;
 const Address = require('../models').Address;
 const Role = require('../models').Role
-
+const Case = require('../models').Case;
+const Lawyer_case = require('../models').lawyer_case;
 
 //list of all organizations those who are linked to a facility and role is lawyer.
 router.get('/users', function (req, res, next) {
@@ -58,5 +59,19 @@ router.get('/users/:organizationId', function (req, res, next) {
         res.json({ success: true, data: data });
     }).catch(next)
 })
+
+
+//set lawyer case
+router.post('/', function (req, res, next) {
+    req.body.caseIds.map((element) => {
+        element['userId'] = req.user.userId
+        element['status'] = 'requested'
+    })
+    console.log(req.body.caseIds)
+    lawyer_case.bulkCreate(req.body.caseIds).then((lawyerCases) => {
+        res.json({ success: true, data: lawyerCases });
+    })
+})
+
 
 module.exports = router; 
