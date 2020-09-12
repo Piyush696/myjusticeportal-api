@@ -5,7 +5,6 @@ const Case = require('../models').Case;
 const User = require('../models').User;
 const Files = require('../models').Files;
 const util = require('../utils/validateUser');
-/* create case. */
 
 router.post('/', function (req, res, next) {
     util.validate([1], req.user.role, function (isAuthenticated) {
@@ -90,4 +89,4 @@ router.put('/:caseId', function (req, res, next) {
 })
 
 
-module.exports = router;
+module.exports = router; 

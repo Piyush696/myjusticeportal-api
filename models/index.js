@@ -30,6 +30,7 @@ db.User_SecurityQuestion_Answers = require('./user_securityQuestion_Answers')(se
 db.UserMeta = require('./userMeta')(sequelize, Sequelize);
 db.Files = require('./files')(sequelize, Sequelize);
 db.Facility = require('./facility')(sequelize, Sequelize);
+db.lawyer_case = require('./lawyer_case')(sequelize, Sequelize);
 
 /* Mapings */
 
@@ -41,8 +42,6 @@ db.Address.hasOne(db.Organization, { foreignKey: 'addressId' });
 db.User.belongsToMany(db.Role, { through: 'user_role', foreignKey: 'userId' });
 db.Role.belongsToMany(db.User, { through: 'user_role', foreignKey: 'roleId' });
 
-db.Case.belongsTo(db.User, { foreignKey: 'userId', sourceKey: 'userId' });
-
 db.SecurityQuestion.belongsTo(db.Role, { foreignKey: 'roleId', sourceKey: 'roleId' });
 
 db.User.belongsToMany(db.SecurityQuestion, { through: 'user_securityQuestion_Answers', foreignKey: 'userId' });
@@ -50,9 +49,13 @@ db.SecurityQuestion.belongsToMany(db.User, { through: 'user_securityQuestion_Ans
 
 db.User.hasMany(db.UserMeta, { foreignKey: 'userId', sourceKey: 'userId' });
 
+db.Case.belongsTo(db.User, { foreignKey: 'userId', sourceKey: 'userId' });
 db.Files.belongsTo(db.User, { as: 'createdBy' });
 db.Case.belongsToMany(db.Files, { as: 'caseFile', through: 'file_case', foreignKey: 'caseId' });
 db.Files.belongsToMany(db.Case, { through: 'file_case', foreignKey: 'fileId' });
+
+db.User.belongsToMany(db.Case, { as: 'lawyer', through: 'lawyer_case', foreignKey: 'lawyerId' });
+db.Case.belongsToMany(db.User, { through: 'lawyer_case', foreignKey: 'caseId' });
 
 db.Facility.belongsToMany(db.Organization, { through: 'org_facility', foreignKey: 'facilityId' });
 db.Organization.belongsToMany(db.Facility, { through: 'org_facility', foreignKey: 'organizationId' });

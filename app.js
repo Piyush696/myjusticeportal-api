@@ -24,6 +24,7 @@ const userRegistrationRoutes = require('./routes/registration/user');
 const useLoginRoutes = require('./routes/login/user');
 const userLawyerLoginRoutes = require('./routes/login/lawyer');
 const organizationRouter = require('./routes/organization');
+const hireaLawyerRouter = require('./routes/hire-a-lawyer');
 
 const env = process.env.NODE_ENV = process.env.NODE_ENV || 'local';
 
@@ -74,6 +75,7 @@ app.use('/api/role', roleRouter);
 app.use('/api/case', passport.authenticate('jwt', { session: false }), /*roleMiddleware,*/ caseRouter);
 app.use('/api/postage', passport.authenticate('jwt', { session: false }), postageAppRouter);
 app.use('/api/twilio', passport.authenticate('jwt', { session: false }), twilioRouter);
+app.use('/api/hirealawyer', passport.authenticate('jwt', { session: false }), hireaLawyerRouter);
 app.use('/api/securityQuestion', securityQuestionRouter);
 app.use('/api/user', /*roleMiddleware,*/ usersRouter);
 app.use('/api/userMeta', /*roleMiddleware,*/ userMetaRouter);
