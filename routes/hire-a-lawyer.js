@@ -64,11 +64,10 @@ router.get('/users/:organizationId', function (req, res, next) {
 //set lawyer case
 router.post('/', function (req, res, next) {
     req.body.caseIds.map((element) => {
-        element['userId'] = req.user.userId
+        element['lawyerId'] = req.user.userId
         element['status'] = 'requested'
     })
-    console.log(req.body.caseIds)
-    lawyer_case.bulkCreate(req.body.caseIds).then((lawyerCases) => {
+    Lawyer_case.bulkCreate(req.body.caseIds).then((lawyerCases) => {
         res.json({ success: true, data: lawyerCases });
     })
 })
