@@ -65,11 +65,11 @@ router.get('/users/:organizationId', function (req, res, next) {
 router.post('/', function (req, res, next) {
     req.body.caseIds.map((element) => {
         element['lawyerId'] = req.user.userId
-        element['status'] = 'requested'
+        element['status'] = 'Requested'
     })
     Lawyer_case.bulkCreate(req.body.caseIds).then((lawyerCases) => {
         res.json({ success: true, data: lawyerCases });
-    })
+    }).catch(next)
 })
 
 
