@@ -13,7 +13,7 @@ router.get('/organizations', function (req, res, next) {
     User.findOne({
         include: [
             {
-                model: Facility, through: { attributes: [] }, attributes: ['facilityId', 'facilityName', 'libraryLink'],
+                model: Facility, through: { attributes: [] }, attributes: ['facilityId'],
                 include: [
                     {
                         model: Organization, through: { attributes: [] }, attributes: ['organizationId', 'name', 'orgCode', 'type'],
