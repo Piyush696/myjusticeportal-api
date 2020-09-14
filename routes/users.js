@@ -4,7 +4,7 @@ var passport = require('passport');
 const request = require('request');
 const User = require('../models').User;
 const Role = require('../models').Role;
-
+const util = require('../utils/validateUser');
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 const Twilio = require('../models').Twilio;
@@ -366,6 +366,24 @@ router.get('/roleFacility', function (req, res, next) {
     Facility.findAll().then(data => {
         res.json({ success: true, data: data });
     })
+})
+
+//create user by superadmin
+router.post('/createUser/superadmin', function (req, res, next) {
+    console.log(req.body)
+    User.create({
+        password: User.generateHash(req.body.password),
+        firstName: req.body.firstName, lastName: req.body.lastName,
+        userName: req.body.userName, middleName: req.body.middleName,
+        isMFA: false, status: true
+    }).then((user) => {
+        Role.findAll({ where: { roleId: 7 } }).then((roles) => {
+            console.log(roles)
+            Promise.resolve(user.setRoles(roles)).then((userRole) => {
+                res.json({ success: true, data: userRole });
+            })
+        }).catch(next);
+    }).catch(next);
 })
 
 module.exports = router;
