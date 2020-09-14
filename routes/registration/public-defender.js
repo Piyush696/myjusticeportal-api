@@ -94,7 +94,7 @@ router.post('/verify-sms/registration', async function (req, res, next) {
                 userName: data.dataValues.userName,
                 firstName: data.dataValues.firstName,
                 lastName: data.dataValues.lastName,
-                role: data.dataValues.roles,
+                roles: data.dataValues.roles,
                 facilities: data.dataValues.facilities,
                 status: data.dataValues.status,
                 organizationId: data.dataValues.organizationId
