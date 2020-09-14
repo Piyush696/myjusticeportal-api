@@ -40,7 +40,7 @@ router.post('/', function (req, res, next) {
                         firstName: user.firstName,
                         lastName: user.lastName,
                         userName: user.userName,
-                        role: user.roles,
+                        roles: user.roles,
                         facility: user.facilities
                     }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
                     res.json({ success: true, token: token })

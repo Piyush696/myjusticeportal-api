@@ -37,7 +37,7 @@ router.post('/', function (req, res, next) {
                                     firstName: user.firstName,
                                     lastName: user.lastName,
                                     userName: user.userName,
-                                    role: roles,
+                                    roles: roles,
                                     facility: facility
                                 }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
                                 return res.json({ success: true, token: token });
