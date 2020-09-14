@@ -10,6 +10,7 @@ const Case = require('../models').Case;
 const Lawyer_case = require('../models').lawyer_case;
 const Files = require('../models').Files;
 const utils = require('../utils/file');
+const validateUtil = require('../utils/validateUser');
 
 //list of all organizations those who are linked to a facility and role is lawyer.
 router.get('/organizations', function (req, res, next) {
@@ -67,41 +68,49 @@ router.post('/', function (req, res, next) {
     }).catch(next)
 })
 
-// To get requested cases.
+// To get all requested cases.
 
-router.get('/requested-cases', function (req, res, next) {
-    User.findOne({
-        include: [
-            {
-                model: Case, as: 'lawyer',
-                include: [
-                    {
-                        model: Files, as: 'caseFile'
-                    },
-                    {
-                        model: User, as: 'inmate',
-                        attributes: ['userId', 'firstName', 'middleName', 'lastName']
-                    }
-                ]
-            }
-        ],
-        where: { userId: req.user.userId },
-        attributes: ['userId']
-    }).then((caseData) => {
-        res.json({ success: true, data: caseData });
-    })
+router.post('/requested-cases', function (req, res, next) {
+    Lawyer_case.findAll({
+        where: { status: req.body.status, lawyerId: req.user.userId }
+    }).then((foundLawyerCases) => {
+        let caseIds = foundLawyerCases.map(data => data.caseId);
+        User.findOne({
+            include: [
+                {
+                    model: Case, as: 'lawyer',
+                    where: { caseId: caseIds },
+                    include: [
+                        {
+                            model: Files, as: 'caseFile',
+                            attributes: ['fileId', 'fileName', 'createdAt', 'updatedAt', 'createdByUserId']
+                        },
+                        {
+                            model: User, as: 'inmate',
+                            attributes: ['userId', 'firstName', 'middleName', 'lastName']
+                        }
+                    ]
+                }
+            ],
+            where: { userId: req.user.userId },
+            attributes: ['userId']
+        }).then((caseData) => {
+            res.json({ success: true, data: caseData });
+        });
+    });
 })
 
-// To get requested cases.
+// To get single requested case.
 
-router.get('/requested-cases/:caseId', function (req, res, next) {
+router.get('/requested-case/:caseId', function (req, res, next) {
     User.findOne({
         include: [
             {
                 model: Case, as: 'lawyer',
                 include: [
                     {
-                        model: Files, as: 'caseFile'
+                        model: Files, as: 'caseFile',
+                        attributes: ['fileId', 'fileName', 'createdAt', 'updatedAt', 'createdByUserId']
                     },
                     {
                         model: User, as: 'inmate',
@@ -118,17 +127,38 @@ router.get('/requested-cases/:caseId', function (req, res, next) {
     })
 })
 
+// To set data after case Approved.
+
+router.post('/approve-case', function (req, res, next) {
+    Lawyer_case.update({ status: 'Approved' }, {
+        where: { lawyer_caseId: req.body.lawyer_caseId, lawyerId: req.user.userId }
+    }).then((uploaded) => {
+        res.json({ success: true });
+    });
+});
+
+// To set data after case Rejected.
+
+router.post('/reject-case', function (req, res, next) {
+    Lawyer_case.update({ status: 'Rejected' }, {
+        where: { lawyer_caseId: req.body.lawyer_caseId, lawyerId: req.user.userId }
+    }).then(() => {
+        res.json({ success: true });
+    });
+});
+
 // To get file DownloadLink.
 
 router.post('/fileDownloadLink', function (req, res, next) {
-    validateUtil.validate([1], req.user.role, function (isAuthenticated) {
+    validateUtil.validate([3], req.user.role, function (isAuthenticated) {
         if (isAuthenticated) {
             Case.findOne({
-                where: { userId: req.user.userId, caseId: req.body.caseId },
+                where: { userId: req.body.userId, caseId: req.body.caseId },
                 attributes: ['caseId'],
                 include: [
                     {
                         model: Files, as: 'caseFile',
+                        attributes: ['fileId', 'fileName', 'createdAt', 'updatedAt', 'createdByUserId'],
                         where: { fileId: req.body.fileId }
                     }
                 ]
