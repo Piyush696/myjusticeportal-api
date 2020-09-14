@@ -71,79 +71,107 @@ router.post('/', function (req, res, next) {
 // To get all requested cases.
 
 router.post('/requested-cases', function (req, res, next) {
-    Lawyer_case.findAll({
-        where: { status: req.body.status, lawyerId: req.user.userId }
-    }).then((foundLawyerCases) => {
-        let caseIds = foundLawyerCases.map(data => data.caseId);
-        User.findOne({
-            include: [
-                {
-                    model: Case, as: 'lawyer',
-                    where: { caseId: caseIds },
+    validateUtil.validate([3], req.user.role, function (isAuthenticated) {
+        if (isAuthenticated) {
+            Lawyer_case.findAll({
+                where: { status: req.body.status, lawyerId: req.user.userId }
+            }).then((foundLawyerCases) => {
+                let caseIds = foundLawyerCases.map(data => data.caseId);
+                User.findOne({
                     include: [
                         {
-                            model: Files, as: 'caseFile',
-                            attributes: ['fileId', 'fileName', 'createdAt', 'updatedAt', 'createdByUserId']
-                        },
-                        {
-                            model: User, as: 'inmate',
-                            attributes: ['userId', 'firstName', 'middleName', 'lastName']
+                            model: Case, as: 'lawyer',
+                            where: { caseId: caseIds },
+                            include: [
+                                {
+                                    model: Files, as: 'caseFile',
+                                    attributes: ['fileId', 'fileName', 'createdAt', 'updatedAt', 'createdByUserId']
+                                },
+                                {
+                                    model: User, as: 'inmate',
+                                    attributes: ['userId', 'firstName', 'middleName', 'lastName']
+                                }
+                            ]
                         }
-                    ]
-                }
-            ],
-            where: { userId: req.user.userId },
-            attributes: ['userId']
-        }).then((caseData) => {
-            res.json({ success: true, data: caseData });
-        });
+                    ],
+                    where: { userId: req.user.userId },
+                    attributes: ['userId']
+                }).then((caseData) => {
+                    res.json({ success: true, data: caseData });
+                });
+            });
+        }
+        else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
     });
 })
 
 // To get single requested case.
 
 router.get('/requested-case/:caseId', function (req, res, next) {
-    User.findOne({
-        include: [
-            {
-                model: Case, as: 'lawyer',
+    validateUtil.validate([3], req.user.role, function (isAuthenticated) {
+        if (isAuthenticated) {
+            User.findOne({
                 include: [
                     {
-                        model: Files, as: 'caseFile',
-                        attributes: ['fileId', 'fileName', 'createdAt', 'updatedAt', 'createdByUserId']
-                    },
-                    {
-                        model: User, as: 'inmate',
-                        attributes: ['userId', 'firstName', 'middleName', 'lastName']
+                        model: Case, as: 'lawyer',
+                        include: [
+                            {
+                                model: Files, as: 'caseFile',
+                                attributes: ['fileId', 'fileName', 'createdAt', 'updatedAt', 'createdByUserId']
+                            },
+                            {
+                                model: User, as: 'inmate',
+                                attributes: ['userId', 'firstName', 'middleName', 'lastName']
+                            }
+                        ],
+                        where: { caseId: req.params.caseId }
                     }
                 ],
-                where: { caseId: req.params.caseId }
-            }
-        ],
-        where: { userId: req.user.userId },
-        attributes: ['userId']
-    }).then((caseData) => {
-        res.json({ success: true, data: caseData });
-    })
+                where: { userId: req.user.userId },
+                attributes: ['userId']
+            }).then((caseData) => {
+                res.json({ success: true, data: caseData });
+            });
+        }
+        else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    });
 })
 
 // To set data after case Approved.
 
 router.post('/approve-case', function (req, res, next) {
-    Lawyer_case.update({ status: 'Approved' }, {
-        where: { lawyer_caseId: req.body.lawyer_caseId, lawyerId: req.user.userId }
-    }).then((uploaded) => {
-        res.json({ success: true });
+    validateUtil.validate([3], req.user.role, function (isAuthenticated) {
+        if (isAuthenticated) {
+            Lawyer_case.update({ status: 'Approved' }, {
+                where: { lawyer_caseId: req.body.lawyer_caseId, lawyerId: req.user.userId }
+            }).then((uploaded) => {
+                res.json({ success: true });
+            });
+        }
+        else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
     });
 });
 
 // To set data after case Rejected.
 
 router.post('/reject-case', function (req, res, next) {
-    Lawyer_case.update({ status: 'Rejected' }, {
-        where: { lawyer_caseId: req.body.lawyer_caseId, lawyerId: req.user.userId }
-    }).then(() => {
-        res.json({ success: true });
+    validateUtil.validate([3], req.user.role, function (isAuthenticated) {
+        if (isAuthenticated) {
+            Lawyer_case.update({ status: 'Rejected' }, {
+                where: { lawyer_caseId: req.body.lawyer_caseId, lawyerId: req.user.userId }
+            }).then(() => {
+                res.json({ success: true });
+            });
+        }
+        else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
     });
 });
 
