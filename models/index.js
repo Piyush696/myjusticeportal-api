@@ -49,7 +49,7 @@ db.SecurityQuestion.belongsToMany(db.User, { through: 'user_securityQuestion_Ans
 
 db.User.hasMany(db.UserMeta, { foreignKey: 'userId', sourceKey: 'userId' });
 
-db.Case.belongsTo(db.User, { foreignKey: 'userId', sourceKey: 'userId' });
+db.Case.belongsTo(db.User, { as: 'inmate', foreignKey: 'userId', sourceKey: 'userId' });
 db.Files.belongsTo(db.User, { as: 'createdBy' });
 db.Case.belongsToMany(db.Files, { as: 'caseFile', through: 'file_case', foreignKey: 'caseId' });
 db.Files.belongsToMany(db.Case, { through: 'file_case', foreignKey: 'fileId' });
