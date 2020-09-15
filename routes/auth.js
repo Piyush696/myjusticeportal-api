@@ -8,6 +8,7 @@ const User = require('../models').User;
 const Role = require('../models').Role;
 const Twilio = require('../models').Twilio;
 const Facility = require('../models').Facility;
+const jwtUtils = require('../utils/create-jwt');
 
 router.get('/check-token', passport.authenticate('jwt', { session: false }), (req, res) => {
     return res.send({ success: true, user: req.user });
@@ -31,21 +32,21 @@ router.post('/login', function (req, res, next) {
             {
                 model: Role, through: {
                     attributes: []
-                },
+                }
             },
             {
                 model: Facility, through: {
                     attributes: []
-                },
+                }
             }
         ],
         where: { userName: req.body.userName }
     }).then((user) => {
         if (!user) {
-            res.json({ success: false, data: 'Invalid User.' })
+            res.json({ success: false, data: 'Invalid User.' });
         }
         else if (user && !user.isValidPassword(req.body.password)) {
-            res.json({ success: false, data: 'Invalid Password.' })
+            res.json({ success: false, data: 'Invalid Password.' });
         }
         else {
             if (user.isMFA && user.status) {
@@ -62,7 +63,7 @@ router.post('/login', function (req, res, next) {
                                 res.json({ success: false, data: 'Please Enter Your auth code.' })
                             }).catch(next)
                         }).catch((err) => {
-                            res.json({ success: false })
+                            res.json({ success: false });
                         })
                     })
                 }
@@ -78,16 +79,13 @@ router.post('/login', function (req, res, next) {
                     res.json({ success: false, data: 'Please complete your registration.' })
                 }
                 else {
-                    let expiresIn = req.body.rememberMe ? '15d' : '1d';
-                    let token = jwt.sign({
-                        userId: user.userId,
-                        firstName: user.firstName,
-                        lastName: user.lastName,
-                        userName: user.userName,
-                        role: user.roles,
-                        facilityCode: user.facilities[0].facilityCode
-                    }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
-                    res.json({ success: true, token: token });
+                    jwtUtils.createJwt(user, req.body.rememberMe, function (token) {
+                        if (token) {
+                            res.json({ success: true, token: token });
+                        } else {
+                            res.json({ success: false });
+                        }
+                    });
                 }
             }
         }
@@ -118,21 +116,19 @@ router.post('/verify-otp', async function (req, res, next) {
     }).then((user) => {
         let date = new Date();
         let x = date - user.dataValues.updatedAt;
-        let expiresIn = req.body.rememberMe ? '15d' : '1d';
         x = Math.round((x / 1000) / 60);
         if (x <= 5 && user.dataValues.authCode == req.body.otp) {
-            let token = jwt.sign({
-                userId: user.dataValues.userId,
-                firstName: user.dataValues.firstName,
-                lastName: user.dataValues.lastName,
-                userName: user.dataValues.userName,
-                role: user.dataValues.roles
-            }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
-            res.json({ success: true, token: token })
+            jwtUtils.createJwt(user.dataValues, req.body.rememberMe, function (token) {
+                if (token) {
+                    res.json({ success: true, token: token });
+                } else {
+                    res.json({ success: false });
+                }
+            });
         } else {
-            res.json({ success: false, data: 'invalid otp' })
+            res.json({ success: false, data: 'invalid otp' });
         }
-    }).catch(next)
+    }).catch(next);
 })
 
 // To get email by token.
