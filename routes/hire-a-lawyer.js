@@ -186,7 +186,7 @@ router.post('/fileDownloadLink', function (req, res, next) {
                 include: [
                     {
                         model: Files, as: 'caseFile',
-                        attributes: ['fileId', 'fileName', 'createdAt', 'updatedAt', 'createdByUserId'],
+                        attributes: ['fileId', 'bucket', 'fileName', 'createdAt', 'updatedAt', 'createdByUserId'],
                         where: { fileId: req.body.fileId }
                     }
                 ]
@@ -194,6 +194,9 @@ router.post('/fileDownloadLink', function (req, res, next) {
                 utils.getSingleSignedURL(data.caseFile[0], function (downloadLink) {
                     if (downloadLink) {
                         res.json({ success: true, data: downloadLink });
+                    }
+                    else {
+                        res.json({ success: false });
                     }
                 })
             }).catch(next);
