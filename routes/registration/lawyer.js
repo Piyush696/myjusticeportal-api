@@ -1,10 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
 const uuidv1 = require('uuid/v1');
 var twilio = require('twilio');
 
-const config = require('../../config/config');
 const Twilio = require('../../models').Twilio;
 const User = require('../../models').User;
 const Address = require('../../models').Address;
@@ -12,6 +10,7 @@ const Organization = require('../../models').Organization;
 const Facility = require('../../models').Facility;
 const Role = require('../../models').Role;
 const utilsMail = require('../../utils/admin-notification');
+const jwtUtils = require('../../utils/create-jwt');
 
 // To create a admin lawyer.
 
@@ -86,19 +85,14 @@ router.post('/verify-sms/registration', async function (req, res, next) {
         let x = date - data.dataValues.updatedAt;
         x = Math.round((x / 1000) / 60);
         if (x <= 5 && data.dataValues.authCode == req.body.otp) {
-            let expiresIn = req.body.rememberMe ? '15d' : '1d';
-            let token = jwt.sign({
-                userId: data.dataValues.userId,
-                userName: data.dataValues.userName,
-                firstName: data.dataValues.firstName,
-                lastName: data.dataValues.lastName,
-                roles: data.dataValues.roles,
-                facilities: data.dataValues.facilities,
-                status: data.dataValues.status,
-                organizationId: data.dataValues.organizationId
-            }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
+            jwtUtils.createJwt(data.dataValues, req.body.rememberMe, function (token) {
+                if (token) {
+                    res.json({ success: true, token: token });
+                } else {
+                    res.json({ success: false });
+                }
+            });
             utilsMail.notifyAdmin(data.dataValues, req);
-            res.json({ success: true, token: token });
         } else {
             res.json({ success: false, data: 'invalid auth code' });
         }

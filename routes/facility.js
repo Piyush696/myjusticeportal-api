@@ -67,8 +67,6 @@ router.get('/', function (req, res, next) {
     })
 })
 
-
-
 // udate facility
 
 router.put('/:facilityId', function (req, res, next) {

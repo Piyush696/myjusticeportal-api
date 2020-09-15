@@ -7,6 +7,8 @@ var passport = require('passport');
 const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
 const roleRouter = require('./routes/role');
+
+const userRegistrationRoutes = require('./routes/registration/user');
 const facilityRegistrationRouter = require('./routes/registration/facility');
 const lawyerRegistrationRouter = require('./routes/registration/lawyer');
 const paralegalRegistrationRouter = require('./routes/registration/paralegal');
@@ -20,9 +22,9 @@ const securityQuestionRouter = require('./routes/securityQuestion');
 const userMetaRouter = require('./routes/userMeta');
 const caseFileRouter = require('./routes/case-file');
 const facilityRoutes = require('./routes/facility');
-const userRegistrationRoutes = require('./routes/registration/user');
-const useLoginRoutes = require('./routes/login/user');
-const userLawyerLoginRoutes = require('./routes/login/lawyer');
+
+const allUsersLoginRoutes = require('./routes/core/login');
+
 const organizationRouter = require('./routes/organization');
 const hireaLawyerRouter = require('./routes/hire-a-lawyer');
 
@@ -68,8 +70,7 @@ app.use('/api/paralegal-registration', paralegalRegistrationRouter);
 app.use('/api/public-defender-registration', publicDefenderRegistrationRouter);
 app.use('/api/bondsman-registration', bondsmanRegistrationRouter);
 
-app.use('/api/userLogin', useLoginRoutes);
-app.use('/api/lawyerLogin', userLawyerLoginRoutes);
+app.use('/api/login', allUsersLoginRoutes);
 
 app.use('/api/role', roleRouter);
 app.use('/api/case', passport.authenticate('jwt', { session: false }), /*roleMiddleware,*/ caseRouter);

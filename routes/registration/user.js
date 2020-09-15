@@ -9,6 +9,7 @@ const User_SecurityQuestion_Answers = require('../../models').User_SecurityQuest
 const Role = require('../../models').Role;
 const Facility = require('../../models').Facility;
 const utils = require('../../utils/validation');
+const jwtUtils = require('../../utils/create-jwt');
 
 // User registration.
 
@@ -31,16 +32,13 @@ router.post('/', function (req, res, next) {
                     Promise.resolve(user.setRoles(roles)).then(() => {
                         return Facility.findOne({ where: { facilityCode: req.body.facilityCode } }).then((facility) => {
                             Promise.resolve(user.addFacility(facility)).then(() => {
-                                let expiresIn = req.body.rememberMe ? '15d' : '1d';
-                                let token = jwt.sign({
-                                    userId: user.userId,
-                                    firstName: user.firstName,
-                                    lastName: user.lastName,
-                                    userName: user.userName,
-                                    roles: roles,
-                                    facility: facility
-                                }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
-                                return res.json({ success: true, token: token });
+                                jwtUtils.createJwt(user, req.body.rememberMe, function (token) {
+                                    if (token) {
+                                        res.json({ success: true, token: token });
+                                    } else {
+                                        res.json({ success: false });
+                                    }
+                                });
                             })
                         })
                     })

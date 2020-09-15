@@ -2,17 +2,20 @@ const express = require('express');
 const router = express.Router();
 var passport = require('passport');
 const request = require('request');
+const jwt = require('jsonwebtoken');
+const uuidv1 = require('uuid/v1');
+var twilio = require('twilio');
+
 const User = require('../models').User;
 const Role = require('../models').Role;
-const util = require('../utils/validateUser');
-const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 const Twilio = require('../models').Twilio;
-var twilio = require('twilio');
 var Facility = require('../models').Facility;
 const userMeta = require('../models').UserMeta;
 const Postage = require('../models').Postage;
-const uuidv1 = require('uuid/v1');
+const util = require('../utils/validateUser');
+const jwtUtils = require('../utils/create-jwt');
+
 /* user registration. */
 
 router.post('/registration', function (req, res, next) {
@@ -119,17 +122,13 @@ router.put('/', function (req, res, next) {
             ],
             where: { userName: req.body.value.userName }
         }).then((user) => {
-            let expiresIn = req.body.rememberMe ? '15d' : '1d';
-            let token = jwt.sign({
-                userId: user.userId,
-                userName: user.userName,
-                firstName: user.firstName,
-                middleName: req.body.middleName,
-                lastName: user.lastName,
-                role: user.roles,
-                facilityCode: user.facilities[0].facilityCode
-            }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
-            res.json({ success: true, token: token });
+            jwtUtils.createJwt(user, req.body.rememberMe, function (token) {
+                if (token) {
+                    res.json({ success: true, token: token });
+                } else {
+                    res.json({ success: false });
+                }
+            });
         })
     }).catch(next);
 })
@@ -333,16 +332,13 @@ router.post('/register/verify-sms', async function (req, res, next) {
         let x = date - data.dataValues.updatedAt;
         x = Math.round((x / 1000) / 60);
         if (x <= 5 && data.dataValues.authCode == req.body.otp) {
-            let expiresIn = req.body.rememberMe ? '15d' : '1d';
-            let token = jwt.sign({
-                userId: data.dataValues.userId,
-                userName: data.dataValues.userName,
-                firstName: data.dataValues.firstName,
-                lastName: data.dataValues.lastName,
-                role: data.dataValues.roles,
-                status: data.dataValues.status
-            }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
-            res.json({ success: true, token: token });
+            jwtUtils.createJwt(data.dataValues, req.body.rememberMe, function (token) {
+                if (token) {
+                    res.json({ success: true, token: token });
+                } else {
+                    res.json({ success: false });
+                }
+            });
         } else {
             res.json({ success: false, data: 'invalid auth code' })
         }
