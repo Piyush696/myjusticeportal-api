@@ -121,4 +121,30 @@ function generateCode() {
     return Code;
 }
 
+// router.post('/userCreate', async function (req, res, next) {
+//     // First, we start a transaction and save it into a variable
+//     const t = await sequelize.transaction();
+//     req.body.user.password = User.generateHash(req.body.user.password);
+//     req.body.user.isAdmin = true;
+//     try {
+//         const user = await User.create(req.body.user, { transaction: t }).then((createdUser) => {
+//             Role.findOne({ where: { roleId: 3 } }).then((roles) => {
+//                 user.addRole(roles, { transaction: t }).then((userRole) => {
+//                     // If the execution reaches this line, no errors were thrown.
+//                     // We commit the transaction.
+//                     await t.commit();
+//                 })
+//             })
+//         })
+//     }
+//     catch (error) {
+//         // If the execution reaches this line, an error was thrown.
+//         // We rollback the transaction.
+//         await t.rollback();
+//     }
+// })
+
+
+
+
 module.exports = router;

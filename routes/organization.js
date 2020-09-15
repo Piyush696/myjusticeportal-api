@@ -16,7 +16,7 @@ const util = require('../utils/validateUser');
 // To invite a user by mail.
 
 router.post('/invite-user', function (req, res, next) {
-    util.validate([3, 4, 5, 6], req.user.role, function (isAuthenticated) {
+    util.validate([3, 4, 5, 6], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             User.findOne({ where: { userName: req.body.userName } }).then(singleUserData => {
                 if (singleUserData) {
@@ -32,10 +32,10 @@ router.post('/invite-user', function (req, res, next) {
                         attributes: ['userId', 'userName', 'firstName', 'middleName', 'lastName']
                     }).then(foundUserData => {
                         req.body.password = User.generateHash(' ');
-                        req.body.organizationId = req.user.role[0].roleId;
+                        req.body.organizationId = req.user.roles[0].roleId;
                         User.create(req.body).then((createdUser) => {
                             if (foundUserData && createdUser) {
-                                Role.findOne({ where: { roleId: req.user.role[0].roleId } }).then((roles) => {
+                                Role.findOne({ where: { roleId: req.user.roles[0].roleId } }).then((roles) => {
                                     Promise.resolve(createdUser.addRole(roles)).then((userRole) => {
                                         let url = req.headers.origin + '/' + foundUserData.Organization.dataValues.type + '/registration/';
                                         let token = jwt.sign({
@@ -92,7 +92,7 @@ router.post('/invite-user', function (req, res, next) {
 // get Organisation and Address.
 
 router.get('/', function (req, res, next) {
-    util.validate([3, 4, 5, 6], req.user.role, function (isAuthenticated) {
+    util.validate([3, 4, 5, 6], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             User.findOne({
                 include: [
@@ -120,7 +120,7 @@ router.get('/', function (req, res, next) {
 // get users of organisation.
 
 router.get('/all-user', function (req, res, next) {
-    util.validate([3, 4, 5, 6], req.user.role, function (isAuthenticated) {
+    util.validate([3, 4, 5, 6], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Organization.findOne({
                 include: [
@@ -152,7 +152,7 @@ router.get('/all-user', function (req, res, next) {
 // get facilities of organisation.
 
 router.get('/all-facilities', function (req, res, next) {
-    util.validate([3, 4, 5, 6], req.user.role, function (isAuthenticated) {
+    util.validate([3, 4, 5, 6], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Organization.findOne({
                 include: [
@@ -179,7 +179,7 @@ router.get('/all-facilities', function (req, res, next) {
 // Add facilities to Organisation.
 
 router.post('/add-facility', function (req, res, next) {
-    util.validate([3, 4, 5, 6], req.user.role, function (isAuthenticated) {
+    util.validate([3, 4, 5, 6], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Organization.findOne(
                 { where: { organizationId: req.user.organizationId } }
@@ -200,7 +200,7 @@ router.post('/add-facility', function (req, res, next) {
 // Remove facility to Organisation.
 
 router.post('/remove-facility', function (req, res, next) {
-    util.validate([3, 4, 5, 6], req.user.role, function (isAuthenticated) {
+    util.validate([3, 4, 5, 6], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Organization.findOne(
                 { where: { organizationId: req.user.organizationId } }
@@ -221,7 +221,7 @@ router.post('/remove-facility', function (req, res, next) {
 // update organization.
 
 router.put('/:addressId', function (req, res, next) {
-    util.validate([3, 4, 5, 6], req.user.role, function (isAuthenticated) {
+    util.validate([3, 4, 5, 6], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Organization.update(req.body.organization, { where: { organizationId: req.user.organizationId } }).then(() => {
                 Address.update(req.body.address, { where: { addressId: req.params.addressId } }).then((data) => {

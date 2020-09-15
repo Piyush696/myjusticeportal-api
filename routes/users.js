@@ -169,7 +169,7 @@ router.put('/reset-pass', function (req, res, next) {
 // delete user.
 
 router.delete('/:userId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-    if (req.user.role[0].roleId === 7 && req.user.userId !== req.params.userId) {
+    if (req.user.roles[0].roleId === 7 && req.user.userId !== req.params.userId) {
         User.destroy({
             where: { userId: req.params.userId }
         }).then(() => {
@@ -183,7 +183,7 @@ router.delete('/:userId', passport.authenticate('jwt', { session: false }), func
 // single user.
 
 router.get('/singleUser/:userId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-    if (req.user.role[0].roleId === 7) {
+    if (req.user.roles[0].roleId === 7) {
         User.findOne({
             include: [
                 {
@@ -203,7 +203,7 @@ router.get('/singleUser/:userId', passport.authenticate('jwt', { session: false 
 // Update User by userId.
 
 router.put('/updateSingleUser', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-    if (req.user.role[0].roleId === 7) {
+    if (req.user.roles[0].roleId === 7) {
         User.update(req.body, {
             where: { userId: req.body.userId }
         }).then(result => {
@@ -215,7 +215,7 @@ router.put('/updateSingleUser', passport.authenticate('jwt', { session: false })
 })
 
 router.put('/updateStatus', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-    if (req.user.role[0].roleId === 7) {
+    if (req.user.roles[0].roleId === 7) {
         User.update(req.body, {
             where: { userId: req.body.userId }
         }).then(result => {
@@ -273,7 +273,7 @@ router.put('/updateStatus', passport.authenticate('jwt', { session: false }), (r
 // Change Role.
 
 router.put('/changeRole', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-    if (req.user.role[0].roleId === 7) {
+    if (req.user.roles[0].roleId === 7) {
         User.findOne({
             include: [
                 {
@@ -366,7 +366,7 @@ router.get('/roleFacility', function (req, res, next) {
 
 //create user by superadmin
 router.post('/createUser', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-    util.validate([7], req.user.role, function (isAuthenticated) {
+    util.validate([7], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             User.create({
                 password: User.generateHash(req.body.password),

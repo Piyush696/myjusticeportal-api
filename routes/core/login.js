@@ -111,7 +111,6 @@ router.post('/verify-otp', async function (req, res, next) {
     }).then((user) => {
         let date = new Date();
         let x = date - user.dataValues.updatedAt;
-        let expiresIn = req.body.rememberMe ? '15d' : '1d';
         x = Math.round((x / 1000) / 60);
         if (x <= 5 && user.dataValues.authCode == req.body.otp) {
             jwtUtils.createJwt(user.dataValues, req.body.rememberMe, function (token) {
