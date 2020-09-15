@@ -18,7 +18,7 @@ function generateCode() {
 
 /**generate otp after registration*/
 router.post('/', async function (req, res, next) {
-    util.validate([7], req.user.role, function (isAuthenticated) {
+    util.validate([7], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             let code = generateCode();
             Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
@@ -45,7 +45,7 @@ router.post('/', async function (req, res, next) {
 
 /**verify otp */
 router.post('/verify-sms', async function (req, res, next) {
-    util.validate([7], req.user.role, function (isAuthenticated) {
+    util.validate([7], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             User.findOne({ where: { userId: req.user.userId } }).then((data) => {
                 let date = new Date();
@@ -67,7 +67,7 @@ router.post('/verify-sms', async function (req, res, next) {
 
 /* get twilio Credencials. */
 router.get('/', function (req, res, next) {
-    util.validate([7], req.user.role, function (isAuthenticated) {
+    util.validate([7], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Twilio.findOne({ where: { twilioId: 1 } }).then(twilio => {
                 res.json({ success: true, data: twilio });
@@ -82,7 +82,7 @@ router.get('/', function (req, res, next) {
 
 /*update twilio Credencials */
 router.post('/twilio', function (req, res, next) {
-    util.validate([7], req.user.role, function (isAuthenticated) {
+    util.validate([7], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Twilio.findOne({ where: { twilioId: 1 } }).then(twilio => {
                 if (twilio) {

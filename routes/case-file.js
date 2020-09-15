@@ -11,7 +11,7 @@ const validateUtil = require('../utils/validateUser');
 // To upload file.
 
 router.post('/uploadFile', upload.any(), function (req, response, next) {
-    validateUtil.validate([1], req.user.role, function (isAuthenticated) {
+    validateUtil.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             let itemsProcessed = 0;
             let fileIds = [];
@@ -42,7 +42,7 @@ router.post('/uploadFile', upload.any(), function (req, response, next) {
 // To delete a file by id.
 
 router.delete('/deleteFile/:fileId', function (req, res, next) {
-    validateUtil.validate([1], req.user.role, function (isAuthenticated) {
+    validateUtil.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             utils.deleteFile(req.params.fileId, function (deleteFile) {
                 if (deleteFile) {
@@ -59,7 +59,7 @@ router.delete('/deleteFile/:fileId', function (req, res, next) {
 // To get file DownloadLink.
 
 router.post('/fileDownloadLink', function (req, res, next) {
-    validateUtil.validate([1], req.user.role, function (isAuthenticated) {
+    validateUtil.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Case.findOne({
                 where: { userId: req.user.userId, caseId: req.body.caseId },

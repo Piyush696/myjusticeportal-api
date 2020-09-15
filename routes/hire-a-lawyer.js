@@ -71,7 +71,7 @@ router.post('/', function (req, res, next) {
 // To get all requested cases.
 
 router.post('/requested-cases', function (req, res, next) {
-    validateUtil.validate([3], req.user.role, function (isAuthenticated) {
+    validateUtil.validate([3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Lawyer_case.findAll({
                 where: { status: req.body.status, lawyerId: req.user.userId }
@@ -110,7 +110,7 @@ router.post('/requested-cases', function (req, res, next) {
 // To get single requested case.
 
 router.get('/requested-case/:caseId', function (req, res, next) {
-    validateUtil.validate([3], req.user.role, function (isAuthenticated) {
+    validateUtil.validate([3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             User.findOne({
                 include: [
@@ -144,7 +144,7 @@ router.get('/requested-case/:caseId', function (req, res, next) {
 // To set data after case Approved.
 
 router.post('/approve-case', function (req, res, next) {
-    validateUtil.validate([3], req.user.role, function (isAuthenticated) {
+    validateUtil.validate([3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Lawyer_case.update({ status: 'Approved' }, {
                 where: { lawyer_caseId: req.body.lawyer_caseId, lawyerId: req.user.userId }
@@ -161,7 +161,7 @@ router.post('/approve-case', function (req, res, next) {
 // To set data after case Rejected.
 
 router.post('/reject-case', function (req, res, next) {
-    validateUtil.validate([3], req.user.role, function (isAuthenticated) {
+    validateUtil.validate([3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Lawyer_case.update({ status: 'Rejected' }, {
                 where: { lawyer_caseId: req.body.lawyer_caseId, lawyerId: req.user.userId }
@@ -178,7 +178,7 @@ router.post('/reject-case', function (req, res, next) {
 // To get file DownloadLink.
 
 router.post('/fileDownloadLink', function (req, res, next) {
-    validateUtil.validate([3], req.user.role, function (isAuthenticated) {
+    validateUtil.validate([3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Case.findOne({
                 where: { userId: req.body.userId, caseId: req.body.caseId },

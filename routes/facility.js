@@ -10,7 +10,7 @@ const util = require('../utils/validateUser');
 // create Facility
 
 router.post('/', function (req, res, next) {
-    util.validate([7], req.user.role, function (isAuthenticated) {
+    util.validate([7], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             let address = req.body.facilityAddress
             let fac = req.body.facility
@@ -49,7 +49,7 @@ router.post('/', function (req, res, next) {
 // get all Facility
 
 router.get('/', function (req, res, next) {
-    util.validate([7], req.user.role, function (isAuthenticated) {
+    util.validate([7], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Facility.findAll({
                 include: [
@@ -72,7 +72,7 @@ router.get('/', function (req, res, next) {
 // udate facility
 
 router.put('/:facilityId', function (req, res, next) {
-    util.validate([7], req.user.role, function (isAuthenticated) {
+    util.validate([7], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Facility.update(req.body.facility, { where: { facilityId: req.params.facilityId } }).then(() => {
                 Address.update(req.body.facilityAddress, { where: { addressId: req.body.facilityAddressId } }).then((data) => {
@@ -91,7 +91,7 @@ router.put('/:facilityId', function (req, res, next) {
 })
 
 router.delete('/:facilityId', function (req, res, next) {
-    util.validate([7], req.user.role, function (isAuthenticated) {
+    util.validate([7], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Facility.destroy({ where: { facilityId: req.params.facilityId } }).then(data => {
                 res.json({ success: true, data: data });
@@ -106,7 +106,7 @@ router.delete('/:facilityId', function (req, res, next) {
 // check facility code
 
 router.get('/facilityCode/check/:code?', async function (req, res, next) {
-    util.validate([7], req.user.role, function (isAuthenticated) {
+    util.validate([7], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Facility.findAndCountAll({
                 where: { facilityCode: req.params.code }

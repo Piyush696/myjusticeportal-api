@@ -6,7 +6,7 @@ const util = require('../utils/validateUser');
 
 /* get postage Credencials. */
 router.get('/', function (req, res, next) {
-    util.validate([7], req.user.role, function (isAuthenticated) {
+    util.validate([7], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Postage.findOne({ where: { postageAppId: 1 } }).then(postage => {
                 res.json({ success: true, data: postage });
@@ -21,7 +21,7 @@ router.get('/', function (req, res, next) {
 
 /*update postage Credencials */
 router.post('/', function (req, res, next) {
-    util.validate([7], req.user.role, function (isAuthenticated) {
+    util.validate([7], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Postage.findOne({ where: { postageAppId: 1 } }).then(postage => {
                 if (postage) {
