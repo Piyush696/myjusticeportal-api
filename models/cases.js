@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         otherInformation: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
         notes: {
             type: DataTypes.STRING(5000),
