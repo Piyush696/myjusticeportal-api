@@ -4,7 +4,6 @@ const config = require('../config/config');
 module.exports = {
     createJwt: function (userData, rememberMe, callback) {
         let expiresIn = rememberMe ? '15d' : '2h';
-        console.log("userData", expiresIn, userData);
         let token = jwt.sign({
             userId: userData.userId,
             firstName: userData.firstName,

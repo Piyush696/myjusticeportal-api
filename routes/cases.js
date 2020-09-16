@@ -13,8 +13,7 @@ router.post('/', function (req, res, next) {
             Case.create(req.body).then(data => {
                 res.json({ success: true, data: data });
             }).catch(next)
-        }
-        else {
+        } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     })
@@ -28,7 +27,8 @@ router.get('/', function (req, res, next) {
             Case.findAll({
                 include: [
                     {
-                        model: User, attributes: ['userId', 'firstName', 'lastName', 'userName']
+                        model: User, as: 'inmate',
+                        attributes: ['userId', 'firstName', 'lastName', 'userName']
                     }
                 ],
                 where: { userId: req.user.userId }
@@ -88,6 +88,5 @@ router.put('/:caseId', function (req, res, next) {
         }
     })
 })
-
 
 module.exports = router; 
