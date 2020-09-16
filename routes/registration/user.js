@@ -32,6 +32,8 @@ router.post('/', function (req, res, next) {
                     Promise.resolve(user.setRoles(roles)).then(() => {
                         return Facility.findOne({ where: { facilityCode: req.body.facilityCode } }).then((facility) => {
                             Promise.resolve(user.addFacility(facility)).then(() => {
+                                user['roles'] = roles;
+                                user['facilities'] = [facility];
                                 jwtUtils.createJwt(user, req.body.rememberMe, function (token) {
                                     if (token) {
                                         res.json({ success: true, token: token });
