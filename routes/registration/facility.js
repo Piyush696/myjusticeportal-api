@@ -1,7 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
-const config = require('../../config/config');
 var twilio = require('twilio');
 
 const Twilio = require('../../models').Twilio;
@@ -9,6 +7,7 @@ const User = require('../../models').User;
 const Facility = require('../../models').Facility;
 const Role = require('../../models').Role;
 const utils = require('../../utils/validation');
+const jwtUtils = require('../../utils/create-jwt');
 
 // To create a facility user.
 
@@ -72,17 +71,13 @@ router.post('/verify-sms/registration', async function (req, res, next) {
         let x = date - data.dataValues.updatedAt;
         x = Math.round((x / 1000) / 60);
         if (x <= 5 && data.dataValues.authCode == req.body.otp) {
-            let expiresIn = req.body.rememberMe ? '15d' : '1d';
-            let token = jwt.sign({
-                userId: data.dataValues.userId,
-                userName: data.dataValues.userName,
-                firstName: data.dataValues.firstName,
-                lastName: data.dataValues.lastName,
-                roles: data.dataValues.roles,
-                facilities: data.dataValues.facilities,
-                status: data.dataValues.status,
-            }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
-            res.json({ success: true, token: token });
+            jwtUtils.createJwt(data.dataValues, req.body.rememberMe, function (token) {
+                if (token) {
+                    res.json({ success: true, token: token });
+                } else {
+                    res.json({ success: false });
+                }
+            });
         } else {
             res.json({ success: false, data: 'invalid auth code' });
         }
