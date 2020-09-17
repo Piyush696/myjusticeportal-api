@@ -10,6 +10,7 @@ module.exports = {
             lastName: userData.lastName,
             userName: userData.userName,
             isAdmin: userData.isAdmin,
+            status: userData.status,
             roles: userData.roles,
             facilities: userData.facilities,
             organizationId: userData.organizationId
