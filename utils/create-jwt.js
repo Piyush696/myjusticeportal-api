@@ -3,7 +3,6 @@ const config = require('../config/config');
 
 module.exports = {
     createJwt: function (userData, rememberMe, callback) {
-        console.log(userData);
         let expiresIn = rememberMe ? '15d' : '2h';
         let token = jwt.sign({
             userId: userData.userId,
