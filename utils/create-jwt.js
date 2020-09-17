@@ -9,6 +9,7 @@ module.exports = {
             firstName: userData.firstName,
             lastName: userData.lastName,
             userName: userData.userName,
+            isAdmin: userData.isAdmin,
             roles: userData.roles,
             facilities: userData.facilities,
             organizationId: userData.organizationId
