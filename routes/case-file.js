@@ -5,30 +5,27 @@ const upload = multer({ dest: 'uploads/' });
 
 const Files = require('../models').Files;
 const Case = require('../models').Case;
+const File_case = require('../models').file_case;
 const utils = require('../utils/file');
 const validateUtil = require('../utils/validateUser');
 
 // To upload file.
 
-router.post('/uploadFile', upload.any(), function (req, response, next) {
+router.post('/uploadFile', upload.any(), function (req, res, next) {
     validateUtil.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
-            let itemsProcessed = 0;
-            let fileIds = [];
+            let itemsProcessed = 1;
             req.files.forEach((file, index, array) => {
                 utils.uploadFile(file, file.mimetype, req.user.userId, 'mjp-private', 'private', function (fileId) {
                     if (fileId) {
-                        fileIds.push(fileId);
-                        if (itemsProcessed === array.length - 1) {
-                            Case.findOne({ where: { userId: req.user.userId, caseId: req.body.caseId } }).then((caseData) => {
-                                Files.findAll({ where: { fileId: fileIds } }).then((files) => {
-                                    Promise.resolve(caseData.addCaseFile(files)).then(() => {
-                                        response.json({ success: true });
-                                    })
-                                }).catch(next)
-                            }).catch(next)
-                        }
-                        itemsProcessed++;
+                        req.body.fileId = fileId;
+                        File_case.create(req.body).then(() => {
+                            if (itemsProcessed === array.length) {
+                                res.json({ success: true });
+                            } else {
+                                itemsProcessed++;
+                            }
+                        });
                     }
                 });
             });
@@ -67,6 +64,7 @@ router.post('/fileDownloadLink', function (req, res, next) {
                 include: [
                     {
                         model: Files, as: 'caseFile',
+                        attributes: ['fileId', 'bucket', 'fileName', 'createdAt', 'updatedAt', 'createdByUserId'],
                         where: { fileId: req.body.fileId }
                     }
                 ]
