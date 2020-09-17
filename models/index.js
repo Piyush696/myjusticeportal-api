@@ -31,6 +31,7 @@ db.UserMeta = require('./userMeta')(sequelize, Sequelize);
 db.Files = require('./files')(sequelize, Sequelize);
 db.Facility = require('./facility')(sequelize, Sequelize);
 db.lawyer_case = require('./lawyer_case')(sequelize, Sequelize);
+db.file_case = require('./file_case')(sequelize, Sequelize);
 
 /* Mapings */
 

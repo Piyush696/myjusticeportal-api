@@ -55,6 +55,7 @@ router.get('/:caseId', function (req, res, next) {
                     },
                     {
                         model: Files, as: 'caseFile',
+                        attributes: ['fileId', 'fileName', 'fileType', 'createdAt', 'updatedAt', 'createdByUserId'],
                         include: [
                             {
                                 model: User, as: 'createdBy',
