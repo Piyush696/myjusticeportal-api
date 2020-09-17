@@ -11,6 +11,7 @@ const Facility = require('../../models').Facility;
 const Role = require('../../models').Role;
 const utilsMail = require('../../utils/admin-notification');
 const jwtUtils = require('../../utils/create-jwt');
+const UserMeta = require('../../models').UserMeta;
 
 // To create a admin lawyer.
 
@@ -18,26 +19,32 @@ router.post('/registration', function (req, res, next) {
     req.body.user.password = User.generateHash(req.body.user.password);
     req.body.user.isAdmin = true;
     User.create(req.body.user).then((createdUser) => {
-        Address.create(req.body.organization.address).then((createdAddress) => {
-            req.body.organization.orgCode = uuidv1();
-            req.body.organization.type = 'lawyer';
-            req.body.organization.addressId = createdAddress.addressId;
-            Organization.create(req.body.organization).then((createdOrg) => {
-                User.update({ organizationId: createdOrg.organizationId },
-                    { where: { userId: createdUser.userId } }
-                ).then(() => {
-                    Facility.findAll({ where: { facilityId: req.body.facilityIds } }).then((foundFacility) => {
-                        return Role.findOne({ where: { roleId: 3 } }).then((roles) => {
-                            Promise.resolve(createdUser.addRole(roles)).then(() => {
-                                Promise.resolve(createdOrg.addFacility(foundFacility)).then(() => {
-                                    return res.json({ success: true, data: createdUser });
+        req.body.userMeta.map((element) => {
+            element['userId'] = createdUser.userId
+            element['createdBy'] = createdUser.userId
+        })
+        UserMeta.bulkCreate(req.body.userMeta).then(() => {
+            Address.create(req.body.organization.address).then((createdAddress) => {
+                req.body.organization.orgCode = uuidv1();
+                req.body.organization.type = 'lawyer';
+                req.body.organization.addressId = createdAddress.addressId;
+                Organization.create(req.body.organization).then((createdOrg) => {
+                    User.update({ organizationId: createdOrg.organizationId },
+                        { where: { userId: createdUser.userId } }
+                    ).then(() => {
+                        Facility.findAll({ where: { facilityId: req.body.facilityIds } }).then((foundFacility) => {
+                            return Role.findOne({ where: { roleId: 3 } }).then((roles) => {
+                                Promise.resolve(createdUser.addRole(roles)).then(() => {
+                                    Promise.resolve(createdOrg.addFacility(foundFacility)).then(() => {
+                                        return res.json({ success: true, data: createdUser });
+                                    }).catch(next);
                                 }).catch(next);
                             }).catch(next);
                         }).catch(next);
                     }).catch(next);
                 }).catch(next);
             }).catch(next);
-        }).catch(next);
+        })
     }).catch(next);
 });
 
