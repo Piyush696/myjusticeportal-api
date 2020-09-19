@@ -10,6 +10,8 @@ const Role = require('../../models').Role;
 const Facility = require('../../models').Facility;
 const utils = require('../../utils/validation');
 const jwtUtils = require('../../utils/create-jwt');
+const requestIp = require('request-ip');
+
 
 // User registration.
 
@@ -30,8 +32,10 @@ router.post('/', function (req, res, next) {
             User_SecurityQuestion_Answers.bulkCreate(req.body.securityQuestionData).then(() => {
                 return Role.findAll({ where: { roleId: 1 } }).then((roles) => {
                     Promise.resolve(user.setRoles(roles)).then(() => {
-                        return Facility.findOne({ where: { facilityCode: req.body.facilityCode } }).then((facility) => {
-                            Promise.resolve(user.addFacility(facility)).then(() => {
+                        const clientIp = requestIp.getClientIp(req);
+                        console.log('dewdwe', clientIp)
+                        return Facility.findOne({ where: { ipAddress: clientIp } }).then((facility) => {
+                            Promise.resolve(user.addFacility(clientIp)).then(() => {
                                 user['roles'] = roles;
                                 user['facilities'] = [facility];
                                 jwtUtils.createJwt(user, req.body.rememberMe, function (token) {

@@ -8,6 +8,7 @@ const Facility = require('../../models').Facility;
 const Role = require('../../models').Role;
 const utils = require('../../utils/validation');
 const jwtUtils = require('../../utils/create-jwt');
+const requestIp = require('request-ip');
 
 // To create a facility user.
 
@@ -16,7 +17,9 @@ router.post('/registration', function (req, res, next) {
     User.create(req.body.user).then((createdUser) => {
         Role.findOne({ where: { roleId: 2 } }).then((roles) => {
             Promise.resolve(createdUser.addRole(roles)).then((userRole) => {
-                Facility.findOne({ where: { facilityCode: req.body.facilityCode } }).then((foundFacility) => {
+                const clientIp = requestIp.getClientIp(req);
+                console.log('ipAddress', clientIp)
+                Facility.findOne({ where: { ipAddress: clientIp } }).then((foundFacility) => {
                     Promise.resolve(createdUser.addFacility(foundFacility)).then((userFacility) => {
                         res.json({ success: true, data: createdUser });
                     }).catch(next);

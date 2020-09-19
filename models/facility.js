@@ -30,6 +30,10 @@ module.exports = (sequelize, DataTypes) => {
                 }
             }
         },
+        ipAddress: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
         libraryLink: {
             type: DataTypes.STRING,
             allowNull: true,
