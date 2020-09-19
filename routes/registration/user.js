@@ -33,19 +33,34 @@ router.post('/', function (req, res, next) {
                 return Role.findAll({ where: { roleId: 1 } }).then((roles) => {
                     Promise.resolve(user.setRoles(roles)).then(() => {
                         const clientIp = requestIp.getClientIp(req);
-                        console.log('dewdwe', clientIp)
                         return Facility.findOne({ where: { ipAddress: clientIp } }).then((facility) => {
-                            Promise.resolve(user.addFacility(clientIp)).then(() => {
-                                user['roles'] = roles;
-                                user['facilities'] = [facility];
-                                jwtUtils.createJwt(user, req.body.rememberMe, function (token) {
-                                    if (token) {
-                                        res.json({ success: true, token: token });
-                                    } else {
-                                        res.json({ success: false });
-                                    }
-                                });
-                            })
+                            if (facility) {
+                                Promise.resolve(user.addFacility(facility)).then(() => {
+                                    user['roles'] = roles;
+                                    user['facilities'] = [facility];
+                                    jwtUtils.createJwt(user, req.body.rememberMe, function (token) {
+                                        if (token) {
+                                            res.json({ success: true, token: token });
+                                        } else {
+                                            res.json({ success: false });
+                                        }
+                                    });
+                                }).catch(next);
+                            } else {
+                                return Facility.findOne({ where: { ipAddress: 'outside' } }).then((foundFacility) => {
+                                    Promise.resolve(user.addFacility(foundFacility)).then(() => {
+                                        user['roles'] = roles;
+                                        user['facilities'] = [facility];
+                                        jwtUtils.createJwt(user, req.body.rememberMe, function (token) {
+                                            if (token) {
+                                                res.json({ success: true, token: token });
+                                            } else {
+                                                res.json({ success: false });
+                                            }
+                                        });
+                                    }).catch(next);
+                                })
+                            }
                         })
                     })
                 }).catch(next);
