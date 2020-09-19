@@ -45,9 +45,7 @@ router.post('/', function (req, res, next) {
                                             res.json({ success: false });
                                         }
                                     });
-                                }).catch((next) => {
-                                    console.log(next)
-                                });
+                                }).catch(next);
                             } else {
                                 return Facility.findOne({ where: { ipAddress: 'outside' } }).then((foundFacility) => {
                                     Promise.resolve(user.addFacility(foundFacility)).then(() => {
@@ -60,9 +58,7 @@ router.post('/', function (req, res, next) {
                                                 res.json({ success: false });
                                             }
                                         });
-                                    }).catch((next) => {
-                                        console.log(next)
-                                    });
+                                    }).catch(next);
                                 })
                             }
                         })
