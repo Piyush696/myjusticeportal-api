@@ -16,13 +16,20 @@ router.post('/registration', function (req, res, next) {
     req.body.user.password = User.generateHash(req.body.user.password);
     User.create(req.body.user).then((createdUser) => {
         Role.findOne({ where: { roleId: 2 } }).then((roles) => {
-            Promise.resolve(createdUser.addRole(roles)).then((userRole) => {
+            Promise.resolve(createdUser.addRole(roles)).then(() => {
                 const clientIp = requestIp.getClientIp(req);
-                console.log('ipAddress', clientIp)
                 Facility.findOne({ where: { ipAddress: clientIp } }).then((foundFacility) => {
-                    Promise.resolve(createdUser.addFacility(foundFacility)).then((userFacility) => {
-                        res.json({ success: true, data: createdUser });
-                    }).catch(next);
+                    if (foundFacility) {
+                        Promise.resolve(createdUser.addFacility(foundFacility)).then(() => {
+                            res.json({ success: true, data: createdUser });
+                        }).catch(next);
+                    } else {
+                        Facility.findOne({ where: { ipAddress: 'outside' } }).then((foundFacility) => {
+                            Promise.resolve(createdUser.addFacility(foundFacility)).then(() => {
+                                res.json({ success: true, data: createdUser });
+                            }).catch(next);
+                        })
+                    }
                 });
             }).catch(next);
         }).catch(next);
