@@ -15,6 +15,8 @@ const paralegalRegistrationRouter = require('./routes/registration/paralegal');
 const publicDefenderRegistrationRouter = require('./routes/registration/public-defender');
 const bondsmanRegistrationRouter = require('./routes/registration/bondsman');
 
+const bondsmanRouter = require('./routes/bondsman');
+
 const caseRouter = require('./routes/cases');
 const postageAppRouter = require('./routes/postageapp');
 const twilioRouter = require('./routes/twilio');
@@ -22,6 +24,7 @@ const securityQuestionRouter = require('./routes/securityQuestion');
 const userMetaRouter = require('./routes/userMeta');
 const caseFileRouter = require('./routes/case-file');
 const facilityRoutes = require('./routes/facility');
+
 
 const allUsersLoginRoutes = require('./routes/core/login');
 
@@ -71,6 +74,8 @@ app.use('/api/public-defender-registration', publicDefenderRegistrationRouter);
 app.use('/api/bondsman-registration', bondsmanRegistrationRouter);
 
 app.use('/api/login', allUsersLoginRoutes);
+
+app.use('/api/bondsman', passport.authenticate('jwt', { session: false }), bondsmanRouter);
 
 app.use('/api/role', roleRouter);
 app.use('/api/case', passport.authenticate('jwt', { session: false }), /*roleMiddleware,*/ caseRouter);
