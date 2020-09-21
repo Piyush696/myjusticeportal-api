@@ -2,39 +2,33 @@ const express = require('express');
 const router = express.Router();
 
 const User = require('../models').User;
-const Facility = require('../models').Facility;
 const Organization = require('../models').Organization;
 const Address = require('../models').Address;
-const Role = require('../models').Role
 const Case = require('../models').Case;
 const Lawyer_case = require('../models').lawyer_case;
 const Files = require('../models').Files;
 const utils = require('../utils/file');
-const validateUtil = require('../utils/validateUser');
+const util = require('../utils/validateUser');
 
-//list of all organizations those who are linked to a facility and role is lawyer.
+
+//list of all organizations role is lawyer.
 router.get('/organizations', function (req, res, next) {
-    User.findOne({
-        include: [
-            {
-                model: Facility, through: { attributes: [] }, attributes: ['facilityId'],
+    util.validate([1], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            Organization.findAll({
                 include: [
                     {
-                        model: Organization, through: { attributes: [] }, attributes: ['organizationId', 'name', 'orgCode', 'type'],
-                        where: { type: 'lawyer' },
-                        include: [
-                            {
-                                model: Address
-                            }
-                        ],
+                        model: Address
                     }
                 ],
-            }
-        ],
-        where: { userId: req.user.userId },
-        attributes: ['userId'],
-    }).then((user) => {
-        res.json({ success: true, data: user.facilities[0].Organizations });
+                attributes: ['organizationId', 'name', 'orgCode', 'type'],
+                where: { type: 'lawyer' },
+            }).then((organizations) => {
+                res.json({ success: true, data: organizations });
+            }).catch(next)
+        } else {
+            res.json({ success: true, data: 'Unauthorized user.' });
+        }
     })
 })
 

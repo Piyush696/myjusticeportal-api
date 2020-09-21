@@ -19,6 +19,18 @@ module.exports = (sequelize, DataTypes) => {
         type: {
             type: DataTypes.STRING(20),
             allowNull: false
+        },
+        speciality: {
+            type: DataTypes.STRING(100),
+            allowNull: true
+        },
+        tagline: {
+            type: DataTypes.STRING(500),
+            allowNull: false
+        },
+        description: {
+            type: DataTypes.STRING(5000),
+            allowNull: false
         }
     }, {
         tableName: 'organization',

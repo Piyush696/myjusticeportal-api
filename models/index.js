@@ -40,6 +40,8 @@ db.User.belongsTo(db.Organization, { foreignKey: 'organizationId', sourceKey: 'o
 db.Organization.belongsTo(db.Address, { foreignKey: 'addressId' });
 db.Address.hasOne(db.Organization, { foreignKey: 'addressId' });
 
+db.Files.hasMany(db.Organization, { as: 'logo', foreignKey: 'logoFileId' });
+
 db.User.belongsToMany(db.Role, { through: 'user_role', foreignKey: 'userId' });
 db.Role.belongsToMany(db.User, { through: 'user_role', foreignKey: 'roleId' });
 
@@ -51,7 +53,7 @@ db.SecurityQuestion.belongsToMany(db.User, { through: 'user_securityQuestion_Ans
 db.User.hasMany(db.UserMeta, { foreignKey: 'userId', sourceKey: 'userId' });
 
 db.Case.belongsTo(db.User, { as: 'inmate', foreignKey: 'userId', sourceKey: 'userId' });
-db.Files.belongsTo(db.User, { as: 'createdBy' });
+db.Files.belongsTo(db.User, { as: 'createdBy', constraints: false });
 db.Case.belongsToMany(db.Files, { as: 'caseFile', through: 'file_case', foreignKey: 'caseId' });
 db.Files.belongsToMany(db.Case, { through: 'file_case', foreignKey: 'fileId' });
 
