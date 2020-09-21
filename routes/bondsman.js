@@ -19,9 +19,7 @@ router.get('/', function (req, res, next) {
                 where: { type: 'bondsman' },
             }).then((organizations) => {
                 res.json({ success: true, data: organizations });
-            }).catch((next) => {
-                console.log(next)
-            })
+            }).catch((next)
         } else {
             res.json({ success: true, data: 'Unauthorized user.' });
         }
