@@ -7,25 +7,21 @@ const util = require('../utils/validateUser');
 
 //list of all organizations role is bondsman.
 router.get('/', function (req, res, next) {
-    util.validate([6], req.user.roles, function (isAuthenticated) {
+    util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
-            User.findOne({
+            Organization.findAll({
                 include: [
                     {
-                        model: Organization, attributes: ['organizationId', 'name', 'orgCode', 'type'],
-                        where: { type: 'bondsman' },
-                        include: [
-                            {
-                                model: Address
-                            }
-                        ],
+                        model: Address
                     }
                 ],
-                where: { userId: req.user.userId },
-                attributes: ['userId'],
-            }).then((user) => {
-                res.json({ success: true, data: user });
-            }).catch(next)
+                attributes: ['organizationId', 'name', 'orgCode', 'type'],
+                where: { type: 'bondsman' },
+            }).then((organizations) => {
+                res.json({ success: true, data: organizations });
+            }).catch((next) => {
+                console.log(next)
+            })
         } else {
             res.json({ success: true, data: 'Unauthorized user.' });
         }
@@ -34,7 +30,7 @@ router.get('/', function (req, res, next) {
 
 // get users of organisation.
 router.get('/:organizationId', function (req, res, next) {
-    util.validate([6], req.user.roles, function (isAuthenticated) {
+    util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Organization.findOne({
                 include: [
