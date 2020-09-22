@@ -103,7 +103,9 @@ router.post('/verify-sms/registration', async function (req, res, next) {
         } else {
             res.json({ success: false, data: 'invalid auth code' });
         }
-    }).catch(next);
+    }).catch((next) => {
+        console.log(next)
+    });
 })
 
 // To update invited user data.
