@@ -42,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
             validate: {
                 len: {
                     args: [1, 1000],
-                    msg: "Tagline must be between 1 and 50 characters in length"
+                    msg: "Tagline must be between 1 and 1000 characters in length"
                 }
             }
         },
@@ -52,7 +52,7 @@ module.exports = (sequelize, DataTypes) => {
             validate: {
                 len: {
                     args: [1, 5000],
-                    msg: "Description must be between 1 and 50 characters in length"
+                    msg: "Description must be between 1 and 5000 characters in length"
                 }
             }
         }
