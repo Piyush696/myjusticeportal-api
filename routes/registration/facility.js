@@ -8,6 +8,8 @@ const Facility = require('../../models').Facility;
 const Role = require('../../models').Role;
 const utils = require('../../utils/validation');
 const jwtUtils = require('../../utils/create-jwt');
+const Address = require('../../models').Address
+
 const requestIp = require('request-ip');
 
 // To create a facility user.
@@ -104,5 +106,17 @@ function generateCode() {
     }
     return Code;
 }
+
+router.get('/allFacility', function (req, res, next) {
+    Facility.findAll({
+        include: [
+            {
+                model: Address
+            }
+        ]
+    }).then(data => {
+        res.json({ success: true, data: data });
+    })
+})
 
 module.exports = router;
