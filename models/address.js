@@ -13,8 +13,8 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             validate: {
                 len: {
-                    args: [1, 50],
-                    msg: "Street 1 must be between 1 and 50 characters in length"
+                    args: [1, 100],
+                    msg: "Street 1 must be between 1 and 100 characters in length"
                 }
             }
         },
