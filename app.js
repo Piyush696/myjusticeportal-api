@@ -4,9 +4,14 @@ const logger = require('morgan');
 const cors = require('cors');
 var passport = require('passport');
 
+// var app = require('express')();
+
+
+
 const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
 const roleRouter = require('./routes/role');
+const socketRouter = require('./routes/socket');
 
 const userRegistrationRoutes = require('./routes/registration/user');
 const facilityRegistrationRouter = require('./routes/registration/facility');
@@ -63,6 +68,9 @@ app.use(cors({
 app.use(passport.initialize());
 require('./config/passport')(passport);
 
+
+
+
 // Public routes.
 
 app.use('/api/users', authRouter);
@@ -74,6 +82,7 @@ app.use('/api/public-defender-registration', publicDefenderRegistrationRouter);
 app.use('/api/bondsman-registration', bondsmanRegistrationRouter);
 
 app.use('/api/login', allUsersLoginRoutes);
+app.use('/api/message', socketRouter);
 
 app.use('/api/bondsman', passport.authenticate('jwt', { session: false }), bondsmanRouter);
 
@@ -141,5 +150,33 @@ app.use(function (err, req, res, next) {
         }
     });
 });
+
+// const express = require('express');
+const router = express.Router();
+const http = require('http').createServer(express);
+// const io = require('socket.io')(http);
+
+const server = app.listen(8810)
+const io = require('socket.io').listen(server);
+const util = require('./utils/createMessage');
+// var server = require('http').Server(app)
+// var io = require('socket.io')(server);
+// server.listen(4000)
+
+// socket configuration
+router.get('/', (req, res) => { res.send('hello!') });
+
+io.on('connection', (socket) => {
+    socket.on('message', (msg) => {
+        util.createMessage(msg, function (create) {
+            if (create) {
+                socket.broadcast.emit('message-broadcast', msg);
+            }
+        })
+    });
+});
+
+
+
 
 module.exports = app;
