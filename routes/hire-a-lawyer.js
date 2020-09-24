@@ -21,7 +21,7 @@ router.get('/organizations', function (req, res, next) {
                         model: Address
                     }
                 ],
-                attributes: ['organizationId', 'name', 'orgCode', 'type'],
+                attributes: ['organizationId', 'name', 'orgCode','description', 'tagline','type','specialty'],
                 where: { type: 'lawyer' },
             }).then((organizations) => {
                 res.json({ success: true, data: organizations });
@@ -45,7 +45,7 @@ router.get('/organizations/:organizationId', function (req, res, next) {
             }
         ],
         where: { organizationId: parseInt(req.params.organizationId) },
-        attributes: ['organizationId', 'name']
+        attributes: ['organizationId', 'name','orgCode','tagline','description', 'type','specialty']
     }).then(data => {
         res.json({ success: true, data: data });
     }).catch(next)
