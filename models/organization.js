@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING(20),
             allowNull: false
         },
-        speciality: {
+        specialty: {
             type: DataTypes.STRING(100),
             allowNull: true
         },
