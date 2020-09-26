@@ -131,7 +131,7 @@ router.post('/uploadLogo', upload.any(), function (req, res, next) {
             req.files.forEach((file) => {           
                 utils.uploadFile(file, file.mimetype, req.user.userId, 'mjp-private', 'private', function (fileId) {
                     if (fileId) {
-                        Organization.update({logoFileId:fileId}, {where:{organizationId:req.user.organizationId} }).then((logo)=>{
+                        Organization.update({logoFileId:fileId}, {where:{organizationId:req.user.organizationId} }).then(()=>{
                             res.json({ success: true });
                         })                        
                     }
