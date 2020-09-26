@@ -1,19 +1,26 @@
 const express = require('express');
-const router = express.Router();
-const http = require('http').createServer(express);
-const io = require('socket.io')(http);
+const app = express();
 
-// socket configuration
-router.get('/', (req, res) => {
-    console.log(req)
+
+
+// const server = app.listen(8810)
+// const io = require('socket.io').listen(server);
+const util = require('../utils/createMessage');
+const router = express.Router();
+
+router.get('/', function (req, res, next) {
+    console.log('req.body')
     io.on('connection', (socket) => {
-        console.log('isConnected', socket)
+        console.log(socket)
         socket.on('message', (msg) => {
-            console.log(msg);
-            socket.broadcast.emit('message-broadcast', msg);
+            util.createMessage(msg, function (create) {
+                if (create) {
+                    console.log(msg)
+                    socket.broadcast.emit('message-broadcast', msg);
+                }
+            })
         });
     });
+})
 
-});
-
-module.exports = router; 
+module.exports = router;

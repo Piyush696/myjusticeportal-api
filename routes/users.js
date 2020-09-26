@@ -16,35 +16,6 @@ const Postage = require('../models').Postage;
 const util = require('../utils/validateUser');
 const jwtUtils = require('../utils/create-jwt');
 
-/* user registration. */
-
-router.post('/registration', function (req, res, next) {
-    let isMfa;
-    if (req.body.roleId == 1) {
-        isMfa = false;
-    } else {
-        isMfa = true;
-    }
-    User.create({
-        email: req.body.email,
-        password: User.generateHash(req.body.password),
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        userName: req.body.userName,
-        middleName: req.body.middleName,
-        isMFA: isMfa
-    }).then((user) => {
-        Role.findAll({ where: { roleId: req.body.roleId } }).then((roles) => {
-            Promise.resolve(user.setRoles(roles)).then((userRole) => {
-                Facility.findOne({ where: { facilityCode: req.body.facilityCode } }).then((facility) => {
-                    Promise.resolve(user.addFacility(facility)).then((userFacility) => {
-                        res.json({ success: true, data: user })
-                    })
-                })
-            })
-        }).catch(next);
-    }).catch(next);
-});
 
 /*findAll user include role */
 

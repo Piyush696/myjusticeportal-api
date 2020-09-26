@@ -151,17 +151,14 @@ app.use(function (err, req, res, next) {
     });
 });
 
-// const express = require('express');
+
 const router = express.Router();
 const http = require('http').createServer(express);
-// const io = require('socket.io')(http);
+
 
 const server = app.listen(8810)
 const io = require('socket.io').listen(server);
 const util = require('./utils/createMessage');
-// var server = require('http').Server(app)
-// var io = require('socket.io')(server);
-// server.listen(4000)
 
 // socket configuration
 router.get('/', (req, res) => { res.send('hello!') });
