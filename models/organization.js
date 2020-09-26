@@ -23,8 +23,8 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             validate: {
                 len: {
-                    args: [1, 10],
-                    msg: "Organization code must be between 1 and 10 characters in length"
+                    args: [1, 50],
+                    msg: "Organization code must be between 1 and 50 characters in length"
                 }
             }
         },
