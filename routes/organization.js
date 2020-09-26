@@ -126,13 +126,10 @@ router.get('/', function (req, res, next) {
 //uploadLogo
 
 router.post('/uploadLogo', upload.any(), function (req, res, next) {
-    console.log(req.body)
     util.validate([3], req.user.roles, function (isAuthenticated) {
-        console.log(req.body)
-        if (isAuthenticated) {git
-            console.log(req.body)
-            req.files.forEach((file) => {
-                console.log(req.body)
+        if (isAuthenticated) {
+            req.files.forEach((file) => { 
+                console.log(file)               
                 utils.uploadFile(file, file.mimetype, req.user.userId, 'mjp-private', 'private', function (fileId) {
                     if (fileId) {
                         res.json({ success: true });
