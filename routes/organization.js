@@ -8,10 +8,14 @@ const config = require('../config/config');
 const User = require('../models').User;
 const Organization = require('../models').Organization;
 const Role = require('../models').Role;
+const Files = require('../models').Files;
 const Address = require('../models').Address;
 const Facility = require('../models').Facility;
 const Postage = require('../models').Postage;
 const util = require('../utils/validateUser');
+const utils = require('../utils/file');
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 
 // To invite a user by mail.
 
@@ -118,6 +122,28 @@ router.get('/', function (req, res, next) {
 })
 
 // get users of organisation.
+
+//uploadLogo
+
+router.post('/uploadLogo', upload.any(), function (req, res, next) {
+    util.validate([3], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            req.files.forEach((file) => {           
+                utils.uploadFile(file, file.mimetype, req.user.userId, 'mjp-private', 'private', function (fileId) {
+                    if (fileId) {
+                        Organization.update({logoFileId:fileId}, {where:{organizationId:req.user.organizationId} }).then(()=>{
+                            res.json({ success: true });
+                        })                        
+                    }
+                });
+            });
+        }
+        else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    })
+});
+
 
 router.get('/all-user', function (req, res, next) {
     util.validate([3, 4, 5, 6], req.user.roles, function (isAuthenticated) {
