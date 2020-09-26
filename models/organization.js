@@ -41,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             validate: {
                 len: {
-                    args: [1, 1000],
+                    args: [0, 1000],
                     msg: "Tagline must be between 1 and 1000 characters in length"
                 }
             }
@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             validate: {
                 len: {
-                    args: [1, 5000],
+                    args: [0, 5000],
                     msg: "Description must be between 1 and 5000 characters in length"
                 }
             }
