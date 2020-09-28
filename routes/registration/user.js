@@ -33,10 +33,8 @@ router.post('/', function (req, res, next) {
                 return Role.findAll({ where: { roleId: 1 } }).then((roles) => {
                     Promise.resolve(user.setRoles(roles)).then(() => {
                         const clientIp = requestIp.getClientIp(req);
-                        console.log('Ip', clientIp)
                         return Facility.findOne({ where: { ipAddress: clientIp } }).then((facility) => {
                             if (facility) {
-                                console.log('indie if')
                                 Promise.resolve(user.addFacility(facility)).then(() => {
                                     user['roles'] = roles;
                                     user['facilities'] = [facility];
@@ -44,7 +42,6 @@ router.post('/', function (req, res, next) {
                                         if (token) {
                                             res.json({ success: true, token: token });
                                         } else {
-                                            console.log('indie else')
                                             res.json({ success: false });
                                         }
                                     });
@@ -64,9 +61,7 @@ router.post('/', function (req, res, next) {
                                     }).catch(next);
                                 })
                             }
-                        }).catch(next => {
-                            console.log(next)
-                        })
+                        }).catch(next)
                     })
                 }).catch(next);
             }).catch(next);
