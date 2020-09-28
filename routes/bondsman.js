@@ -18,7 +18,7 @@ router.get('/', function (req, res, next) {
                         include: [
                             {
                                 model: Organization, through: { attributes: [] }, attributes: ['organizationId', 'name', 'orgCode', 'type'],
-                                where: { type: 'lawyer' },
+                                where: { type: 'bondsman' },
                                 include: [
                                     {
                                         model: Address
