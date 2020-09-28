@@ -13,18 +13,18 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             validate: {
                 len: {
-                    args: [1, 50],
-                    msg: "Organization name must be between 1 and 50 characters in length"
+                    args: [1, 100],
+                    msg: "Organization name must be between 1 and 100 characters in length"
                 }
             }
         },
         orgCode: {
-            type: DataTypes.STRING(10),
+            type: DataTypes.STRING(100),
             allowNull: false,
             validate: {
                 len: {
-                    args: [1, 50],
-                    msg: "Organization code must be between 1 and 50 characters in length"
+                    args: [1, 100],
+                    msg: "Organization code must be between 1 and 100 characters in length"
                 }
             }
         },
@@ -38,21 +38,21 @@ module.exports = (sequelize, DataTypes) => {
         },
         tagline: {
             type: DataTypes.STRING(500),
-            allowNull: false,
+            allowNull: true,
             validate: {
                 len: {
-                    args: [1, 1000],
-                    msg: "Tagline must be between 1 and 1000 characters in length"
+                    args: [0, 1000],
+                    msg: "Tagline must be less than 1000 characters in length"
                 }
             }
         },
         description: {
             type: DataTypes.STRING(5000),
-            allowNull: false,
+            allowNull: true,
             validate: {
                 len: {
-                    args: [1, 5000],
-                    msg: "Description must be between 1 and 5000 characters in length"
+                    args: [0, 5000],
+                    msg: "Description must be less than 5000 characters in length"
                 }
             }
         }
