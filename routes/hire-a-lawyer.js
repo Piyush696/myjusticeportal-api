@@ -15,27 +15,33 @@ const util = require('../utils/validateUser');
 
 //list of all organizations those who are linked to a facility and role is lawyer.
 router.get('/organizations', function (req, res, next) {
-    User.findOne({
-        include: [
-            {
-                model: Facility, through: { attributes: [] }, attributes: ['facilityId'],
+    util.validate([1], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            User.findOne({
                 include: [
                     {
-                        model: Organization, through: { attributes: [] }, attributes: ['organizationId', 'name', 'orgCode', 'type'],
-                        where: { type: 'lawyer' },
+                        model: Facility, through: { attributes: [] }, attributes: ['facilityId'],
                         include: [
                             {
-                                model: Address
+                                model: Organization, through: { attributes: [] }, attributes: ['organizationId', 'name', 'orgCode', 'type'],
+                                where: { type: 'lawyer' },
+                                include: [
+                                    {
+                                        model: Address
+                                    }
+                                ],
                             }
                         ],
                     }
                 ],
-            }
-        ],
-        where: { userId: req.user.userId },
-        attributes: ['userId'],
-    }).then((user) => {
-        res.json({ success: true, data: user.facilities[0].Organizations });
+                where: { userId: req.user.userId },
+                attributes: ['userId'],
+            }).then((user) => {
+                res.json({ success: true, data: user.facilities[0].Organizations });
+            })
+        } else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
     })
 })
 
