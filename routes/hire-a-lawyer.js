@@ -7,28 +7,35 @@ const Address = require('../models').Address;
 const Case = require('../models').Case;
 const Lawyer_case = require('../models').lawyer_case;
 const Files = require('../models').Files;
+const Facility = require('../models').Facility;
 const utils = require('../utils/file');
 const util = require('../utils/validateUser');
 
 
-//list of all organizations role is lawyer.
+
+//list of all organizations those who are linked to a facility and role is lawyer.
 router.get('/organizations', function (req, res, next) {
-    util.validate([1], req.user.roles, function (isAuthenticated) {
-        if (isAuthenticated) {
-            Organization.findAll({
+    User.findOne({
+        include: [
+            {
+                model: Facility, through: { attributes: [] }, attributes: ['facilityId'],
                 include: [
                     {
-                        model: Address
+                        model: Organization, through: { attributes: [] }, attributes: ['organizationId', 'name', 'orgCode', 'type'],
+                        where: { type: 'lawyer' },
+                        include: [
+                            {
+                                model: Address
+                            }
+                        ],
                     }
                 ],
-                attributes: ['organizationId', 'name', 'orgCode', 'description', 'tagline', 'type', 'specialty'],
-                where: { type: 'lawyer' },
-            }).then((organizations) => {
-                res.json({ success: true, data: organizations });
-            }).catch(next)
-        } else {
-            res.json({ success: true, data: 'Unauthorized user.' });
-        }
+            }
+        ],
+        where: { userId: req.user.userId },
+        attributes: ['userId'],
+    }).then((user) => {
+        res.json({ success: true, data: user.facilities[0].Organizations });
     })
 })
 
