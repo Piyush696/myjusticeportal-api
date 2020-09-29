@@ -82,7 +82,6 @@ router.get('/checkFacility', function (req, res, next) {
             res.status(200).json({ data: facility.facilityName })
         } else {
             res.status(200).json({ data: false })
-
         }
     })
 
