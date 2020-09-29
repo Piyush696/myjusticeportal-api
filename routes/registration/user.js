@@ -72,4 +72,19 @@ router.post('/', function (req, res, next) {
         })
     });
 })
+
+//to check user facility
+router.get('/checkFacility', function (req, res, next) {
+    const clientIp = requestIp.getClientIp(req);
+    Facility.findOne({ where: { ipAddress: clientIp } }).then(facility => {
+        console.log(facility)
+        if (facility) {
+            res.status(200).json({ data: facility.facilityName })
+        } else {
+            res.status(200).json({ data: false })
+        }
+    })
+
+})
+
 module.exports = router;
