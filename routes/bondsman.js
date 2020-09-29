@@ -4,24 +4,37 @@ const User = require('../models').User;
 const Organization = require('../models').Organization;
 const Address = require('../models').Address;
 const util = require('../utils/validateUser');
+const Facility = require('../models').Facility;
 
-//list of all organizations role is bondsman.
+
+//list of all organizations those who are linked to a facility and role is bondsman.
 router.get('/', function (req, res, next) {
     util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
-            Organization.findAll({
+            User.findOne({
                 include: [
                     {
-                        model: Address
+                        model: Facility, through: { attributes: [] }, attributes: ['facilityId'],
+                        include: [
+                            {
+                                model: Organization, through: { attributes: [] }, attributes: ['organizationId', 'name', 'orgCode', 'type'],
+                                where: { type: 'bondsman' },
+                                include: [
+                                    {
+                                        model: Address
+                                    }
+                                ],
+                            }
+                        ],
                     }
                 ],
-                attributes: ['organizationId', 'name', 'orgCode', 'type'],
-                where: { type: 'bondsman' },
-            }).then((organizations) => {
-                res.json({ success: true, data: organizations });
-            }).catch(next)
+                where: { userId: req.user.userId },
+                attributes: ['userId'],
+            }).then((user) => {
+                res.json({ success: true, data: user.facilities[0].Organizations });
+            })
         } else {
-            res.json({ success: true, data: 'Unauthorized user.' });
+            res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     })
 })
