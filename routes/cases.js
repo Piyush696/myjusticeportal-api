@@ -45,6 +45,7 @@ router.get('/', function (req, res, next) {
 // find case with caseId.
 
 router.get('/:caseId', function (req, res, next) {
+    console.log(req.params)
     util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Case.findOne({
@@ -67,7 +68,9 @@ router.get('/:caseId', function (req, res, next) {
                 where: { caseId: req.params.caseId }
             }).then(data => {
                 res.json({ success: true, data: data });
-            }).catch(next)
+            }).catch((next) => {
+                console.log(next)
+            })
         }
         else {
             res.status(401).json({ success: false, data: 'User not authorized.' });

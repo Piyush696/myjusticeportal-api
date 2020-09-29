@@ -10,6 +10,10 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true,
             primaryKey: true,
         },
+        leaglMatter:{
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
         countyOfArrest: {
             type: DataTypes.STRING,
             allowNull: true,
