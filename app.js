@@ -12,7 +12,6 @@ const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
 const roleRouter = require('./routes/role');
 const socketRouter = require('./routes/socket');
-const messageRouter = require('./routes/messege');
 
 const userRegistrationRoutes = require('./routes/registration/user');
 const facilityRegistrationRouter = require('./routes/registration/facility');

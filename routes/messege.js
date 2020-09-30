@@ -9,7 +9,6 @@ const Address = require('../models').Address;
 
 // get messaged user of sender.
 router.get('/', function (req, res, next) {
-    console.log('wkkd')
     util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             User.findOne({
@@ -47,7 +46,9 @@ router.get('/', function (req, res, next) {
 
 
 // get history messages of user.
-router.get('/messages/:receiverId', function (req, res, next) {
+router.get('/allMessages/:receiverId', function (req, res, next) {
+    console.log('req.params')
+    console.log(req.params)
     util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Message.findAll({
