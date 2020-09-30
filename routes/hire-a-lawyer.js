@@ -23,7 +23,7 @@ router.get('/organizations', function (req, res, next) {
                         model: Facility, through: { attributes: [] }, attributes: ['facilityId'],
                         include: [
                             {
-                                model: Organization, through: { attributes: [] }, attributes: ['organizationId', 'name', 'orgCode', 'type'],
+                                model: Organization, through: { attributes: [] }, attributes: ['organizationId', 'name', 'orgCode', 'type', 'specialty'],
                                 where: { type: 'lawyer' },
                                 include: [
                                     {
