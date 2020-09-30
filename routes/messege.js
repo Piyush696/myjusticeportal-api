@@ -3,28 +3,46 @@ const router = express.Router();
 const User = require('../models').User;
 const Message = require('../models').Messages;
 const util = require('../utils/validateUser');
+const Facility = require('../models').Facility;
+const Organization = require('../models').Organization;
+const Address = require('../models').Address;
 
 // get messaged user of sender.
 router.get('/', function (req, res, next) {
     util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
-            Message.findAll({
+            User.findOne({
                 include: [
                     {
-                        model: User, as: 'receiver', attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'createdAt']
+                        model: Facility, through: { attributes: [] }, attributes: ['facilityId'],
+                        include: [
+                            {
+                                model: Organization, through: { attributes: [] }, attributes: ['organizationId', 'name', 'orgCode', 'type'],
+                                where: { type: 'lawyer' },
+                                include: [
+                                    {
+                                        model: User, attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'createdAt']
+                                    },
+                                    {
+                                        model: Address
+                                    }
+                                ],
+                            }
+                        ],
                     }
                 ],
-                where: { senderId: req.user.userId },
-            }).then(data => {
-                res.json({ success: true, data: data });
-            }).catch((next) => {
-                console.log(next)
-            })
+                where: { userId: req.user.userId },
+                attributes: ['userId'],
+            }).then((user) => {
+                res.json({ success: true, data: user.facilities[0].Organizations });
+            }).catch(next)
         } else {
-            res.json({ success: true, data: 'Unauthorized user.' });
+            res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     })
 })
+
+
 
 
 // get history messages of user.
@@ -37,9 +55,7 @@ router.get('/messages', function (req, res, next) {
                 },
             }).then(data => {
                 res.json({ success: true, data: data });
-            }).catch((next) => {
-                console.log(next)
-            })
+            }).catch(next)
         } else {
             res.json({ success: true, data: 'Unauthorized user.' });
         }
