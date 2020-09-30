@@ -37,6 +37,7 @@ router.get('/organizations', function (req, res, next) {
                 where: { userId: req.user.userId },
                 attributes: ['userId'],
             }).then((user) => {
+                console.log(user)
                 res.json({ success: true, data: user.facilities[0].Organizations });
             })
         } else {
@@ -55,6 +56,9 @@ router.get('/organizations/:organizationId', function (req, res, next) {
             },
             {
                 model: User, attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'createdAt']
+            },
+            {
+                model: Files, as: 'logo',
             }
         ],
         where: { organizationId: parseInt(req.params.organizationId) },

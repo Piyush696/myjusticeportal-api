@@ -40,7 +40,8 @@ db.User.belongsTo(db.Organization, { foreignKey: 'organizationId', sourceKey: 'o
 db.Organization.belongsTo(db.Address, { foreignKey: 'addressId' });
 db.Address.hasOne(db.Organization, { foreignKey: 'addressId' });
 
-db.Files.hasMany(db.Organization, { as: 'logo', foreignKey: 'logoFileId' });
+// db.Files.hasMany(db.Organization, { as: 'logo', foreignKey: 'logoFileId' });
+db.Organization.belongsTo(db.Files, { as: 'logo', foreignKey: 'logoFileId' });
 
 db.User.belongsToMany(db.Role, { through: 'user_role', foreignKey: 'userId' });
 db.Role.belongsToMany(db.User, { through: 'user_role', foreignKey: 'roleId' });
