@@ -6,6 +6,7 @@ const util = require('../utils/validateUser');
 
 // get messaged user of sender.
 router.get('/', function (req, res, next) {
+    console.log('wkkd')
     util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Message.findAll({
@@ -28,12 +29,12 @@ router.get('/', function (req, res, next) {
 
 
 // get history messages of user.
-router.get('/messages', function (req, res, next) {
+router.get('/messages/:receiverId', function (req, res, next) {
     util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Message.findAll({
                 where: {
-                    $or: [{ senderId: 7, receiverId: 8 }, { senderId: 8, receiverId: 7, }],
+                    $or: [{ senderId: req.user.userId, receiverId: req.params.receiverId }, { senderId: req.params.receiverId, receiverId: req.user.userId, }],
 
                 },
             }).then(data => {

@@ -12,6 +12,7 @@ const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
 const roleRouter = require('./routes/role');
 const socketRouter = require('./routes/socket');
+const messageRouter = require('./routes/messege');
 
 const userRegistrationRoutes = require('./routes/registration/user');
 const facilityRegistrationRouter = require('./routes/registration/facility');
@@ -82,7 +83,8 @@ app.use('/api/public-defender-registration', publicDefenderRegistrationRouter);
 app.use('/api/bondsman-registration', bondsmanRegistrationRouter);
 
 app.use('/api/login', allUsersLoginRoutes);
-app.use('/api/message', socketRouter);
+// app.use('/api/message', socketRouter);
+app.use('/api/message', passport.authenticate('jwt', { session: false }), messageRouter);
 
 app.use('/api/bondsman', passport.authenticate('jwt', { session: false }), bondsmanRouter);
 
