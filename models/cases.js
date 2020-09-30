@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true,
             primaryKey: true,
         },
-        leaglMatter: {
+        legalMatter: {
             type: DataTypes.STRING,
             allowNull: false,
         },
