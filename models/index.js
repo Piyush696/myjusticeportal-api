@@ -43,8 +43,8 @@ db.Address.hasOne(db.Organization, { foreignKey: 'addressId' });
 
 db.Files.hasMany(db.Organization, { as: 'logo', foreignKey: 'logoFileId' });
 
-db.User.hasMany(db.Messages, { as: 'sender', foreignKey: 'senderId' });
-db.User.hasMany(db.Messages, { as: 'receiver', foreignKey: 'receiverId' });
+db.Messages.belongsTo(db.User, { as: 'sender', foreignKey: 'senderId' });
+db.Messages.belongsTo(db.User, { as: 'receiver', foreignKey: 'receiverId' });
 // db.Messages.hasOne(db.User, { as: 'receiver', foreignKey: 'userId' });
 
 db.User.belongsToMany(db.Role, { through: 'user_role', foreignKey: 'userId' });
