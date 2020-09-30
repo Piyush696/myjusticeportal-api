@@ -34,7 +34,6 @@ router.get('/messages', function (req, res, next) {
             Message.findAll({
                 where: {
                     $or: [{ senderId: 7, receiverId: 8 }, { senderId: 8, receiverId: 7, }],
-
                 },
             }).then(data => {
                 res.json({ success: true, data: data });
