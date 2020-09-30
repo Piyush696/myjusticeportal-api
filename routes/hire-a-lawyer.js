@@ -37,7 +37,13 @@ router.get('/organizations', function (req, res, next) {
                 where: { userId: req.user.userId },
                 attributes: ['userId'],
             }).then((user) => {
-                res.json({ success: true, data: user.facilities[0].Organizations });
+                if (user.facilities[0].Organizations) {
+                    res.json({ success: true, data: user.facilities[0].Organizations });
+                }
+                else {
+                    res.json({ success: false, data: 'Organizations not found with this facility' });
+                }
+
             })
         } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
@@ -55,6 +61,9 @@ router.get('/organizations/:organizationId', function (req, res, next) {
             },
             {
                 model: User, attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'createdAt']
+            },
+            {
+                model: Files, as: 'logo',
             }
         ],
         where: { organizationId: parseInt(req.params.organizationId) },
