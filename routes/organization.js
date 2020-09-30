@@ -128,12 +128,12 @@ router.get('/', function (req, res, next) {
 router.post('/uploadLogo', upload.any(), function (req, res, next) {
     util.validate([3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
-            req.files.forEach((file) => {           
-                utils.uploadFile(file, file.mimetype, req.user.userId, 'mjp-private', 'private', function (fileId) {
+            req.files.forEach((file) => {
+                utils.uploadFile(file, file.mimetype, req.user.userId, 'mjp-public', 'public-read', function (fileId) {
                     if (fileId) {
-                        Organization.update({logoFileId:fileId}, {where:{organizationId:req.user.organizationId} }).then(()=>{
+                        Organization.update({ logoFileId: fileId }, { where: { organizationId: req.user.organizationId } }).then(() => {
                             res.json({ success: true });
-                        })                        
+                        })
                     }
                 });
             });

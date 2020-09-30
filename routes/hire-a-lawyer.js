@@ -37,8 +37,13 @@ router.get('/organizations', function (req, res, next) {
                 where: { userId: req.user.userId },
                 attributes: ['userId'],
             }).then((user) => {
-                console.log(user)
-                res.json({ success: true, data: user.facilities[0].Organizations });
+                if (user.facilities[0].Organizations) {
+                    res.json({ success: true, data: user.facilities[0].Organizations });
+                }
+                else {
+                    res.json({ success: false, data: 'Organizations not found with this facility' });
+                }
+
             })
         } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
