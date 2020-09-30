@@ -37,6 +37,8 @@ const allUsersLoginRoutes = require('./routes/core/login');
 const organizationRouter = require('./routes/organization');
 const hireaLawyerRouter = require('./routes/hire-a-lawyer');
 
+const messageRouter = require('./routes/messege');
+
 const env = process.env.NODE_ENV = process.env.NODE_ENV || 'local';
 
 const app = express();
@@ -99,6 +101,8 @@ app.use('/api/userMeta', /*roleMiddleware,*/ userMetaRouter);
 app.use('/api/case-file', passport.authenticate('jwt', { session: false }), /*roleMiddleware,*/ caseFileRouter);
 app.use('/api/facility', passport.authenticate('jwt', { session: false }), facilityRoutes);
 app.use('/api/organization', passport.authenticate('jwt', { session: false }), organizationRouter);
+
+app.use('/api/message', passport.authenticate('jwt', { session: false }), messageRouter);
 
 //Private routes.
 // app.use(authMiddleware.verifyToken);
