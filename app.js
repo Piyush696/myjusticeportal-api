@@ -167,7 +167,7 @@ io.on('connection', (socket) => {
     socket.on('message', (msg) => {
         util.createMessage(msg, function (create) {
             if (create) {
-                socket.broadcast.emit('message-broadcast', msg);
+                socket.broadcast.emit('message-broadcast' + msg.receiverId, msg);
             }
         })
     });
