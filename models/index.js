@@ -41,7 +41,8 @@ db.User.belongsTo(db.Organization, { foreignKey: 'organizationId', sourceKey: 'o
 db.Organization.belongsTo(db.Address, { foreignKey: 'addressId' });
 db.Address.hasOne(db.Organization, { foreignKey: 'addressId' });
 
-db.Files.hasMany(db.Organization, { as: 'logo', foreignKey: 'logoFileId' });
+// db.Files.hasMany(db.Organization, { as: 'logo', foreignKey: 'logoFileId' });
+db.Organization.belongsTo(db.Files, { as: 'logo', foreignKey: 'logoFileId' });
 
 db.Messages.belongsTo(db.User, { as: 'sender', foreignKey: 'senderId' });
 db.Messages.belongsTo(db.User, { as: 'receiver', foreignKey: 'receiverId' });

@@ -10,13 +10,13 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true,
             primaryKey: true,
         },
-        leaglMatter:{
+        leaglMatter: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: false,
         },
         countyOfArrest: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: false,
         },
         dateOfArrest: {
             type: DataTypes.DATE,
