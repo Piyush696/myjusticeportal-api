@@ -5,7 +5,9 @@ const Message = require('../models').Messages;
 const util = require('../utils/validateUser');
 const Facility = require('../models').Facility;
 const Organization = require('../models').Organization;
+const Lawyer_case = require('../models').lawyer_case;
 const Address = require('../models').Address;
+const Case = require('../models').Case;
 
 // get messaged user of sender.
 router.get('/', function (req, res, next) {
@@ -46,15 +48,43 @@ router.get('/', function (req, res, next) {
 
 
 // get history messages of user.
-router.get('/messages', function (req, res, next) {
+router.get('/allMessages/:receiverId', function (req, res, next) {
+    console.log('req.params')
+    console.log(req.params)
     util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Message.findAll({
                 where: {
-                    $or: [{ senderId: 7, receiverId: 8 }, { senderId: 8, receiverId: 7, }],
+                    $or: [{ senderId: req.user.userId, receiverId: req.params.receiverId }, { senderId: req.params.receiverId, receiverId: req.user.userId, }],
                 },
             }).then(data => {
                 res.json({ success: true, data: data });
+            }).catch(next)
+        } else {
+            res.json({ success: true, data: 'Unauthorized user.' });
+        }
+    })
+})
+
+// get all users for lawyer.
+router.get('/users', function (req, res, next) {
+    util.validate([3], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            Lawyer_case.findAll({
+                where: { lawyerId: req.user.userId, status: 'Approved' },
+            }).then(data => {
+                let caseIds = data.map(x => x.caseId)
+                Case.findAll({
+                    include: [
+                        {
+                            model: User, as: 'inmate',
+                            attributes: ['userId', 'firstName', 'lastName', 'userName']
+                        }
+                    ],
+                    where: { caseId: caseIds },
+                }).then((cases) => {
+                    res.json({ success: true, data: cases });
+                })
             }).catch(next)
         } else {
             res.json({ success: true, data: 'Unauthorized user.' });
