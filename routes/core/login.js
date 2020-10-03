@@ -123,9 +123,7 @@ router.post('/verify-otp', async function (req, res, next) {
         } else {
             res.json({ success: false, data: 'invalid otp' });
         }
-    }).catch((next) => {
-        console.log(next)
-    });
+    }).catch(next);
 })
 
 module.exports = router;

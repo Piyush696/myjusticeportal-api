@@ -190,7 +190,6 @@ router.put('/updateStatus', passport.authenticate('jwt', { session: false }), (r
         User.update(req.body, {
             where: { userId: req.body.userId }
         }).then(result => {
-            console.log(result)
             User.findOne({ where: { userId: req.body.userId } }).then((user) => {
                 let url = req.headers.origin + '/login/';
                 let uuid = uuidv1();
@@ -231,9 +230,7 @@ router.put('/updateStatus', passport.authenticate('jwt', { session: false }), (r
                             res.json({ success: false, data: 'Invitation not sent' });
                         }
                     });
-                }).catch((next) => {
-                    console.log(next)
-                });
+                }).catch(next);
             })
         }).catch(next);
     } else {

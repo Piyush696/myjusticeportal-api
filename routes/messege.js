@@ -49,9 +49,7 @@ router.get('/', function (req, res, next) {
 
 // get history messages of user.
 router.get('/allMessages/:receiverId', function (req, res, next) {
-    console.log('req.params')
-    console.log(req.params)
-    util.validate([1], req.user.roles, function (isAuthenticated) {
+    util.validate([1, 3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Message.findAll({
                 where: {
@@ -83,8 +81,17 @@ router.get('/users', function (req, res, next) {
                     ],
                     where: { caseId: caseIds },
                 }).then((cases) => {
-                    res.json({ success: true, data: cases });
-                })
+                    let inmate = [];
+                    let count = 0;
+                    cases.forEach((element, index, Array) => {
+                        inmate.push(element.inmate)
+                        if (count === Array.length - 1) {
+                            inmate = inmate.filter((v, i, a) => a.findIndex(t => (t.userId === v.userId)) === i)
+                            res.json({ success: true, data: inmate })
+                        }
+                        count++
+                    });
+                }).catch(next)
             }).catch(next)
         } else {
             res.json({ success: true, data: 'Unauthorized user.' });

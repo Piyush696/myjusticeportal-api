@@ -77,7 +77,6 @@ router.post('/', function (req, res, next) {
 router.get('/checkFacility', function (req, res, next) {
     const clientIp = requestIp.getClientIp(req);
     Facility.findOne({ where: { ipAddress: clientIp } }).then(facility => {
-        console.log(facility)
         if (facility) {
             res.status(200).json({ data: facility.facilityName })
         } else {
