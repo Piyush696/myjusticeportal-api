@@ -5,6 +5,7 @@ const Case = require('../models').Case;
 const User = require('../models').User;
 const Files = require('../models').Files;
 const util = require('../utils/validateUser');
+const utils = require('../utils/validation')
 
 router.post('/', function (req, res, next) {
     util.validate([1], req.user.roles, function (isAuthenticated) {
@@ -12,7 +13,11 @@ router.post('/', function (req, res, next) {
             req.body['userId'] = req.user.userId;
             Case.create(req.body).then(data => {
                 res.json({ success: true, data: data });
-            }).catch(next)
+            }).catch(next => {
+                utils.validator(next, function (err) {
+                    res.status(400).json(err)
+                })
+            })
         } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
@@ -82,6 +87,10 @@ router.put('/:caseId', function (req, res, next) {
         if (isAuthenticated) {
             Case.update(req.body, { where: { caseId: req.params.caseId } }).then(data => {
                 res.json({ success: true, data: data });
+            }).catch(next => {
+                utils.validator(next, function (err) {
+                    res.status(400).json(err)
+                })
             })
         }
         else {
