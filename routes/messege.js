@@ -99,4 +99,36 @@ router.get('/users', function (req, res, next) {
     })
 })
 
+// get old messsged user.
+router.get('/oldUser', function (req, res, next) {
+    util.validate([1], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            Message.findAll({
+                where: {
+                    $or: [{ senderId: req.user.userId }, { receiverId: req.user.userId }],
+                },
+            }).then(data => {
+                let uniqueUsers = data.filter((v, i, a) => a.findIndex(t => ((t.receiverId === v.receiverId && t.senderId === v.senderId))) === i)
+                let userIds = uniqueUsers.map(x => x.senderId && x.receiverId)
+                function onlyUnique(value, index, self) {
+                    return self.indexOf(value) === index;
+                }
+                var uniqueIds = userIds.filter(onlyUnique);
+                User.findAll({
+                    where: {
+                        userId: uniqueIds,
+                    },
+                }).then((users) => {
+                    res.json({ success: true, data: users });
+                })
+            }).catch((next) => {
+                console.log(next)
+            })
+        } else {
+            res.json({ success: true, data: 'Unauthorized user.' });
+        }
+    })
+})
+
+
 module.exports = router;
