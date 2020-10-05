@@ -165,9 +165,7 @@ router.get('/all-user', function (req, res, next) {
                 attributes: ['organizationId']
             }).then(data => {
                 res.json({ success: true, data: data });
-            }).catch((next) => {
-                console.log(next);
-            })
+            }).catch(next)
         }
         else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
@@ -192,9 +190,7 @@ router.get('/all-facilities', function (req, res, next) {
                 attributes: ['organizationId']
             }).then(data => {
                 res.json({ success: true, data: data });
-            }).catch((next) => {
-                console.log(next);
-            })
+            }).catch(next)
         }
         else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
