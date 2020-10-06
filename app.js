@@ -4,9 +4,14 @@ const logger = require('morgan');
 const cors = require('cors');
 var passport = require('passport');
 
+// var app = require('express')();
+
+
+
 const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
 const roleRouter = require('./routes/role');
+const socketRouter = require('./routes/socket');
 
 const userRegistrationRoutes = require('./routes/registration/user');
 const facilityRegistrationRouter = require('./routes/registration/facility');
@@ -30,6 +35,8 @@ const allUsersLoginRoutes = require('./routes/core/login');
 
 const organizationRouter = require('./routes/organization');
 const hireaLawyerRouter = require('./routes/hire-a-lawyer');
+
+const messageRouter = require('./routes/messege');
 
 const env = process.env.NODE_ENV = process.env.NODE_ENV || 'local';
 
@@ -63,6 +70,9 @@ app.use(cors({
 app.use(passport.initialize());
 require('./config/passport')(passport);
 
+
+
+
 // Public routes.
 
 app.use('/api/users', authRouter);
@@ -74,6 +84,7 @@ app.use('/api/public-defender-registration', publicDefenderRegistrationRouter);
 app.use('/api/bondsman-registration', bondsmanRegistrationRouter);
 
 app.use('/api/login', allUsersLoginRoutes);
+// app.use('/api/message', socketRouter);
 
 app.use('/api/bondsman', passport.authenticate('jwt', { session: false }), bondsmanRouter);
 
@@ -88,6 +99,8 @@ app.use('/api/userMeta', /*roleMiddleware,*/ userMetaRouter);
 app.use('/api/case-file', passport.authenticate('jwt', { session: false }), /*roleMiddleware,*/ caseFileRouter);
 app.use('/api/facility', passport.authenticate('jwt', { session: false }), facilityRoutes);
 app.use('/api/organization', passport.authenticate('jwt', { session: false }), organizationRouter);
+
+app.use('/api/message', passport.authenticate('jwt', { session: false }), messageRouter);
 
 //Private routes.
 // app.use(authMiddleware.verifyToken);
@@ -141,5 +154,30 @@ app.use(function (err, req, res, next) {
         }
     });
 });
+
+
+const router = express.Router();
+const http = require('http').createServer(express);
+
+
+const server = app.listen(8810)
+const io = require('socket.io').listen(server);
+const util = require('./utils/createMessage');
+
+// socket configuration
+router.get('/', (req, res) => { res.send('hello!') });
+
+io.on('connection', (socket) => {
+    socket.on('message', (msg) => {
+        util.createMessage(msg, function (create) {
+            if (create) {
+                socket.broadcast.emit('message-broadcast' + msg.receiverId, msg);
+            }
+        })
+    });
+});
+
+
+
 
 module.exports = app;

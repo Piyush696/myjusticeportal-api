@@ -32,6 +32,7 @@ db.Files = require('./files')(sequelize, Sequelize);
 db.Facility = require('./facility')(sequelize, Sequelize);
 db.lawyer_case = require('./lawyer_case')(sequelize, Sequelize);
 db.file_case = require('./file_case')(sequelize, Sequelize);
+db.Messages = require('./messages')(sequelize, Sequelize);
 
 /* Mapings */
 
@@ -42,6 +43,10 @@ db.Address.hasOne(db.Organization, { foreignKey: 'addressId' });
 
 // db.Files.hasMany(db.Organization, { as: 'logo', foreignKey: 'logoFileId' });
 db.Organization.belongsTo(db.Files, { as: 'logo', foreignKey: 'logoFileId' });
+
+db.Messages.belongsTo(db.User, { as: 'sender', foreignKey: 'senderId' });
+db.Messages.belongsTo(db.User, { as: 'receiver', foreignKey: 'receiverId' });
+// db.Messages.hasOne(db.User, { as: 'receiver', foreignKey: 'userId' });
 
 db.User.belongsToMany(db.Role, { through: 'user_role', foreignKey: 'userId' });
 db.Role.belongsToMany(db.User, { through: 'user_role', foreignKey: 'roleId' });
