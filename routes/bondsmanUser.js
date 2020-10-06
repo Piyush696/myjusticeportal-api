@@ -24,13 +24,15 @@ router.post('/', function (req, res, next) {
 // To get all requested user.
 router.post('/requested-users', function (req, res, next) {
     util.validate([6], req.user.roles, function (isAuthenticated) {
+
         if (isAuthenticated) {
             bondsman_user.findAll({
+                include: [{
+                    model: User, as: 'user', attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'createdAt']
+                }],
                 where: { status: 'Requested', bondsmanId: req.user.userId }
             }).then((foundConnections) => {
                 res.json({ success: true, data: foundConnections });
-            }).catch(next => {
-                console.log(next)
             })
         }
         else {
@@ -38,6 +40,43 @@ router.post('/requested-users', function (req, res, next) {
         }
     });
 })
+
+// To set data after user Approved.
+
+router.put('/approve-user/:bondsman_userId', function (req, res, next) {
+    console.log('asd')
+    util.validate([6], req.user.roles, function (isAuthenticated) {
+        console.log(isAuthenticated, req.user.userId)
+
+        if (isAuthenticated) {
+            bondsman_user.update({ status: 'Approved' }, {
+                where: { bondsman_userId: req.params.bondsman_userId, bondsmanId: req.user.userId }
+            }).then(() => {
+                res.json({ success: true });
+            });
+        }
+        else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    });
+});
+
+// To set data after user Rejected.
+
+router.put('/reject-user/:bondsman_userId', function (req, res, next) {
+    util.validate([6], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            bondsman_user.update({ status: 'Rejected' }, {
+                where: { bondsman_userId: req.params.bondsman_userId, bondsmanId: req.user.userId }
+            }).then(() => {
+                res.json({ success: true });
+            });
+        }
+        else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    });
+});
 
 
 module.exports = router; 
