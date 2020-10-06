@@ -20,6 +20,8 @@ const paralegalRegistrationRouter = require('./routes/registration/paralegal');
 const publicDefenderRegistrationRouter = require('./routes/registration/public-defender');
 const bondsmanRegistrationRouter = require('./routes/registration/bondsman');
 
+const bondsmanUserRouter = require('./routes/bondsmanUser');
+
 const bondsmanRouter = require('./routes/bondsman');
 
 const caseRouter = require('./routes/cases');
@@ -93,6 +95,7 @@ app.use('/api/case', passport.authenticate('jwt', { session: false }), /*roleMid
 app.use('/api/postage', passport.authenticate('jwt', { session: false }), postageAppRouter);
 app.use('/api/twilio', passport.authenticate('jwt', { session: false }), twilioRouter);
 app.use('/api/hirealawyer', passport.authenticate('jwt', { session: false }), hireaLawyerRouter);
+app.use('/api/bondsmanUser', passport.authenticate('jwt', { session: false }), bondsmanUserRouter);
 app.use('/api/securityQuestion', securityQuestionRouter);
 app.use('/api/user', /*roleMiddleware,*/ usersRouter);
 app.use('/api/userMeta', /*roleMiddleware,*/ userMetaRouter);
