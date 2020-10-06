@@ -23,7 +23,8 @@ router.get('/', function (req, res, next) {
                                 where: { type: 'lawyer' },
                                 include: [
                                     {
-                                        model: User, attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'createdAt']
+                                        model: User, attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'createdAt'],
+                                        where: { status: true }
                                     },
                                     {
                                         model: Address

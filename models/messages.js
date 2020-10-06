@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         message: {
             type: DataTypes.STRING(1500),
-            allowNull: true,
+            allowNull: false,
         }
     }, {
         tableName: 'messages',
