@@ -13,32 +13,28 @@ const Case = require('../models').Case;
 router.get('/', function (req, res, next) {
     util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
-            User.findOne({
+            Case.findAll({
                 include: [
                     {
-                        model: Facility, through: { attributes: [] }, attributes: ['facilityId'],
-                        include: [
-                            {
-                                model: Organization, through: { attributes: [] }, attributes: ['organizationId', 'name', 'orgCode', 'type'],
-                                where: { type: 'lawyer' },
-                                include: [
-                                    {
-                                        model: User, attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'createdAt'],
-                                        where: { status: true }
-                                    },
-                                    {
-                                        model: Address
-                                    }
-                                ],
-                            }
-                        ],
+                        model: User, as: 'inmate',
+                        attributes: ['userId', 'firstName', 'lastName', 'userName']
                     }
                 ],
-                where: { userId: req.user.userId },
-                attributes: ['userId'],
-            }).then((user) => {
-                res.json({ success: true, data: user.facilities[0].Organizations });
-            }).catch(next)
+                where: { userId: req.user.userId }
+            }).then(data => {
+                let caseIds = data.map(x => x.caseId)
+                Lawyer_case.findAll({
+                    where: { caseId: caseIds, status: 'Approved' }
+                }).then((cases) => {
+                    let lawyerIds = cases.map(x => x.lawyerId)
+                    User.findAll({
+                        where: { userId: lawyerIds },
+                        attributes: ['userId', 'firstName', 'lastName', 'userName']
+                    }).then((hiredLawyers) => {
+                        res.json({ success: true, data: hiredLawyers });
+                    })
+                })
+            })
         } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
