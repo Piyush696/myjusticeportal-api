@@ -48,10 +48,10 @@ config.development = {
 
 config.local = {
     db: {
-        username: "u4mjmeg9onn03e5y",
-        password: "kagtni6gxtza63ll",
+        username: "root",
+        password: "",
         database: "rxt7scbg23giysn8",
-        host: "wvulqmhjj9tbtc1w.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
+        host: "localhost",
         dialect: "mysql",
         migrationStorage: "json",
         define: {
