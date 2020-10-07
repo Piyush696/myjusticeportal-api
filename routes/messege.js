@@ -111,10 +111,15 @@ router.get('/oldUser', function (req, res, next) {
                     return self.indexOf(value) === index;
                 }
                 var uniqueIds = userIds.filter(onlyUnique);
+                uniqueIds = uniqueIds.filter(x => {
+                    return x !== req.user.userId
+                })
+                console.log(uniqueIds)
                 User.findAll({
                     where: {
                         userId: uniqueIds,
                     },
+                    attributes: ['userId', 'firstName', 'lastName', 'userName']
                 }).then((users) => {
                     res.json({ success: true, data: users });
                 })
