@@ -73,7 +73,7 @@ router.get('/users', function (req, res, next) {
                     include: [
                         {
                             model: User, as: 'inmate',
-                            attributes: ['userId', 'firstName', 'lastName', 'userName']
+                            attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName']
                         }
                     ],
                     where: { caseId: caseIds },
@@ -115,12 +115,33 @@ router.get('/oldUser', function (req, res, next) {
                     where: {
                         userId: uniqueIds,
                     },
+                    attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName']
+
                 }).then((users) => {
                     res.json({ success: true, data: users });
                 })
             }).catch((next) => {
                 console.log(next)
             })
+        } else {
+            res.json({ success: true, data: 'Unauthorized user.' });
+        }
+    })
+})
+
+
+// to get last user with whom we texted
+
+router.get('/allMessages', function (req, res, next) {
+    util.validate([1, 3], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            Message.findAll({
+                order: [
+                    ['createdAt', 'DESC']
+                ]
+            }).then(data => {
+                res.json({ success: true, data: data });
+            }).catch(next)
         } else {
             res.json({ success: true, data: 'Unauthorized user.' });
         }
