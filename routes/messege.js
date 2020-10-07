@@ -14,12 +14,6 @@ router.get('/', function (req, res, next) {
     util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Case.findAll({
-                include: [
-                    {
-                        model: User, as: 'inmate',
-                        attributes: ['userId', 'firstName', 'lastName', 'userName']
-                    }
-                ],
                 where: { userId: req.user.userId }
             }).then(data => {
                 let caseIds = data.map(x => x.caseId)
@@ -111,12 +105,15 @@ router.get('/oldUser', function (req, res, next) {
                     return self.indexOf(value) === index;
                 }
                 var uniqueIds = userIds.filter(onlyUnique);
+                uniqueIds = uniqueIds.filter(x => {
+                    return x !== req.user.userId
+                })
+                console.log(uniqueIds)
                 User.findAll({
                     where: {
                         userId: uniqueIds,
                     },
                     attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName']
-
                 }).then((users) => {
                     res.json({ success: true, data: users });
                 })
