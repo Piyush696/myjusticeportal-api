@@ -13,32 +13,22 @@ const Case = require('../models').Case;
 router.get('/', function (req, res, next) {
     util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
-            User.findOne({
-                include: [
-                    {
-                        model: Facility, through: { attributes: [] }, attributes: ['facilityId'],
-                        include: [
-                            {
-                                model: Organization, through: { attributes: [] }, attributes: ['organizationId', 'name', 'orgCode', 'type'],
-                                where: { type: 'lawyer' },
-                                include: [
-                                    {
-                                        model: User, attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'createdAt'],
-                                        where: { status: true }
-                                    },
-                                    {
-                                        model: Address
-                                    }
-                                ],
-                            }
-                        ],
-                    }
-                ],
-                where: { userId: req.user.userId },
-                attributes: ['userId'],
-            }).then((user) => {
-                res.json({ success: true, data: user.facilities[0].Organizations });
-            }).catch(next)
+            Case.findAll({
+                where: { userId: req.user.userId }
+            }).then(data => {
+                let caseIds = data.map(x => x.caseId)
+                Lawyer_case.findAll({
+                    where: { caseId: caseIds, status: 'Approved' }
+                }).then((cases) => {
+                    let lawyerIds = cases.map(x => x.lawyerId)
+                    User.findAll({
+                        where: { userId: lawyerIds },
+                        attributes: ['userId', 'firstName', 'lastName', 'userName']
+                    }).then((hiredLawyers) => {
+                        res.json({ success: true, data: hiredLawyers });
+                    })
+                })
+            })
         } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
@@ -77,7 +67,7 @@ router.get('/users', function (req, res, next) {
                     include: [
                         {
                             model: User, as: 'inmate',
-                            attributes: ['userId', 'firstName', 'lastName', 'userName']
+                            attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName']
                         }
                     ],
                     where: { caseId: caseIds },
@@ -115,16 +105,40 @@ router.get('/oldUser', function (req, res, next) {
                     return self.indexOf(value) === index;
                 }
                 var uniqueIds = userIds.filter(onlyUnique);
+                uniqueIds = uniqueIds.filter(x => {
+                    return x !== req.user.userId
+                })
+                console.log(uniqueIds)
                 User.findAll({
                     where: {
                         userId: uniqueIds,
                     },
+                    attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName']
                 }).then((users) => {
                     res.json({ success: true, data: users });
                 })
             }).catch((next) => {
                 console.log(next)
             })
+        } else {
+            res.json({ success: true, data: 'Unauthorized user.' });
+        }
+    })
+})
+
+
+// to get last user with whom we texted
+
+router.get('/allMessages', function (req, res, next) {
+    util.validate([1, 3], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            Message.findAll({
+                order: [
+                    ['createdAt', 'DESC']
+                ]
+            }).then(data => {
+                res.json({ success: true, data: data });
+            }).catch(next)
         } else {
             res.json({ success: true, data: 'Unauthorized user.' });
         }

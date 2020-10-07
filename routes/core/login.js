@@ -45,7 +45,7 @@ router.post('/login', function (req, res, next) {
                             to: '+' + user.countryCode + user.mobile,  // Text this number
                             from: twilioCredentials.from // From a valid Twilio number
                         }).then((message) => {
-                            User.update({ authCode: code }, { where: { userId: user.dataValues.userId } }).then(() => {
+                            User.update({ authCode: code }, { where: { userId: user.dataValues.userId } }).then((user) => {
                                 res.json({ success: false, data: 'Please Enter Your auth code.' })
                             }).catch(next)
                         }).catch((err) => {
@@ -125,5 +125,32 @@ router.post('/verify-otp', async function (req, res, next) {
         }
     }).catch(next);
 })
+
+
+/**generate otp during login*/
+
+router.post('/resendCode', async function (req, res, next) {
+    console.log(req.body)
+    User.findOne({ where: { userName: req.body.userName } }).then((user) => {
+        let code = generateCode();
+        Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
+            var client = new twilio(twilioCredentials.accountSid, twilioCredentials.authToken);
+            client.messages.create({
+                body: 'My Justice Portal' + ': ' + code + ' - This is your verification code.',
+                to: '+' + user.countryCode + user.mobile,  // Text this number
+                from: twilioCredentials.from // From a valid Twilio number
+            }).then((message) => {
+                User.update({ authCode: code },
+                    {
+                        where: { userName: req.body.userName }
+                    }).then(() => {
+                        res.json({ success: true })
+                    }).catch(next)
+            }).catch((err) => {
+                res.json({ success: false })
+            })
+        })
+    })
+});
 
 module.exports = router;

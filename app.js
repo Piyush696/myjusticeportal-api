@@ -87,6 +87,7 @@ app.use('/api/bondsman-registration', bondsmanRegistrationRouter);
 
 app.use('/api/login', allUsersLoginRoutes);
 // app.use('/api/message', socketRouter);
+app.use('/api/message', passport.authenticate('jwt', { session: false }), messageRouter);
 
 app.use('/api/bondsman', passport.authenticate('jwt', { session: false }), bondsmanRouter);
 
