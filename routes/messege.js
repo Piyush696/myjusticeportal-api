@@ -14,12 +14,6 @@ router.get('/', function (req, res, next) {
     util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Case.findAll({
-                include: [
-                    {
-                        model: User, as: 'inmate',
-                        attributes: ['userId', 'firstName', 'lastName', 'userName']
-                    }
-                ],
                 where: { userId: req.user.userId }
             }).then(data => {
                 let caseIds = data.map(x => x.caseId)
