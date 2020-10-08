@@ -1,7 +1,6 @@
 
 module.exports = {
     validate: function (roleIds, role, callback) {
-        console.log(roleIds, role)
         let z = [];
         z = role.map((x) => {
             if (roleIds.includes(x.roleId)) {
