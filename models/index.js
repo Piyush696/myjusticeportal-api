@@ -35,6 +35,8 @@ db.bondsman_user = require('./bondsman_user')(sequelize, Sequelize);
 db.file_case = require('./file_case')(sequelize, Sequelize);
 db.Messages = require('./messages')(sequelize, Sequelize);
 
+db.LegalResearch = require('./legalResearch')(sequelize, Sequelize);
+
 /* Mapings */
 
 db.Organization.hasMany(db.User, { foreignKey: 'organizationId', sourceKey: 'organizationId' });
@@ -61,6 +63,8 @@ db.User.belongsToMany(db.SecurityQuestion, { through: 'user_securityQuestion_Ans
 db.SecurityQuestion.belongsToMany(db.User, { through: 'user_securityQuestion_Answers', foreignKey: 'securityQuestionId' });
 
 db.User.hasMany(db.UserMeta, { foreignKey: 'userId', sourceKey: 'userId' });
+
+db.LegalResearch.belongsTo(db.User, { as: 'inmate', foreignKey: 'userId', sourceKey: 'userId' });
 
 db.Case.belongsTo(db.User, { as: 'inmate', foreignKey: 'userId', sourceKey: 'userId' });
 db.Files.belongsTo(db.User, { as: 'createdBy', constraints: false });

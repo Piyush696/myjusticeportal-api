@@ -62,10 +62,8 @@ router.get('/requested-users/:bondsman_userId', function (req, res, next) {
 // To set data after user Approved.
 
 router.post('/approve-user', function (req, res, next) {
-    console.log('asd')
     util.validate([6], req.user.roles, function (isAuthenticated) {
         console.log(isAuthenticated, req.user.userId)
-
         if (isAuthenticated) {
             bondsman_user.update({ status: 'Approved' }, {
                 where: { bondsman_userId: req.body.bondsman_userId, bondsmanId: req.user.userId }
