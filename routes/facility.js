@@ -49,7 +49,7 @@ router.post('/', function (req, res, next) {
 // get all Facility
 
 router.get('/', function (req, res, next) {
-    util.validate([7], req.user.roles, function (isAuthenticated) {
+    util.validate([7, 3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Facility.findAll({
                 include: [
