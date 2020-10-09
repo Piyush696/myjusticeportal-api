@@ -63,6 +63,7 @@ router.get('/users', function (req, res, next) {
                 where: { lawyerId: req.user.userId, status: 'Approved' },
             }).then(data => {
                 let caseIds = data.map(x => x.caseId)
+                console.log(caseIds)
                 Case.findAll({
                     include: [
                         {
@@ -82,8 +83,12 @@ router.get('/users', function (req, res, next) {
                         }
                         count++
                     });
-                }).catch(next)
-            }).catch(next)
+                }).catch(next => {
+                    console.log(next)
+                })
+            }).catch(next => {
+                console.log(next)
+            })
         } else {
             res.json({ success: true, data: 'Unauthorized user.' });
         }
