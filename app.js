@@ -24,6 +24,7 @@ const bondsmanRegistrationRouter = require('./routes/registration/bondsman');
 const bondsmanUserRouter = require('./routes/bondsmanUser');
 
 const bondsmanRouter = require('./routes/bondsman');
+const legalResearchRouter = require('./routes/legalResearch');
 
 const caseRouter = require('./routes/cases');
 const postageAppRouter = require('./routes/postageapp');
@@ -108,6 +109,8 @@ app.use('/api/facility', passport.authenticate('jwt', { session: false }), facil
 app.use('/api/organization', passport.authenticate('jwt', { session: false }), organizationRouter);
 
 app.use('/api/message', passport.authenticate('jwt', { session: false }), messageRouter);
+
+app.use('/api/legalResearch', passport.authenticate('jwt', { session: false }), legalResearchRouter);
 
 //Private routes.
 // app.use(authMiddleware.verifyToken);
