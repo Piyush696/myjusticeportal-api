@@ -25,6 +25,7 @@ router.post('/', function (req, res, next) {
                 Facility.create({
                     facilityCode: fac.facilityCode,
                     facilityName: fac.facilityName,
+                    ipAddress: fac.ipAddress,
                     libraryLink: fac.libraryLink,
                     addressId: addressData.addressId
                 }).then(facility => {
