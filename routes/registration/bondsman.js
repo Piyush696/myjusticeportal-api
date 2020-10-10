@@ -17,6 +17,7 @@ const jwtUtils = require('../../utils/create-jwt');
 router.post('/registration', function (req, res, next) {
     req.body.user.password = User.generateHash(req.body.user.password);
     req.body.user.isAdmin = true;
+    req.body.user.status = true;
     User.create(req.body.user).then((createdUser) => {
         Address.create(req.body.organization.address).then((createdAddress) => {
             req.body.organization.orgCode = uuidv1();
