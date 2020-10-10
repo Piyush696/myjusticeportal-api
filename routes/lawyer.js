@@ -42,7 +42,8 @@ router.get('/users', function (req, res, next) {
                     attributes: ['userId']
                 }).then((caseData) => {
                     let uniqueUsers = caseData.dataValues.lawyer.filter((v, i, a) => a.findIndex(t => ((t.inmate.userId === v.inmate.userId))) === i)
-                    res.json({ success: true, data: uniqueUsers });
+                    let inmates = uniqueUsers.map(data => data.inmate)
+                    res.json({ success: true, data: inmates });
                 }).catch(next);
             }).catch(next);
         }
