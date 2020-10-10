@@ -55,7 +55,7 @@ router.get('/:legalResearchId', function (req, res, next) {
                 include: [
                     {
                         model: User, as: 'inmate',
-                        attributes: ['userId'],
+                        attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName'],
                         include: [
                             {
                                 model: UserMeta,
@@ -76,7 +76,7 @@ router.get('/:legalResearchId', function (req, res, next) {
 
 /*edit legal research form */
 
-router.put('/:caseId', function (req, res, next) {
+router.put('/:legalResearchId', function (req, res, next) {
     util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             LegalResearch.update(req.body, { where: { legalResearchId: req.params.legalResearchId } }).then(data => {

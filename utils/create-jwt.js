@@ -7,6 +7,7 @@ module.exports = {
         let token = jwt.sign({
             userId: userData.userId,
             firstName: userData.firstName,
+            middleName: userData.middleName,
             lastName: userData.lastName,
             userName: userData.userName,
             isAdmin: userData.isAdmin,
