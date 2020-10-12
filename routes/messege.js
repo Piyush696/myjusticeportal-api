@@ -151,4 +151,21 @@ router.get('/allMessages', function (req, res, next) {
 })
 
 
+// router.get('/allMessages', function (req, res, next) {
+//     util.validate([1, 3], req.user.roles, function (isAuthenticated) {
+//         if (isAuthenticated) {
+//             Message.findAll({
+//                 order: [
+//                     ['createdAt', 'DESC']
+//                 ]
+//             }).then(data => {
+//                 res.json({ success: true, data: data });
+//             }).catch(next)
+//         } else {
+//             res.json({ success: true, data: 'Unauthorized user.' });
+//         }
+//     })
+// })
+
+
 module.exports = router;
