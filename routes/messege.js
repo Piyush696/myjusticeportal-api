@@ -210,9 +210,6 @@ var job = new CronJob('* * * * * *', function() {
                                 })
                             }
                     }
-                    else{
-                        res.json({ success: false, data: 'All the message read' });
-                    }
                 })
             })
   }, null, true, 'America/Los_Angeles');
