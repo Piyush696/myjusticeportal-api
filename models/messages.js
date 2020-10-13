@@ -13,6 +13,16 @@ module.exports = (sequelize, DataTypes) => {
         message: {
             type: DataTypes.STRING(1500),
             allowNull: false,
+        },
+        isRead: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: false
+        },
+        emailSend: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: false
         }
     }, {
         tableName: 'messages',
