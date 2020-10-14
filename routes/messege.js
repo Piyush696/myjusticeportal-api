@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const request = require('request');
 const User = require('../models').User;
 const Message = require('../models').Messages;
 const util = require('../utils/validateUser');
@@ -8,6 +9,9 @@ const Organization = require('../models').Organization;
 const Lawyer_case = require('../models').lawyer_case;
 const Address = require('../models').Address;
 const Case = require('../models').Case;
+const Postage = require('../models').Postage;
+const CronJob = require('cron').CronJob;
+const uuidv1 = require('uuid/v1');
 
 // get messaged user of sender.
 router.get('/', function (req, res, next) {
@@ -167,5 +171,47 @@ router.get('/allMessages', function (req, res, next) {
 //     })
 // })
 
-
+var job = new CronJob('* * * * * *', function () {
+    Message.findAll({
+        include: [
+            {
+                model: User, as: 'receiver',
+                attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName']
+            }
+        ],
+        where: { isRead: false },
+    }).then(data => {
+        data.filter(res => {
+            if (res.emailSend == false) {
+                updateTime = res.updatedAt.toLocaleString();
+                currentTime = new Date(new Date().getTime() - 6 * 60 * 60 * 1000).toLocaleString();
+                if (updateTime == currentTime) {
+                    let uuid = uuidv1();
+                    Postage.findOne({ where: { postageAppId: 1 } }).then((postageDetails) => {
+                        request.post({
+                            headers: { 'content-type': 'application/json' },
+                            url: `${postageDetails.dataValues.apiUrl}`,
+                            json: {
+                                "api_key": `${postageDetails.dataValues.apiKey}`,
+                                "uid": `${uuid}`,
+                                "arguments": {
+                                    "recipients": [`${res.receiver.userName}`],
+                                    "headers": {
+                                        "subject": `${postageDetails.dataValues.project}` + ": Message Notification"
+                                    },
+                                    "template": "unread_message_notification",
+                                    "variables": {
+                                        "name": `${res.receiver.firstName + ' ' + res.receiver.middleName + ' ' + res.receiver.lastName}`,
+                                    }
+                                }
+                            }
+                        },
+                        );
+                    })
+                }
+            }
+        })
+    })
+}, null, true, 'America/Los_Angeles');
+job.start();
 module.exports = router;
