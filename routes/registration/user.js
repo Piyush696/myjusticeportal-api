@@ -19,7 +19,7 @@ router.post('/', function (req, res, next) {
     User.create({
         password: User.generateHash(req.body.password),
         firstName: req.body.firstName, lastName: req.body.lastName,
-        userName: req.body.userName, middleName: req.body.middleName, isMFA: false, status: true
+        userName: req.body.userName, middleName: req.body.middleName, mobile: req.body.mobile, isMFA: false, status: true
     }).then((user) => {
         req.body.userMeta.map((element) => {
             element['userId'] = user.userId

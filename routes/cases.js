@@ -4,8 +4,11 @@ var passport = require('passport');
 const Case = require('../models').Case;
 const User = require('../models').User;
 const Files = require('../models').Files;
+const Facility = require('../models').Facility;
 const util = require('../utils/validateUser');
-const utils = require('../utils/validation')
+const utils = require('../utils/validation');
+const Organization = require('../models').Organization;
+const Address = require('../models').Address;
 
 router.post('/', function (req, res, next) {
     util.validate([1], req.user.roles, function (isAuthenticated) {
@@ -92,6 +95,31 @@ router.put('/:caseId', function (req, res, next) {
                     res.status(400).json(err)
                 })
             })
+        }
+        else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    })
+})
+
+router.get('/state/userFacility', function (req, res, next) {
+    util.validate([1], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            User.findOne({
+                include: [
+                    {
+                        model: Facility, through: { attributes: [] },
+                        include: [
+                            {
+                                model:Address
+                            }
+                        ]
+                    }
+                ],
+                where: { userId: req.user.userId }
+            }).then(data => {
+                res.json({ success: true, data: data });
+            }).catch(next)
         }
         else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
