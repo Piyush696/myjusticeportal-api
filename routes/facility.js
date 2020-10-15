@@ -5,6 +5,7 @@ const User = require('../models').User;
 const Facility = require('../models').Facility;
 const Address = require('../models').Address
 const util = require('../utils/validateUser');
+const utils = require('../utils/validation');
 
 
 // create Facility
