@@ -195,4 +195,17 @@ router.post('/user/update/securityQuestion', passport.authenticate('jwt', { sess
     }).catch(next);
 })
 
+router.get('/user/userSecurityQuestions', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+    User.findOne({
+        include: [
+            {
+                model: SecurityQuestion, through: { attributes: [] }
+            },
+        ],
+        where: { userId: req.user.userId }
+    }).then(userDetails => {
+        res.json({ success: true, data: userDetails });
+    })
+})
+
 module.exports = router;
