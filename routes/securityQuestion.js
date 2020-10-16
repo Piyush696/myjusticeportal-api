@@ -208,4 +208,15 @@ router.get('/user/userSecurityQuestions', passport.authenticate('jwt', { session
     })
 })
 
+router.post('/update/SecurityQuestion', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+    console.log(req.body)
+    User_SecurityQuestion_Answers.update({ securityQuestionId: req.body.securityQuestionId, answer: req.body.answer },
+        { where: { securityQuestionId: req.body.previousSecurityId, userId: req.user.userId } }).then((question) => {
+            res.json({ success: true, data: question });
+        }).catch(next)
+})
+
+//update security Question
+
+
 module.exports = router;
