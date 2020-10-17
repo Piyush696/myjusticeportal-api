@@ -162,6 +162,7 @@ router.get('/user/securityQuestions', passport.authenticate('jwt', { session: fa
         let count = 0;
         data.forEach((element, index, array) => {
             SecurityQuestion.findOne({ where: { securityQuestionId: element.dataValues.securityQuestionId } }).then((securityQues) => {
+                console.log(securityQues)
                 element.dataValues.question = securityQues.dataValues.question
                 if (count === array.length - 1) {
                     res.json({ success: true, data: data });
@@ -169,7 +170,9 @@ router.get('/user/securityQuestions', passport.authenticate('jwt', { session: fa
                 count++;
             });
         })
-    }).catch(next);
+    }).catch((next) => {
+        console.log(next)
+    });
 })
 
 /*update securityQuestions Answers */
