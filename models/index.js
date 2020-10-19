@@ -35,6 +35,8 @@ db.bondsman_user = require('./bondsman_user')(sequelize, Sequelize);
 db.file_case = require('./file_case')(sequelize, Sequelize);
 db.Messages = require('./messages')(sequelize, Sequelize);
 
+db.Specialty = require('./specialty')(sequelize, Sequelize);
+
 db.LegalResearch = require('./legalResearch')(sequelize, Sequelize);
 
 /* Mapings */

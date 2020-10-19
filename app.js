@@ -33,6 +33,7 @@ const securityQuestionRouter = require('./routes/securityQuestion');
 const userMetaRouter = require('./routes/userMeta');
 const caseFileRouter = require('./routes/case-file');
 const facilityRoutes = require('./routes/facility');
+const specialtyRoutes = require('./routes/specialty');
 
 
 const allUsersLoginRoutes = require('./routes/core/login');
@@ -109,6 +110,7 @@ app.use('/api/facility', passport.authenticate('jwt', { session: false }), facil
 app.use('/api/organization', passport.authenticate('jwt', { session: false }), organizationRouter);
 
 app.use('/api/message', passport.authenticate('jwt', { session: false }), messageRouter);
+app.use('/api/specialty', specialtyRoutes);
 
 app.use('/api/legalResearch', passport.authenticate('jwt', { session: false }), legalResearchRouter);
 
