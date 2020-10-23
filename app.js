@@ -29,6 +29,7 @@ const legalResearchRouter = require('./routes/legalResearch');
 
 const caseRouter = require('./routes/cases');
 const postageAppRouter = require('./routes/postageapp');
+const stripeConnectionRouter = require('./routes/stripe_connection');
 const twilioRouter = require('./routes/twilio');
 const securityQuestionRouter = require('./routes/securityQuestion');
 const userMetaRouter = require('./routes/userMeta');
@@ -101,6 +102,7 @@ app.use('/api/role', roleRouter);
 app.use('/api/case', passport.authenticate('jwt', { session: false }), /*roleMiddleware,*/ caseRouter);
 app.use('/api/postage', passport.authenticate('jwt', { session: false }), postageAppRouter);
 app.use('/api/twilio', passport.authenticate('jwt', { session: false }), twilioRouter);
+app.use('/api/stripeConnection', passport.authenticate('jwt', { session: false }), stripeConnectionRouter);
 app.use('/api/hirealawyer', passport.authenticate('jwt', { session: false }), hireaLawyerRouter);
 app.use('/api/bondsmanUser', passport.authenticate('jwt', { session: false }), bondsmanUserRouter);
 app.use('/api/securityQuestion', securityQuestionRouter);
