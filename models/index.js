@@ -38,6 +38,7 @@ db.Messages = require('./messages')(sequelize, Sequelize);
 db.Specialty = require('./specialty')(sequelize, Sequelize);
 
 db.LegalResearch = require('./legalResearch')(sequelize, Sequelize);
+db.StripeConnection = require('./stripe_connection')(sequelize, Sequelize);
 
 /* Mapings */
 

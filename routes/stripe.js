@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const request = require("request");
-var passport = require('passport');
 const UserMeta = require('../models').UserMeta;
 
 // sk_test_zlRA9Hh43Aa6pM80pxdf2mcc00ksE2l4hz
