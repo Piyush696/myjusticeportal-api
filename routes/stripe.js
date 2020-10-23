@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const request = require("request");
 var passport = require('passport');
-
+const UserMeta = require('../models').UserMeta;
 
 // sk_test_zlRA9Hh43Aa6pM80pxdf2mcc00ksE2l4hz
 //sk_live_TgvUP4xiCxLmNh4KQx4MxATc00MfApKkpG
@@ -12,20 +12,20 @@ var stripe = require('stripe')('sk_test_51HZlF7E0gHnDDynBn1D4La5BtFQKPaNhHTPTjZK
 // create customer   **Step-1 
 
 router.post('/', async function (req, res, next) {
-    console.log("dsjkfhjks", req.body)
+    // console.log("dsjkfhjks", req.body)
     if (req.body.cus_id == undefined) {
         stripe.customers.create({
             email: req.body.email,
-            name: 'Piyush',
-            address: {
-                line1: '510 Townsend St',
-                postal_code: '560029',
-                city: 'San Francisco',
-                state: 'BL',
-                country: 'IN',
-            }
+            // name: 'Piyush',
+            // address: {
+            //     line1: '510 Townsend St',
+            //     postal_code: '560029',
+            //     city: 'San Francisco',
+            //     state: 'BL',
+            //     country: 'IN',
+            // }
         }).then((customer) => {
-            console.log('step-10', customer)
+            // console.log('step-10', customer)
             stripe.tokens.create({
                 card: {
                     number: req.body.number,
@@ -64,11 +64,7 @@ router.post('/', async function (req, res, next) {
                     source: token.id
                 }).then((addCard) => {
                     res.json({ success: true, data: addCard })
-                }).catch((addCard) => {
-                    console.log('cust_id', addCard);
-                    res.json({ success: false, data: customer.id })
-                }
-                )
+                }).catch(next)
         }).catch(next)
     }
 
@@ -78,6 +74,7 @@ router.post('/', async function (req, res, next) {
 // plan subscribe
 
 router.post('/subscribe_plan', async function (req, res, next) {
+    console.log(req.body)
     var PlanId = "price_1HefExE0gHnDDynBiVzg2Uqu";
     // if (req.body.plan == 'plan_1') {
     //     PlanId = 'plan_FX4LWj4PXPNhrE'  // plan_FX4LWj4PXPNhrE
@@ -93,13 +90,12 @@ router.post('/subscribe_plan', async function (req, res, next) {
             },
         ]
     }).then((subscribePlan) => {
-        console.log('step-4', subscribePlan)
-        // UserMeta.create({ metaKey: 'sub_id', metaValue: subscribePlan.id, userId: req.body.userId, createdBy: req.body.userId }).then((result) => {
-        res.json({ success: true, data: subscribePlan })
-        // }).catch(next);
-    }).catch((next) => {
-        console.log(next)
-    })
+        let userMetaList = [{ metaKey: 'sub_id', metaValue: subscribePlan.id, userId: req.body.userId, createdBy: req.body.userId },
+        { metaKey: 'cust_id', metaValue: req.body.customer, userId: req.body.userId, createdBy: req.body.userId }]
+        UserMeta.bulkCreate(userMetaList).then(() => {
+            res.json({ success: true, data: subscribePlan })
+        }).catch(next)
+    }).catch(next)
 
 })
 
