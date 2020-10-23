@@ -13,6 +13,7 @@ const authRouter = require('./routes/auth');
 const roleRouter = require('./routes/role');
 
 const lawyerRouter = require('./routes/lawyer');
+const stripeRouter = require('./routes/stripe');
 
 const userRegistrationRoutes = require('./routes/registration/user');
 const facilityRegistrationRouter = require('./routes/registration/facility');
@@ -111,6 +112,7 @@ app.use('/api/organization', passport.authenticate('jwt', { session: false }), o
 
 app.use('/api/message', passport.authenticate('jwt', { session: false }), messageRouter);
 app.use('/api/specialty', specialtyRoutes);
+app.use('/api/stripe', stripeRouter);
 
 app.use('/api/legalResearch', passport.authenticate('jwt', { session: false }), legalResearchRouter);
 
