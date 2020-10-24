@@ -38,10 +38,14 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: true,
             validate: {
-                isURL:{
+                isURL: {
                     msg: "Invalid URL."
                 }
             }
+        },
+        facilityUserCount: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
         }
 
     }, {
