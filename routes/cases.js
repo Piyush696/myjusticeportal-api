@@ -9,6 +9,7 @@ const util = require('../utils/validateUser');
 const utils = require('../utils/validation');
 const Organization = require('../models').Organization;
 const Address = require('../models').Address;
+const Lawyer_case = require('../models').lawyer_case;
 
 router.post('/', function (req, res, next) {
     util.validate([1], req.user.roles, function (isAuthenticated) {
@@ -111,7 +112,7 @@ router.get('/state/userFacility', function (req, res, next) {
                         model: Facility, through: { attributes: [] },
                         include: [
                             {
-                                model:Address
+                                model: Address
                             }
                         ]
                     }
@@ -125,6 +126,41 @@ router.get('/state/userFacility', function (req, res, next) {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     })
+})
+
+
+
+router.get('/lawyer-case/:caseId', function (req, res, next) {
+    util.validate([1], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            Lawyer_case.findOne({
+                where: { caseId: req.params.caseId, status: 'Approved' }
+                // attributes: ['userId']
+            }).then((lawyerCase) => {
+                if (lawyerCase) {
+                    User.findOne({
+                        include: [
+                            {
+                                model: Organization,
+                                attributes: ['organizationId', 'name']
+                            }
+                        ],
+                        where: { userId: lawyerCase.lawyerId },
+                        attributes: ['userId', 'firstName', 'middleName', 'lastName']
+                    }).then((user) => {
+                        console.log('saed', lawyerCase.lawyerId)
+                        res.json({ success: true, data: user });
+                    })
+                } else {
+                    res.json({ success: true, data: 'No lawyer assigned to this case.' });
+                }
+
+            });
+        }
+        else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    });
 })
 
 module.exports = router; 
