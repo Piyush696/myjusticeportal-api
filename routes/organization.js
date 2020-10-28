@@ -11,6 +11,7 @@ const Role = require('../models').Role;
 const Files = require('../models').Files;
 const Address = require('../models').Address;
 const Facility = require('../models').Facility;
+const userMeta = require('../models').UserMeta;
 const Postage = require('../models').Postage;
 const util = require('../utils/validateUser');
 const utils = require('../utils/file');
@@ -101,10 +102,13 @@ router.get('/', function (req, res, next) {
             User.findOne({
                 include: [
                     {
-                        model: Organization, attributes: ['organizationId', 'name', 'tagline', 'description'],
+                        model: Organization, attributes: ['organizationId', 'name', 'tagline', 'description', 'specialty'],
                         include: [
                             {
                                 model: Address
+                            },
+                            {
+                                model: Files, as: 'logo'
                             }
                         ]
                     }
