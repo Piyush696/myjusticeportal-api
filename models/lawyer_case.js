@@ -11,7 +11,12 @@ module.exports = (sequelize, DataTypes) => {
         status: {
             type: DataTypes.ENUM('Requested', 'Approved', 'Rejected'),
             allowNull: false
-        }
+        },
+        isHide: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: false
+        },
     }, {
         tableName: 'lawyer_case',
         freezeTableName: true
