@@ -191,6 +191,24 @@ router.post('/reject-case', function (req, res, next) {
     });
 });
 
+// To set data after case Hide.
+
+router.post('/hide/hide-case', function (req, res, next) {
+    util.validate([3], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            Lawyer_case.update({ isHide: 'true' }, {
+                where: { lawyer_caseId: req.body.lawyer_caseId, lawyerId: req.user.userId }
+            }).then(() => {
+                res.json({ success: true });
+            });
+        }
+        else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    });
+});
+
+
 // To get file DownloadLink.
 
 router.post('/fileDownloadLink', function (req, res, next) {

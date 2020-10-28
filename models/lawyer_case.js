@@ -9,9 +9,14 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true
         },
         status: {
-            type: DataTypes.ENUM('Requested', 'Approved', 'Rejected'),
+            type: DataTypes.ENUM('Requested', 'Approved', 'Rejected', 'Hide'),
             allowNull: false
-        }
+        },
+        isHide: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: false
+        },
     }, {
         tableName: 'lawyer_case',
         freezeTableName: true
