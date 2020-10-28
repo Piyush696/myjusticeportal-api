@@ -197,7 +197,7 @@ router.post('/hide/hide-case', function (req, res, next) {
     util.validate([3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Lawyer_case.update({ isHide: 'true' }, {
-                where: { lawyer_caseId: req.body.lawyer_caseId, lawyerId: req.user.userId }
+                where: { caseId: req.body.caseId, lawyerId: req.user.userId }
             }).then(() => {
                 res.json({ success: true });
             });
