@@ -51,6 +51,56 @@ router.get('/', function (req, res, next) {
     })
 })
 
+/** */
+router.get('/getPendingCaseInfo', function (req, res, next) {
+    util.validate([1], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            Case.findAll({
+                include: [
+                    {
+                        model: User, as: 'inmate',
+                        attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName']
+                    }
+                ],
+                where: { userId: req.user.userId }
+            }).then(data => {
+                let caseIds = data.map(data => data.caseId);
+                console.log(caseIds)
+                Lawyer_case.findAll({ where: { caseId: caseIds, status: 'Requested' } }).then((lawyers) => {
+                    let lawyerIds = lawyers.map(data => data.lawyerId);
+                    User.findAll({
+                        include: [{
+                            model: Organization,
+                            attributes: ['name']
+                        }],
+                        attributes: ['userId', 'firstName', 'lastName', 'userName'],
+                        where: { userId: lawyerIds }
+                    }).then((users) => {
+                        let count = 0;
+                        lawyers.forEach((element, index, Array) => {
+                            users.map((data) => {
+                                if (data.dataValues.userId === element.dataValues.lawyerId) {
+                                    data.dataValues['sent'] = element.dataValues.updatedAt
+                                    data.dataValues['status'] = element.dataValues.status
+                                    if (count === Array.length - 1) {
+                                        let x = users
+                                        res.json({ success: true, data: x });
+                                    }
+                                    count++
+                                }
+                            })
+                        })
+                    })
+                })
+            })
+        }
+        else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    })
+})
+
+
 // find case with caseId.
 
 router.get('/:caseId', function (req, res, next) {
