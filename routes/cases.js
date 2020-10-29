@@ -213,4 +213,41 @@ router.get('/lawyer-case/:caseId', function (req, res, next) {
     });
 })
 
+//get all cases for lawyer
+router.get('/lawyer/allCases', function (req, res, next) {
+    util.validate([3], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            Lawyer_case.findAll({
+                where: { lawyerId: req.user.userId }
+            }).then((foundLawyerCases) => {
+                let caseIds = foundLawyerCases.map(data => data.caseId);
+                User.findOne({
+                    include: [
+                        {
+                            model: Case, as: 'lawyer',
+                            where: { caseId: caseIds },
+                            include: [
+                                {
+                                    model: Files, as: 'caseFile',
+                                    attributes: ['fileId', 'fileName', 'createdAt', 'updatedAt', 'createdByUserId']
+                                },
+                                {
+                                    model: User, as: 'inmate',
+                                    attributes: ['userId', 'firstName', 'middleName', 'lastName']
+                                }
+                            ]
+                        }
+                    ],
+                    where: { userId: req.user.userId },
+                    attributes: ['userId']
+                }).then((caseData) => {
+                    res.json({ success: true, data: caseData });
+                });
+            });
+        }
+        else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    });
+})
 module.exports = router; 
