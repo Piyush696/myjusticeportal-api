@@ -39,6 +39,7 @@ db.Specialty = require('./specialty')(sequelize, Sequelize);
 
 db.LegalResearch = require('./legalResearch')(sequelize, Sequelize);
 db.StripeConnection = require('./stripe_connection')(sequelize, Sequelize);
+db.UserAdditionalInfo = require('./userAdditionalInfo')(sequelize, Sequelize);
 
 /* Mapings */
 
@@ -49,6 +50,8 @@ db.Address.hasOne(db.Organization, { foreignKey: 'addressId' });
 
 // db.Files.hasMany(db.Organization, { as: 'logo', foreignKey: 'logoFileId' });
 db.Organization.belongsTo(db.Files, { as: 'logo', foreignKey: 'logoFileId' });
+
+db.UserAdditionalInfo.belongsTo(db.Files, { as: 'profile', foreignKey: 'ProfileImgId' });
 
 db.Messages.belongsTo(db.User, { as: 'sender', foreignKey: 'senderId' });
 db.Messages.belongsTo(db.User, { as: 'receiver', foreignKey: 'receiverId' });
@@ -66,6 +69,7 @@ db.User.belongsToMany(db.SecurityQuestion, { through: 'user_securityQuestion_Ans
 db.SecurityQuestion.belongsToMany(db.User, { through: 'user_securityQuestion_Answers', foreignKey: 'securityQuestionId' });
 
 db.User.hasMany(db.UserMeta, { foreignKey: 'userId', sourceKey: 'userId' });
+db.User.hasOne(db.UserAdditionalInfo, { foreignKey: 'userId', sourceKey: 'userId' });
 
 db.LegalResearch.belongsTo(db.User, { as: 'inmate', foreignKey: 'userId', sourceKey: 'userId' });
 

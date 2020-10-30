@@ -23,6 +23,7 @@ const publicDefenderRegistrationRouter = require('./routes/registration/public-d
 const bondsmanRegistrationRouter = require('./routes/registration/bondsman');
 
 const bondsmanUserRouter = require('./routes/bondsmanUser');
+const userAdditionalinfoRouter = require('./routes/userAdditionalInfo');
 
 const bondsmanRouter = require('./routes/bondsman');
 const legalResearchRouter = require('./routes/legalResearch');
@@ -113,6 +114,7 @@ app.use('/api/facility', passport.authenticate('jwt', { session: false }), facil
 app.use('/api/organization', passport.authenticate('jwt', { session: false }), organizationRouter);
 
 app.use('/api/message', passport.authenticate('jwt', { session: false }), messageRouter);
+app.use('/api/userAdditionalInfo', passport.authenticate('jwt', { session: false }), userAdditionalinfoRouter);
 app.use('/api/specialty', specialtyRoutes);
 app.use('/api/stripe', stripeRouter);
 
