@@ -46,6 +46,10 @@ module.exports = (sequelize, DataTypes) => {
                 }
             }
         },
+        colorPiker: {
+            type: DataTypes.STRING(100),
+            allowNull: true
+        },
         description: {
             type: DataTypes.STRING(5000),
             allowNull: true,
