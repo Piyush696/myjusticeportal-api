@@ -102,7 +102,7 @@ router.get('/', function (req, res, next) {
             User.findOne({
                 include: [
                     {
-                        model: Organization, attributes: ['organizationId', 'name', 'tagline', 'description', 'specialty'],
+                        model: Organization, attributes: ['organizationId', 'name', 'tagline', 'description', 'specialty','colorPiker'],
                         include: [
                             {
                                 model: Address
