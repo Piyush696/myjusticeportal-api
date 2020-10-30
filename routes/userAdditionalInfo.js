@@ -64,9 +64,18 @@ router.post('/uploadProfile', upload.any(), function (req, res, next) {
 router.put('/', function (req, res, next) {
     util.validate([3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
-            UserAdditionalInfo.update(req.body.additionalInfo, { where: { userId: req.user.userId } }).then((data) => {
-                res.json({ success: true, data: data });
-            }).catch(next)
+            UserAdditionalInfo.findOne({ where: { userId: req.body.userId } }).then((user) => {
+                if (user) {
+                    UserAdditionalInfo.update(req.body.additionalInfo, { where: { userId: req.user.userId } }).then((data) => {
+                        res.json({ success: true, data: data });
+                    }).catch(next)
+                } else {
+                    req.body.additionalInfo['userId'] = req.user.userId
+                    UserAdditionalInfo.create(req.body.additionalInfo).then((data) => {
+                        res.json({ success: true, data: data });
+                    }).catch(next)
+                }
+            })
         }
         else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
