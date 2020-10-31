@@ -81,7 +81,9 @@ router.post('/', function (req, res, next) {
     })
     Lawyer_case.bulkCreate(req.body.selectedCases).then((lawyerCases) => {
         res.json({ success: true, data: lawyerCases });
-    }).catch(next)
+    }).catch((next) => {
+        console.log(next)
+    })
 })
 
 // To get all requested cases.

@@ -8,6 +8,7 @@ const Case = require('../models').Case;
 const UserAdditionalInfo = require('../models').UserAdditionalInfo;
 const Files = require('../models').Files;
 const Facility = require('../models').Facility;
+const Lawyer_case = require('../models').Lawyer_case;
 const utils = require('../utils/file');
 const util = require('../utils/validateUser');
 const multer = require('multer');
@@ -81,6 +82,94 @@ router.put('/', function (req, res, next) {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     })
+})
+
+
+
+//list of all organizations those who are linked to a facility and role is lawyer.
+router.get('/sponsorsUser', function (req, res, next) {
+    util.validate([1], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            User.findOne({
+                include: [
+                    {
+                        model: Facility, through: { attributes: [] }, attributes: ['facilityId'],
+                        include: [
+                            {
+                                model: Organization, through: { attributes: [] }, attributes: ['organizationId', 'name', 'orgCode', 'type', 'specialty'],
+                                where: { type: 'lawyer' },
+                                include: [
+                                    {
+                                        model: Address
+                                    },
+                                    {
+                                        model: User, attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'createdAt'],
+                                        include: [
+                                            {
+                                                model: UserAdditionalInfo,
+                                                include: [
+                                                    {
+                                                        model: Files, as: 'profile'
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                    },
+                                ],
+                            }
+                        ],
+                    }
+                ],
+                where: { userId: req.user.userId },
+                attributes: ['userId'],
+            }).then((user) => {
+                if (user.facilities[0].Organizations) {
+                    var n = 2
+                    randomItems = user.facilities[0].Organizations.sort(() => .5 - Math.random()).slice(0, n);
+                    res.json({ success: true, data: randomItems });
+                }
+                else {
+                    res.json({ success: false, data: 'Not found.' });
+                }
+
+            })
+        } else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    })
+})
+
+
+
+router.get('/:userId', function (req, res, next) {
+    util.validate([1], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            User.findOne({
+                include: [
+                    {
+                        model: Organization, attributes: ['organizationId', 'name', 'orgCode', 'type', 'specialty'],
+                    },
+                    {
+                        model: UserAdditionalInfo,
+                    }
+                ],
+                where: { userId: req.params.userId }
+            }).then((userData) => {
+                res.json({ success: true, data: userData });
+            }).catch(next);
+        } else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    })
+})
+
+//set lawyer case
+router.post('/', function (req, res, next) {
+    req.body['status'] = 'Requested'
+    console.log(req.body)
+    Lawyer_case.create(req.body).then((lawyerCases) => {
+        res.json({ success: true, data: lawyerCases });
+    }).catch(next)
 })
 
 module.exports = router; 
