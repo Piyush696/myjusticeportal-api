@@ -8,7 +8,7 @@ const Case = require('../models').Case;
 const UserAdditionalInfo = require('../models').UserAdditionalInfo;
 const Files = require('../models').Files;
 const Facility = require('../models').Facility;
-const Lawyer_case = require('../models').Lawyer_case;
+const Lawyer_case = require('../models').lawyer_case;
 const utils = require('../utils/file');
 const util = require('../utils/validateUser');
 const multer = require('multer');
@@ -166,10 +166,9 @@ router.get('/:userId', function (req, res, next) {
 //set lawyer case
 router.post('/', function (req, res, next) {
     req.body['status'] = 'Requested'
-    console.log(req.body)
     Lawyer_case.create(req.body).then((lawyerCases) => {
         res.json({ success: true, data: lawyerCases });
-    }).catch(next)
+    }).catch((next))
 })
 
 module.exports = router; 
