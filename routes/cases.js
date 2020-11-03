@@ -66,7 +66,7 @@ router.get('/getPendingCaseInfo', function (req, res, next) {
             }).then(data => {
                 let caseIds = data.map(data => data.caseId);
                 console.log(caseIds)
-                Lawyer_case.findAll({ where: { caseId: caseIds, status: 'Requested' } }).then((lawyers) => {
+                Lawyer_case.findAll({ where: { caseId: caseIds } }).then((lawyers) => {
                     let lawyerIds = lawyers.map(data => data.lawyerId);
                     User.findAll({
                         include: [{
@@ -82,6 +82,7 @@ router.get('/getPendingCaseInfo', function (req, res, next) {
                                 if (data.dataValues.userId === element.dataValues.lawyerId) {
                                     data.dataValues['sent'] = element.dataValues.updatedAt
                                     data.dataValues['status'] = element.dataValues.status
+                                    data.dataValues['caseId'] = element.dataValues.caseId
                                     if (count === Array.length - 1) {
                                         let x = users
                                         res.json({ success: true, data: x });
