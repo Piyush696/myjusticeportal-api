@@ -193,7 +193,7 @@ router.get('/lawyer/Cases', function (req, res, next) {
                     let count = 0;
                     foundLawyerCases.forEach((element, index, Array) => {
                         data.map((x) => {
-                            if (element.dataValues.caseId === element.dataValues.caseId) {
+                            if (x.dataValues.caseId === element.dataValues.caseId) {
                                 x.dataValues['status'] = element.dataValues.status
                                 x.dataValues['sentAt'] = element.dataValues.createdAt
                                 if (count === Array.length - 1) {
@@ -212,5 +212,23 @@ router.get('/lawyer/Cases', function (req, res, next) {
         }
     });
 })
+
+// To set data after case Approved.
+
+router.post('/status-update', function (req, res, next) {
+    console.log(req.body.caseId , req.body.status)
+    util.validate([3], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            Lawyer_case.update({ status: req.body.status }, {
+                where: { caseId : req.body.caseId , lawyerId: req.user.userId}
+            }).then((data) => {
+                res.json({ success: true });
+            }).catch(next)
+        }
+        else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    })
+});
 
 module.exports = router; 
