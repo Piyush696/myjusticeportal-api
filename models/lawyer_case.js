@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BOOLEAN,
             allowNull: true,
             defaultValue: false
-        },
+        }
     }, {
         tableName: 'lawyer_case',
         freezeTableName: true
