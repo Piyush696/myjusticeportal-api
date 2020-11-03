@@ -62,6 +62,25 @@ router.post('/uploadProfile', upload.any(), function (req, res, next) {
     })
 });
 
+
+// To set data after case inmate approve.
+
+router.post('/inmateStatus', function (req, res, next) {
+    util.validate([1], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            Lawyer_case.update({ status: req.body.status }, {
+                where: { caseId: req.body.caseId, lawyerId: req.body.lawyerId }
+            }).then((data) => {
+                res.json({ success: true, data: data });
+            });
+        }
+        else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    });
+});
+
+
 router.put('/', function (req, res, next) {
     util.validate([3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
