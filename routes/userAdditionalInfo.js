@@ -171,4 +171,46 @@ router.post('/', function (req, res, next) {
     }).catch((next))
 })
 
+
+// To get all requested cases.
+
+router.get('/lawyer/Cases', function (req, res, next) {
+    util.validate([3], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            Lawyer_case.findAll({
+                where: { lawyerId: req.user.userId }
+            }).then((foundLawyerCases) => {
+                let caseIds = foundLawyerCases.map(data => data.caseId);
+                Case.findAll({
+                    include: [
+                        {
+                            model: User, as: 'inmate',
+                            attributes: ['userId', 'firstName', 'lastName', 'userName']
+                        }
+                    ],
+                    where: { caseId: caseIds }
+                }).then((data) => {
+                    let count = 0;
+                    foundLawyerCases.forEach((element, index, Array) => {
+                        data.map((x) => {
+                            if (element.dataValues.caseId === element.dataValues.caseId) {
+                                x.dataValues['status'] = element.dataValues.status
+                                x.dataValues['sentAt'] = element.dataValues.createdAt
+                                if (count === Array.length - 1) {
+                                    let x = data
+                                    res.json({ success: true, data: x });
+                                }
+                                count++
+                            }
+                        })
+                    })
+                }).catch(next);
+            }).catch(next);
+        }
+        else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    });
+})
+
 module.exports = router; 
