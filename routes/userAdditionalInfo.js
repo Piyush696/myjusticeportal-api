@@ -235,11 +235,11 @@ router.get('/lawyer/Cases', function (req, res, next) {
 // To set data after case Approved.
 
 router.post('/status-update', function (req, res, next) {
-    console.log(req.body.caseId , req.body.status)
+    console.log(req.body.caseId, req.body.status)
     util.validate([3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Lawyer_case.update({ status: req.body.status }, {
-                where: { caseId : req.body.caseId , lawyerId: req.user.userId}
+                where: { caseId: req.body.caseId, lawyerId: req.user.userId }
             }).then((data) => {
                 res.json({ success: true });
             }).catch(next)
