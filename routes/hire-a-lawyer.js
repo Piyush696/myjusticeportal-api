@@ -76,7 +76,6 @@ router.get('/organizations/:organizationId', function (req, res, next) {
 
 //set lawyer case
 router.post('/', function (req, res, next) {
-    console.log(req.body.selectedCases)
     req.body.selectedCases.map((element) => {
         element['status'] = 'Requested'
     })
