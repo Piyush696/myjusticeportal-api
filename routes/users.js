@@ -117,23 +117,29 @@ router.put('/updateUser', passport.authenticate('jwt', { session: false }), (req
 /*update Password */
 
 router.put('/reset-pass', function (req, res, next) {
+    console.log(req.body)
     let newData = {};
     let query = {};
     User.findOne({
         where: { userName: req.body.userName }
     }).then((user) => {
-        if (user.securityQuestionAnswered === 3) {
-            if (req.body.password && req.body.password.length) {
-                newData.password = User.generateHash(req.body.password);
-                newData.securityQuestionAnswered = 0;
-            }
-            if (newData.errors)
-                return next(newData.errors[0]);
-            query.where = { userName: req.body.userName }
-            User.update(newData, query).then(() => {
-                res.json({ success: true, newData });
-            }).catch(next)
+        console.log(req.body)
+        // if (user.securityQuestionAnswered === 3) {
+        if (req.body.password && req.body.password.length) {
+            newData.password = User.generateHash(req.body.password);
+            newData.securityQuestionAnswered = 0;
         }
+        if (newData.errors)
+            return next(newData.errors[0]);
+        query.where = { userName: req.body.userName }
+        User.update(newData, query).then(() => {
+            res.json({ success: true, newData });
+        }).catch((next) => {
+            console.log(next)
+        })
+        // }
+    }).catch((next) => {
+        console.log(next)
     })
 });
 
