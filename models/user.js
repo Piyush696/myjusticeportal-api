@@ -23,16 +23,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         middleName: {
             type: DataTypes.STRING,
-            allowNull: true,
-            validate: {
-                len: {
-                    args: [1, 50],
-                    msg: "Middle name  must be between 1 and 50 characters in length"
-                },
-                isAlpha: {
-                    msg: 'Middle name must contanis only Alphabets'
-                }
-            }
+            allowNull: true
         },
         lastName: {
             type: DataTypes.STRING,
