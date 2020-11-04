@@ -16,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BOOLEAN,
             allowNull: true,
             defaultValue: false
+        },
+        notes: {
+            type: DataTypes.STRING(5000),
+            allowNull: true,
         }
     }, {
         tableName: 'lawyer_case',
