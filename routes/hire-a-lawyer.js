@@ -76,14 +76,13 @@ router.get('/organizations/:organizationId', function (req, res, next) {
 
 //set lawyer case
 router.post('/', function (req, res, next) {
+    console.log(req.body.selectedCases)
     req.body.selectedCases.map((element) => {
         element['status'] = 'Requested'
     })
     Lawyer_case.bulkCreate(req.body.selectedCases).then((lawyerCases) => {
         res.json({ success: true, data: lawyerCases });
-    }).catch((next) => {
-        console.log(next)
-    })
+    }).catch(next)
 })
 
 // To get all requested cases.
