@@ -54,7 +54,6 @@ router.get('/users', function (req, res, next) {
 })
 
 router.post('/:caseId', function (req, res, next) {
-    console.log(req.params, req.body.lawyerId)
     util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Lawyer_case.destroy({ where: { lawyerId: req.body.lawyerId, caseId: req.params.caseId } }).then((data) => {
