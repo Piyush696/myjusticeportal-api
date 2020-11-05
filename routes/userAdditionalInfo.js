@@ -84,7 +84,7 @@ router.post('/inmateStatus', function (req, res, next) {
 router.put('/', function (req, res, next) {
     util.validate([3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
-            UserAdditionalInfo.findOne({ where: { userId: req.body.userId } }).then((user) => {
+            UserAdditionalInfo.findOne({ where: { userId: req.user.userId } }).then((user) => {
                 if (user) {
                     UserAdditionalInfo.update(req.body.additionalInfo, { where: { userId: req.user.userId } }).then((data) => {
                         res.json({ success: true, data: data });

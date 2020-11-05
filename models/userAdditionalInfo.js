@@ -20,7 +20,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BOOLEAN,
             allowNull: true,
             defaultValue: false
-        }
+        },
+        practiceAreas: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
     }, {
         tableName: 'userAdditionalInfo',
         timestamps: true,
