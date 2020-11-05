@@ -6,7 +6,7 @@ const Facility = require('../models').Facility;
 const Address = require('../models').Address
 const util = require('../utils/validateUser');
 const utils = require('../utils/validation');
-
+const Sequelize = require('sequelize');
 
 // create Facility
 
@@ -123,5 +123,24 @@ router.get('/facilityCode/check/:code?', async function (req, res, next) {
         }
     })
 });
+
+
+router.get('/facility/userCount', function (req, res, next) {
+    Facility.findAll({
+        subQuery: false,
+        attributes: {
+            include: [[Sequelize.fn('COUNT', Sequelize.col('users.userId')), 'userCount']]
+        },
+        include: [{
+            model: User,
+            attributes: ['userId'],
+        }],
+        group: ['facilityId']
+    }).then((result) => {
+        res.json({ success: true, data: result });
+    }).catch((next) => {
+        console.log(next)
+    });
+})
 
 module.exports = router;
