@@ -12,7 +12,7 @@ const validateUtil = require('../utils/validateUser');
 // To upload file.
 
 router.post('/uploadFile', upload.any(), function (req, res, next) {
-    validateUtil.validate([1], req.user.roles, function (isAuthenticated) {
+    validateUtil.validate([3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             let itemsProcessed = 1;
             req.files.forEach((file, index, array) => {
