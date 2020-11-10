@@ -12,13 +12,14 @@ const validateUtil = require('../utils/validateUser');
 // To upload file.
 
 router.post('/uploadFile', upload.any(), function (req, res, next) {
-    console.log(req.user.roles)
+    console.log(req.user)
     validateUtil.validate([3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             let itemsProcessed = 1;
             req.files.forEach((file, index, array) => {
                 utils.uploadFile(file, file.mimetype, req.user.userId, 'mjp-private', 'private', function (fileId) {
                     if (fileId) {  
+                        console.log(fileId)
                         req.body.fileId = fileId;
                         File_case.create(req.body).then(() => {
                             if (itemsProcessed === array.length) {
