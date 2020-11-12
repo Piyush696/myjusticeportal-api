@@ -54,7 +54,6 @@ router.post("/", async function (req, res, next) {
 // plan subscribe
 
 router.post("/subscribe_plan", async function (req, res, next) {
-  console.log(req.body);
   stripe.plans
     .create({
       amount: req.body.amount,
@@ -63,7 +62,6 @@ router.post("/subscribe_plan", async function (req, res, next) {
       product: "prod_IF9YlbHmWQ8ezq",
     })
     .then((plan) => {
-      console.log(plan);
       stripe.subscriptions
         .create({
           customer: req.body.customer,
@@ -91,18 +89,10 @@ router.post("/subscribe_plan", async function (req, res, next) {
           UserMeta.bulkCreate(userMetaList)
             .then(() => {
               res.json({ success: true, data: subscribePlan });
-            })
-            .catch((next) => {
-              console.log(next);
-            });
-        })
-        .catch((next) => {
-          console.log(next);
-        });
+            }) .catch(next);
+        }) .catch(next);
     })
-    .catch((next) => {
-      console.log(next);
-    });
+    .catch(next);
 });
 
 /* subcription details */
