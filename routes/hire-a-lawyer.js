@@ -10,7 +10,7 @@ const Files = require('../models').Files;
 const Facility = require('../models').Facility;
 const utils = require('../utils/file');
 const util = require('../utils/validateUser');
-
+const UserAdditionalInfo = require('../models').UserAdditionalInfo;
 
 
 //list of all organizations those who are linked to a facility and role is lawyer.
@@ -239,6 +239,31 @@ router.post('/fileDownloadLink', function (req, res, next) {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     })
+})
+
+router.get('/getLawyerInfo/:userId', function (req, res, next) {
+    util.validate([1], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            User.findOne({
+                include: [
+                    {
+                        model: UserAdditionalInfo,
+                        include: [
+                            {
+                                model: Files, as: 'profile'
+                            }
+                        ]
+                    }
+                ],
+                where: { userId: req.params.userId }
+            }).then((users) => {
+                res.json({ success: true, data: users });
+            });
+        }
+        else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    });
 })
 
 module.exports = router; 
