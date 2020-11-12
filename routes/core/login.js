@@ -58,7 +58,17 @@ router.post('/login', function (req, res, next) {
                 }
             }
             else if (user.isMFA && !user.status) {
-                res.json({ success: false, data: 'Your account is under review. Please contact Administrator to activate your account.' })
+                if(user.roles[0].roleId === 3){
+                    jwtUtils.createJwt(user, req.body.rememberMe, function (token) {
+                        if (token) {
+                            res.json({ success: false, token:token })
+                        } else {
+                            res.json({ success: false });
+                        }
+                    });
+                } else {
+                    res.json({ success: false, data: 'Your account is under review. Please contact Administrator to activate your account.' })
+                }
             }
             else {
                 if (!user.isMFA && !user.status) {
