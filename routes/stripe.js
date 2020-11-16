@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const request = require("request");
 const UserMeta = require("../models").UserMeta;
+const Lawyer_Facility = require("../models").lawyer_facility;
 
 // sk_test_zlRA9Hh43Aa6pM80pxdf2mcc00ksE2l4hz
 //sk_live_TgvUP4xiCxLmNh4KQx4MxATc00MfApKkpG
@@ -88,9 +89,7 @@ router.post("/subscribe_plan", async function (req, res, next) {
           ];
           UserMeta.findAll({ where: {  
             $or: [{ metaKey: 'sub_id', userId: req.body.userId }, { metaKey: 'cust_id',userId: req.body.userId }],  } }).then((data) => {
-              console.log('data',data)
-            if (data.isArray) {
-              console.log('data',userMetaList)
+            if ( data && data.length > 0) {
               let count = 0;
               data.forEach((element, index, Array) => {
                 if(element.metaKey === 'sub_id'){
@@ -107,9 +106,14 @@ router.post("/subscribe_plan", async function (req, res, next) {
               });
             }
             else {
-              console.log('datasss',userMetaList)
               UserMeta.bulkCreate(userMetaList).then((result) => {
-                res.json({ success: true, data: subscribePlan })
+                if(result){
+                  setLawyerFacilityAddons(req.body.facilityList, function (setFacilityLawyer) {
+                    if(setFacilityLawyer){
+                        res.json({ success: true, data: subscribePlan })
+                    }
+                  })
+                }                
             }).catch(next);
             }
         }).catch(next);
@@ -119,6 +123,13 @@ router.post("/subscribe_plan", async function (req, res, next) {
     .catch(next);
 });
 
+
+
+  function setLawyerFacilityAddons (facilityList, callback) {
+      Lawyer_Facility.bulkCreate(facilityList).then((result) => {
+          callback(result);
+      })
+  }
 /* subcription details */
 
 router.post("/subcription_details", async function (req, res, next) {
@@ -176,7 +187,6 @@ router.post("/update_card", async function (req, res, next) {
 /* Validate card */
 
 router.post("/validate_card", async function (req, res, next) {
-  console.log(req.body);
   stripe.tokens
     .create({
       card: {
