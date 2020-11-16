@@ -41,6 +41,8 @@ db.LegalResearch = require('./legalResearch')(sequelize, Sequelize);
 db.StripeConnection = require('./stripe_connection')(sequelize, Sequelize);
 db.UserAdditionalInfo = require('./userAdditionalInfo')(sequelize, Sequelize);
 
+db.lawyer_facility = require('./lawyer_facility')(sequelize, Sequelize);
+
 /* Mapings */
 
 db.Organization.hasMany(db.User, { foreignKey: 'organizationId', sourceKey: 'organizationId' });
@@ -88,5 +90,7 @@ db.Facility.belongsTo(db.Address, { foreignKey: 'addressId' });
 db.Facility.belongsToMany(db.User, { through: 'user_facility', foreignKey: 'facilityId' });
 db.User.belongsToMany(db.Facility, { through: 'user_facility', foreignKey: 'userId' });
 
+db.User.belongsToMany(db.Facility, {  through: 'lawyer_facility', foreignKey: 'lawyerId' });
+db.Facility.belongsToMany(db.User, { through: 'lawyer_facility', foreignKey: 'facilityId' });
 
 module.exports = db;
