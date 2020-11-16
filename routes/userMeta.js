@@ -73,4 +73,20 @@ router.put('/update', passport.authenticate('jwt', { session: false }), function
     }
 })
 
+router.get("/user/userMeta", passport.authenticate('jwt', { session: false }), async function (req, res, next) {
+    User.findAll({
+        include:[
+      {
+        model:UserMeta,
+        // where:{
+        //     $or: [{ metaKey: 'sub_id', userId: req.user.userId }, { metaKey: 'cust_id',userId: req.user.userId }], 
+        // }
+      }
+    ],
+      where:{userId:req.user.userId}
+    }).then((user)=>{
+      res.json({ success: true, data: user });
+    })
+  })
+
 module.exports = router;
