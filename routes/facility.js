@@ -127,20 +127,9 @@ router.get('/facilityCode/check/:code?', async function (req, res, next) {
 
 router.get('/facility/userCount', function (req, res, next) {
     Facility.findAll({
-        subQuery: false,
-        attributes: {
-            include: [[Sequelize.fn('COUNT', Sequelize.col('users.userId')), 'userCount']]
-        },
-        include: [{
-            model: User,
-            attributes: ['userId'],
-        }],
-        group: ['facilityId']
     }).then((result) => {
         res.json({ success: true, data: result });
-    }).catch((next) => {
-        console.log(next)
-    });
+    }).catch(next);
 })
 
 module.exports = router;

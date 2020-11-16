@@ -86,11 +86,35 @@ router.post("/subscribe_plan", async function (req, res, next) {
               createdBy: req.body.userId,
             },
           ];
-          UserMeta.bulkCreate(userMetaList)
-            .then(() => {
-              res.json({ success: true, data: subscribePlan });
-            }) .catch(next);
-        }) .catch(next);
+          UserMeta.findAll({ where: {  
+            $or: [{ metaKey: 'sub_id', userId: req.body.userId }, { metaKey: 'cust_id',userId: req.body.userId }],  } }).then((data) => {
+              console.log('data',data)
+            if (data.isArray) {
+              console.log('data',userMetaList)
+              let count = 0;
+              data.forEach((element, index, Array) => {
+                if(element.metaKey === 'sub_id'){
+                  UserMeta.update({ metaValue: subscribePlan.id, updatedBy: req.body.userId }, { where: { metaKey: element.metaKey, userId: req.body.userId } }).then((result) => {
+                }).catch(next);
+                } else  {
+                  UserMeta.update({ metaValue: req.body.customer, updatedBy: req.body.userId }, { where: { metaKey: element.metaKey, userId: req.body.userId } }).then((result) => {
+                }).catch(next);
+                }
+                if (count === Array.length - 1) {
+                  res.json({ success: true, data: subscribePlan });
+              }
+              count++
+              });
+            }
+            else {
+              console.log('datasss',userMetaList)
+              UserMeta.bulkCreate(userMetaList).then((result) => {
+                res.json({ success: true, data: subscribePlan })
+            }).catch(next);
+            }
+        }).catch(next);
+        })
+        .catch(next);
     })
     .catch(next);
 });
@@ -178,5 +202,7 @@ router.post("/validate_coupan", async function (req, res, next) {
     })
     .catch(next);
 });
+
+
 
 module.exports = router;
