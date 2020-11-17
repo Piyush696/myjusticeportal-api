@@ -51,6 +51,42 @@ router.get('/organizations', function (req, res, next) {
     })
 })
 
+// router.get("/lawyers", function (req, res, next) {
+//     util.validate([1], req.user.roles, function (isAuthenticated) {
+//       if (isAuthenticated) {
+//         User.findAll({
+//           include: [
+//             {
+//               model: Facility,as: 'lawyerFacility',
+//               through: { attributes: [] },
+//               where:{facilityId:req.user.facilities[0].facilityId}
+//             },
+//             {
+//               model: UserAdditionalInfo,
+//               include: [
+//                 {
+//                   model: Files,
+//                   as: "profile",
+//                 },
+//               ],
+//             },
+//             {
+//               model: Role,
+//               through: { attributes: [] },
+//               attributes: ["roleId"],
+//               where:{roleId:3}
+//             }
+//           ],
+//         }).then((user) => {
+//           res.json({ success: true, data: user });
+//         }).catch((next)=>{
+//             console.log(next)
+//         });
+//       } else {
+//         res.status(401).json({ success: false, data: "User not authorized." });
+//       }
+//     });
+//   });
 
 // get users of organisation.
 router.get('/organizations/:organizationId', function (req, res, next) {
