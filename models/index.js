@@ -90,7 +90,7 @@ db.Facility.belongsTo(db.Address, { foreignKey: 'addressId' });
 db.Facility.belongsToMany(db.User, { through: 'user_facility', foreignKey: 'facilityId' });
 db.User.belongsToMany(db.Facility, { through: 'user_facility', foreignKey: 'userId' });
 
-db.User.belongsToMany(db.Facility, {  through: 'lawyer_facility', foreignKey: 'lawyerId' });
-db.Facility.belongsToMany(db.User, { through: 'lawyer_facility', foreignKey: 'facilityId' });
+db.User.belongsToMany(db.Facility, { as: 'lawyerFacility',  through: 'lawyer_facility', foreignKey: 'lawyerId' });
+db.Facility.belongsToMany(db.User, { as: 'lawyerFacility', through: 'lawyer_facility', foreignKey: 'facilityId' });
 
 module.exports = db;
