@@ -11,82 +11,124 @@ const Facility = require('../models').Facility;
 const utils = require('../utils/file');
 const util = require('../utils/validateUser');
 const UserAdditionalInfo = require('../models').UserAdditionalInfo;
+const Role = require('../models').Role;
+const Lawyer_facility = require('../models').lawyer_facility;
 
 
 //list of all organizations those who are linked to a facility and role is lawyer.
-router.get('/organizations', function (req, res, next) {
+// router.get('/organizations', function (req, res, next) {
+//     util.validate([1], req.user.roles, function (isAuthenticated) {
+//         if (isAuthenticated) {
+//             User.findOne({
+//                 include: [
+//                     {
+//                         model: Facility, through: { attributes: [] }, attributes: ['facilityId'],
+//                         include: [
+//                             {
+//                                 model: Organization, through: { attributes: [] }, attributes: ['organizationId', 'name', 'orgCode', 'type', 'specialty'],
+//                                 where: { type: 'lawyer' },
+//                                 include: [
+//                                     {
+//                                         model: Address
+//                                     }
+//                                 ],
+//                             }
+//                         ],
+//                     }
+//                 ],
+//                 where: { userId: req.user.userId },
+//                 attributes: ['userId'],
+//             }).then((user) => {
+//                 if (user.facilities[0].Organizations) {
+//                     res.json({ success: true, data: user.facilities[0].Organizations });
+//                 }
+//                 else {
+//                     res.json({ success: false, data: 'Organizations not found with this facility' });
+//                 }
+
+//             })
+//         } else {
+//             res.status(401).json({ success: false, data: 'User not authorized.' });
+//         }
+//     })
+// })
+
+router.get("/lawyer/organization/:userId", function (req, res, next) {
+    console.log('1')
     util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             User.findOne({
                 include: [
                     {
-                        model: Facility, through: { attributes: [] }, attributes: ['facilityId'],
+                        model: Organization, attributes: ['organizationId', 'name', 'tagline', 'description', 'specialty','colorPiker'],
                         include: [
                             {
-                                model: Organization, through: { attributes: [] }, attributes: ['organizationId', 'name', 'orgCode', 'type', 'specialty'],
-                                where: { type: 'lawyer' },
-                                include: [
-                                    {
-                                        model: Address
-                                    }
-                                ],
+                                model: Address
+                            },
+                            {
+                                model: Files, as: 'logo'
                             }
-                        ],
+                        ]
                     }
                 ],
-                where: { userId: req.user.userId },
-                attributes: ['userId'],
-            }).then((user) => {
-                if (user.facilities[0].Organizations) {
-                    res.json({ success: true, data: user.facilities[0].Organizations });
-                }
-                else {
-                    res.json({ success: false, data: 'Organizations not found with this facility' });
-                }
-
-            })
-        } else {
-            res.status(401).json({ success: false, data: 'User not authorized.' });
+                where: { userId: req.params.userId }
+            }).then(data => {
+                res.json({ success: true, data: data });
+            }).catch(next)
         }
     })
 })
 
-// router.get("/lawyers", function (req, res, next) {
-//     util.validate([1], req.user.roles, function (isAuthenticated) {
-//       if (isAuthenticated) {
-//         User.findAll({
-//           include: [
-//             {
-//               model: Facility,as: 'lawyerFacility',
-//               through: { attributes: [] },
-//               where:{facilityId:req.user.facilities[0].facilityId}
-//             },
-//             {
-//               model: UserAdditionalInfo,
-//               include: [
-//                 {
-//                   model: Files,
-//                   as: "profile",
-//                 },
-//               ],
-//             },
-//             {
-//               model: Role,
-//               through: { attributes: [] },
-//               attributes: ["roleId"],
-//               where:{roleId:3}
-//             }
-//           ],
-//         }).then((user) => {
-//           res.json({ success: true, data: user });
-//         }).catch((next)=>{
-//             console.log(next)
-//         });
-//       } else {
-//         res.status(401).json({ success: false, data: "User not authorized." });
-//       }
-//     });
-//   });
+router.get("/organizations", function (req, res, next) {
+    util.validate([1], req.user.roles, function (isAuthenticated) {
+      if (isAuthenticated) {
+        User.findAll({
+          include: [
+            {
+              model: Facility,as: 'lawyerFacility',
+              through: { attributes: [] },
+              where:{facilityId:req.user.facilities[0].facilityId}
+            },
+            {
+              model: UserAdditionalInfo,
+              include: [
+                {
+                  model: Files,
+                  as: "profile",
+                },
+              ],
+            },
+            {
+              model: Role,
+              through: { attributes: [] },
+              attributes: ["roleId"],
+              where:{roleId:3}
+            }
+          ],
+        }).then((user) => {
+            let userIds = user.map((x)=>x.userId)
+            Lawyer_facility.findAll({where:{lawyerId:userIds}}).then((isSponsors)=>{
+                // console.log('1',isSponsors,userIds)
+                let count = 1;
+                isSponsors.forEach((element,index,Array) => {
+                    user.map(ele=>{
+                        if(ele.userId == element.lawyerId) {
+                            ele['isPremium'] = element.isPremium
+                            if(count === Array.length - 1){
+                                console.log(user[0]) 
+                                res.json({ success: true, data: user });
+                            }
+                            count++;
+                        }
+                    }) 
+                });
+            })
+        }).catch(next);
+      } else {
+        res.status(401).json({ success: false, data: "User not authorized." });
+      }
+    });
+  });
 
 // get users of organisation.
 router.get('/organizations/:organizationId', function (req, res, next) {
