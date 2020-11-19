@@ -15,44 +15,6 @@ const Role = require('../models').Role;
 const Lawyer_facility = require('../models').lawyer_facility;
 
 
-//list of all organizations those who are linked to a facility and role is lawyer.
-// router.get('/organizations', function (req, res, next) {
-//     util.validate([1], req.user.roles, function (isAuthenticated) {
-//         if (isAuthenticated) {
-//             User.findOne({
-//                 include: [
-//                     {
-//                         model: Facility, through: { attributes: [] }, attributes: ['facilityId'],
-//                         include: [
-//                             {
-//                                 model: Organization, through: { attributes: [] }, attributes: ['organizationId', 'name', 'orgCode', 'type', 'specialty'],
-//                                 where: { type: 'lawyer' },
-//                                 include: [
-//                                     {
-//                                         model: Address
-//                                     }
-//                                 ],
-//                             }
-//                         ],
-//                     }
-//                 ],
-//                 where: { userId: req.user.userId },
-//                 attributes: ['userId'],
-//             }).then((user) => {
-//                 if (user.facilities[0].Organizations) {
-//                     res.json({ success: true, data: user.facilities[0].Organizations });
-//                 }
-//                 else {
-//                     res.json({ success: false, data: 'Organizations not found with this facility' });
-//                 }
-
-//             })
-//         } else {
-//             res.status(401).json({ success: false, data: 'User not authorized.' });
-//         }
-//     })
-// })
-
 router.get("/lawyer/organization/:userId", function (req, res, next) {
     console.log('1')
     util.validate([1], req.user.roles, function (isAuthenticated) {
@@ -105,6 +67,7 @@ router.get("/organizations", function (req, res, next) {
               where:{roleId:3}
             }
           ],
+          attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'createdAt']
         }).then((user) => {
             let userIds = user.map((x)=>x.userId)
             Lawyer_facility.findAll({where:{lawyerId:userIds}}).then((isSponsors)=>{

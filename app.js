@@ -46,6 +46,9 @@ const hireaLawyerRouter = require('./routes/hire-a-lawyer');
 
 const messageRouter = require('./routes/messege');
 
+
+const publicDefenderRoutes = require('./routes/public-defender');
+
 const env = process.env.NODE_ENV = process.env.NODE_ENV || 'local';
 
 const app = express();
@@ -105,7 +108,10 @@ app.use('/api/postage', passport.authenticate('jwt', { session: false }), postag
 app.use('/api/twilio', passport.authenticate('jwt', { session: false }), twilioRouter);
 app.use('/api/stripeConnection', passport.authenticate('jwt', { session: false }), stripeConnectionRouter);
 app.use('/api/hirealawyer', passport.authenticate('jwt', { session: false }), hireaLawyerRouter);
-app.use('/api/bondsmanUser', passport.authenticate('jwt', { session: false }), bondsmanUserRouter);
+app.use('/api/bondsmanUser', passport.authenticate('jwt', { session: false }), bondsmanUserRouter);  
+
+app.use('/api/defender', passport.authenticate('jwt', { session: false }), publicDefenderRoutes); 
+
 app.use('/api/securityQuestion', securityQuestionRouter);
 app.use('/api/user', /*roleMiddleware,*/ usersRouter);
 app.use('/api/userMeta', /*roleMiddleware,*/ userMetaRouter);
