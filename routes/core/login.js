@@ -58,7 +58,7 @@ router.post('/login', function (req, res, next) {
                 }
             }
             else if (user.isMFA && !user.status) {
-                if(user.roles[0].roleId === 3){
+                if(user.roles[0].roleId === 3 || user.roles[0].roleId === 5){
                     jwtUtils.createJwt(user, req.body.rememberMe, function (token) {
                         if (token) {
                             res.json({ success: false, token:token })

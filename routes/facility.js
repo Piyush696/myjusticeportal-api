@@ -127,6 +127,11 @@ router.get('/facilityCode/check/:code?', async function (req, res, next) {
 
 router.get('/facility/userCount', function (req, res, next) {
     Facility.findAll({
+        include:[
+            {
+               model:Address 
+            }
+        ],
     }).then((result) => {
         res.json({ success: true, data: result });
     }).catch(next);
