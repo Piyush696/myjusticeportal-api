@@ -55,7 +55,51 @@ module.exports = (sequelize, DataTypes) => {
         areYou_Pro_se: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
-        }
+        },
+        other: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        lawyerRepresentingMatter: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+        },
+        selectLawyerRepresenting: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        } ,
+        juridictionLegalMatter: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        otherState: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+         information1: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        }, 
+        information2: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        }, 
+        information3: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        information4: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        information5: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        notes: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
     }, {
         tableName: 'legalResearch',
         freezeTableName: true

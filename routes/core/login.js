@@ -17,12 +17,12 @@ router.post('/login', function (req, res, next) {
         include: [
             {
                 model: Role, through: {
-                    attributes: []
+                    attributes: [],attributes: ['roleId','name'],
                 }
             },
             {
                 model: Facility, through: {
-                    attributes: []
+                    attributes: [],attributes: ['facilityId'],
                 }
             }
         ],
@@ -104,17 +104,16 @@ router.post('/verify-otp', async function (req, res, next) {
         include: [
             {
                 model: Role, through: {
-                    attributes: []
+                    attributes: [],attributes: ['roleId','name'],
                 }
             },
             {
                 model: Facility, through: {
-                    attributes: []
+                    attributes: [],attributes: ['facilityId'],
                 }
             },
             {
-
-                model: Organization
+                model: Organization,attributes: ['organizationId'],
             }
         ],
         where: { userName: req.body.userName }
