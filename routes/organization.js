@@ -130,7 +130,7 @@ router.get('/', function (req, res, next) {
 //uploadLogo
 
 router.post('/uploadLogo', upload.any(), function (req, res, next) {
-    util.validate([3,5], req.user.roles, function (isAuthenticated) {
+    util.validate([3,4,5], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             req.files.forEach((file) => {
                 utils.uploadFile(file, file.mimetype, req.user.userId, 'mjp-public', 'public-read', function (fileId) {

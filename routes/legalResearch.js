@@ -3,10 +3,12 @@ const router = express.Router();
 var passport = require('passport');
 const LegalResearch = require('../models').LegalResearch;
 const User = require('../models').User;
+const File = require('../models').Files;
 const util = require('../utils/validateUser');
-const utils = require('../utils/validation')
 const UserMeta = require('../models').UserMeta;
-
+const utils = require('../utils/file');
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 /* post legal research. */
 router.post('/', function (req, res, next) {
     util.validate([1], req.user.roles, function (isAuthenticated) {
@@ -27,17 +29,22 @@ router.post('/', function (req, res, next) {
 
 
 /*get all legal research*/
-router.get('/', function (req, res, next) {
-    util.validate([1], req.user.roles, function (isAuthenticated) {
+router.get('/reseacherList', function (req, res, next) {
+    util.validate([1,4], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             LegalResearch.findAll({
                 include: [
                     {
                         model: User, as: 'inmate',
                         attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName']
+                    },
+                    {
+                        model:File,as:'researcherFile', attributes: ['fileId']
+                    },{
+                        model:User,as:'researcher',  attributes: ['userId']
                     }
                 ],
-                where: { userId: req.user.userId }
+                // where: { userId: req.user.userId }
             }).then(data => {
                 res.json({ success: true, data: data });
             })
@@ -49,7 +56,7 @@ router.get('/', function (req, res, next) {
 })
 
 router.get('/:legalResearchId', function (req, res, next) {
-    util.validate([1], req.user.roles, function (isAuthenticated) {
+    util.validate([1,4], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             LegalResearch.findOne({
                 include: [
@@ -61,6 +68,11 @@ router.get('/:legalResearchId', function (req, res, next) {
                                 model: UserMeta,
                             }
                         ]
+                    },
+                    {
+                        model:File,as:'researcherFile'
+                    },{
+                        model:User,as:'researcher',  attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName']
                     }
                 ],
                 where: { legalResearchId: req.params.legalResearchId }
@@ -77,7 +89,7 @@ router.get('/:legalResearchId', function (req, res, next) {
 /*edit legal research form */
 
 router.put('/:legalResearchId', function (req, res, next) {
-    util.validate([1], req.user.roles, function (isAuthenticated) {
+    util.validate([4], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             LegalResearch.update(req.body, { where: { legalResearchId: req.params.legalResearchId } }).then(data => {
                 res.json({ success: true, data: data });
@@ -93,5 +105,41 @@ router.put('/:legalResearchId', function (req, res, next) {
     })
 })
 
+//uploadLogo
+
+router.post('/uploadFile', upload.any(), function (req, res, next) {
+    util.validate([4], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            req.files.forEach((file) => {
+                utils.uploadFile(file, file.mimetype, req.user.userId, 'mjp-public', 'public-read', function (fileId) {
+                    if (fileId) {
+                        let researcherId = parseInt(req.body.legalResearchId)
+                        LegalResearch.update({ researcherFileId: fileId,researcherId: req.user.userId}, { where: { LegalResearchId: researcherId } }).then(() => {
+                            res.json({ success: true });
+                        })
+                    }
+                });
+            });
+        }
+        else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    })
+});
+
+router.delete('/deleteFile/:fileId', function (req, res, next) {
+    util.validate([4], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            utils.deleteFile(req.params.fileId, function (deleteFile) {
+                if (deleteFile) {
+                    res.json({ success: true });
+                }
+            })
+        }
+        else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    })
+})
 
 module.exports = router;

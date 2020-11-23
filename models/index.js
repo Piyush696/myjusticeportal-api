@@ -59,6 +59,9 @@ db.Messages.belongsTo(db.User, { as: 'sender', foreignKey: 'senderId' });
 db.Messages.belongsTo(db.User, { as: 'receiver', foreignKey: 'receiverId' });
 // db.Messages.hasOne(db.User, { as: 'receiver', foreignKey: 'userId' });
 
+db.LegalResearch.belongsTo(db.User, { as: 'researcher', foreignKey: 'researcherId' });
+db.LegalResearch.belongsTo(db.Files, { as: 'researcherFile', foreignKey: 'researcherFileId' });
+
 db.bondsman_user.belongsTo(db.User, { as: 'bondsman', foreignKey: 'bondsmanId' });
 db.bondsman_user.belongsTo(db.User, { as: 'user', foreignKey: 'userId' });
 
