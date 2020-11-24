@@ -140,6 +140,9 @@ router.get("/sponsorsUser", function (req, res, next) {
             ],
           },
           {
+            model:Organization
+          },
+          {
             model: Role,
             through: { attributes: [] },
             attributes: ["roleId"],
