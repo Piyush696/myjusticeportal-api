@@ -52,6 +52,9 @@ router.get("/organizations", function (req, res, next) {
               where:{facilityId:req.user.facilities[0].facilityId}
             },
             {
+                model: Organization
+            },
+            {
               model: UserAdditionalInfo,
               include: [
                 {
@@ -287,6 +290,9 @@ router.get('/getLawyerInfo/:userId', function (req, res, next) {
         if (isAuthenticated) {
             User.findOne({
                 include: [
+                    {
+                        model:Organization
+                    },
                     {
                         model: UserAdditionalInfo,
                         include: [
