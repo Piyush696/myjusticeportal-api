@@ -22,7 +22,7 @@ router.get('/', function (req, res, next) {
             }).then(data => {
                 let caseIds = data.map(x => x.caseId)
                 Lawyer_case.findAll({
-                    where: { caseId: caseIds, status: 'Approved' }
+                    where: { caseId: caseIds, status: 'inmate_accepted' }
                 }).then((cases) => {
                     let lawyerIds = cases.map(x => x.lawyerId)
                     User.findAll({
@@ -64,10 +64,9 @@ router.get('/users', function (req, res, next) {
     util.validate([3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Lawyer_case.findAll({
-                where: { lawyerId: req.user.userId, status: 'Approved' },
+                where: { lawyerId: req.user.userId, status: 'chatEnabled' },
             }).then(data => {
                 let caseIds = data.map(x => x.caseId)
-                console.log(caseIds)
                 Case.findAll({
                     include: [
                         {
@@ -87,12 +86,8 @@ router.get('/users', function (req, res, next) {
                         }
                         count++
                     });
-                }).catch(next => {
-                    console.log(next)
-                })
-            }).catch(next => {
-                console.log(next)
-            })
+                }).catch(next)
+            }).catch(next)
         } else {
             res.json({ success: true, data: 'Unauthorized user.' });
         }
@@ -108,8 +103,8 @@ router.get('/oldUser', function (req, res, next) {
                     $or: [{ senderId: req.user.userId }, { receiverId: req.user.userId }],
                 },
             }).then(data => {
-                let uniqueUsers = data.filter((v, i, a) => a.findIndex(t => ((t.receiverId === v.receiverId && t.senderId === v.senderId))) === i)
-                let userIds = uniqueUsers.map(x => x.senderId && x.receiverId)
+                let uniqueUsers = data.filter((v, i, a) => a.findIndex(t => ((t.senderId === v.senderId))) === i)
+                let userIds = uniqueUsers.map(x => x.senderId)
                 function onlyUnique(value, index, self) {
                     return self.indexOf(value) === index;
                 }
@@ -117,7 +112,6 @@ router.get('/oldUser', function (req, res, next) {
                 uniqueIds = uniqueIds.filter(x => {
                     return x !== req.user.userId
                 })
-                console.log(uniqueIds)
                 User.findAll({
                     where: {
                         userId: uniqueIds,
@@ -126,9 +120,7 @@ router.get('/oldUser', function (req, res, next) {
                 }).then((users) => {
                     res.json({ success: true, data: users });
                 })
-            }).catch((next) => {
-                console.log(next)
-            })
+            }).catch(next)
         } else {
             res.json({ success: true, data: 'Unauthorized user.' });
         }
