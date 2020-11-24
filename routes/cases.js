@@ -105,7 +105,7 @@ router.get('/getPendingCaseInfo', function (req, res, next) {
 // find case with caseId.
 
 router.get('/:caseId', function (req, res, next) {
-    util.validate([1], req.user.roles, function (isAuthenticated) {
+    util.validate([1, 3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Case.findOne({
                 include: [
