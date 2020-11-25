@@ -15,7 +15,6 @@ const Role = require("../models").Role;
 const Lawyer_facility = require("../models").lawyer_facility;
 
 router.get("/lawyer/organization/:userId", function (req, res, next) {
-  console.log("1");
   util.validate([1], req.user.roles, function (isAuthenticated) {
     if (isAuthenticated) {
       User.findOne({
@@ -70,6 +69,10 @@ router.get("/organizations", function (req, res, next) {
               {
                 model: Files,
                 as: "profile",
+              },
+              {
+                model: Files,
+                as: "header",
               },
             ],
           },
@@ -343,32 +346,32 @@ router.post("/fileDownloadLink", function (req, res, next) {
   });
 });
 
-router.get("/getLawyerInfo/:userId", function (req, res, next) {
-  util.validate([1], req.user.roles, function (isAuthenticated) {
-    if (isAuthenticated) {
-      User.findOne({
-        include: [
-          {
-            model: Organization,
-          },
-          {
-            model: UserAdditionalInfo,
-            include: [
-              {
-                model: Files,
-                as: "profile",
-              },
-            ],
-          },
-        ],
-        where: { userId: req.params.userId },
-      }).then((users) => {
-        res.json({ success: true, data: users });
-      });
-    } else {
-      res.status(401).json({ success: false, data: "User not authorized." });
-    }
-  });
-});
+router.get('/getLawyerInfo/:userId', function (req, res, next) {
+    util.validate([1], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            User.findOne({
+                include: [
+                    {
+                        model: Organization
+                    },
+                    {
+                        model: UserAdditionalInfo,
+                        include: [
+                            {
+                                model: Files, as: 'profile'
+                            }
+                        ]
+                    }
+                ],
+                where: { userId: req.params.userId }
+            }).then((users) => {
+                res.json({ success: true, data: users });
+            });
+        }
+        else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    });
+})
 
 module.exports = router;
