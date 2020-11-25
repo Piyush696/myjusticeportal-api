@@ -41,7 +41,7 @@ router.post('/uploadFile', upload.any(), function (req, res, next) {
 // To delete a file by id.
 
 router.delete('/deleteFile/:fileId', function (req, res, next) {
-    validateUtil.validate([1], req.user.roles, function (isAuthenticated) {
+    validateUtil.validate([1,3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             utils.deleteFile(req.params.fileId, function (deleteFile) {
                 if (deleteFile) {
