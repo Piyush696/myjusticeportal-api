@@ -22,7 +22,7 @@ router.get("/lawyer/organization/:userId", function (req, res, next) {
             User.findOne({
                 include: [
                     {
-                        model: Organization, attributes: ['organizationId', 'name', 'tagline', 'description', 'specialty','colorPiker'],
+                        model: Organization, attributes: ['organizationId', 'name', 'tagline', 'description', 'specialty', 'colorPiker'],
                         include: [
                             {
                                 model: Address
@@ -43,58 +43,62 @@ router.get("/lawyer/organization/:userId", function (req, res, next) {
 
 router.get("/organizations", function (req, res, next) {
     util.validate([1], req.user.roles, function (isAuthenticated) {
-      if (isAuthenticated) {
-        User.findAll({
-          include: [
-            {
-              model: Facility,as: 'lawyerFacility',
-              through: { attributes: [] },
-              where:{facilityId:req.user.facilities[0].facilityId}
-            },
-            {
-                model: Organization
-            },
-            {
-              model: UserAdditionalInfo,
-              include: [
-                {
-                  model: Files,
-                  as: "profile",
-                },
-              ],
-            },
-            {
-              model: Role,
-              through: { attributes: [] },
-              attributes: ["roleId"],
-              where:{roleId:3}
-            }
-          ],
-          attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'createdAt']
-        }).then((user) => {
-            let userIds = user.map((x)=>x.userId)
-            Lawyer_facility.findAll({where:{lawyerId:userIds}}).then((isSponsors)=>{
-                // console.log('1',isSponsors,userIds)
-                let count = 1;
-                isSponsors.forEach((element,index,Array) => {
-                    user.map(ele=>{
-                        if(ele.userId == element.lawyerId) {
-                            ele['isPremium'] = element.isPremium
-                            if(count === Array.length - 1){
-                                console.log(user[0]) 
-                                res.json({ success: true, data: user });
+        if (isAuthenticated) {
+            User.findAll({
+                include: [
+                    {
+                        model: Facility, as: 'lawyerFacility',
+                        through: { attributes: [] },
+                        where: { facilityId: req.user.facilities[0].facilityId }
+                    },
+                    {
+                        model: Organization
+                    },
+                    {
+                        model: UserAdditionalInfo,
+                        include: [
+                            {
+                                model: Files,
+                                as: "profile",
+                            },
+                            {
+                                model: Files,
+                                as: "header",
+                            },
+                        ],
+                    },
+                    {
+                        model: Role,
+                        through: { attributes: [] },
+                        attributes: ["roleId"],
+                        where: { roleId: 3 }
+                    }
+                ],
+                attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'createdAt']
+            }).then((user) => {
+                let userIds = user.map((x) => x.userId)
+                Lawyer_facility.findAll({ where: { lawyerId: userIds } }).then((isSponsors) => {
+                    // console.log('1',isSponsors,userIds)
+                    let count = 1;
+                    isSponsors.forEach((element, index, Array) => {
+                        user.map(ele => {
+                            if (ele.userId == element.lawyerId) {
+                                ele['isPremium'] = element.isPremium
+                                if (count === Array.length - 1) {
+                                    console.log(user[0])
+                                    res.json({ success: true, data: user });
+                                }
+                                count++;
                             }
-                            count++;
-                        }
-                    }) 
-                });
-            })
-        }).catch(next);
-      } else {
-        res.status(401).json({ success: false, data: "User not authorized." });
-      }
+                        })
+                    });
+                })
+            }).catch(next);
+        } else {
+            res.status(401).json({ success: false, data: "User not authorized." });
+        }
     });
-  });
+});
 
 // get users of organisation.
 router.get('/organizations/:organizationId', function (req, res, next) {
@@ -291,7 +295,7 @@ router.get('/getLawyerInfo/:userId', function (req, res, next) {
             User.findOne({
                 include: [
                     {
-                        model:Organization
+                        model: Organization
                     },
                     {
                         model: UserAdditionalInfo,
