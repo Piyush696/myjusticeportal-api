@@ -10,6 +10,7 @@ const utils = require('../utils/validation');
 const Organization = require('../models').Organization;
 const Address = require('../models').Address;
 const Lawyer_case = require('../models').lawyer_case;
+const UserAdditionalInfo = require("../models").UserAdditionalInfo;
 
 router.post('/', function (req, res, next) {
     util.validate([1], req.user.roles, function (isAuthenticated) {
@@ -115,7 +116,7 @@ router.get('/:caseId', function (req, res, next) {
                     },
                     {
                         model: Files, as: 'caseFile',
-                        attributes: ['fileId', 'fileName', 'fileType', 'createdAt', 'updatedAt', 'createdByUserId'],
+                         attributes: ['fileId', 'fileName', 'fileType', 'createdAt', 'updatedAt', 'createdByUserId'],
                         include: [
                             {
                                 model: User, as: 'createdBy',
@@ -194,6 +195,15 @@ router.get('/lawyer-case/:caseId', function (req, res, next) {
                             {
                                 model: Organization,
                                 attributes: ['organizationId', 'name']
+                            },{
+                        
+                                        model: UserAdditionalInfo,include: [
+                                            {
+                                              model: Files,
+                                              as: "profile",
+                                            },
+                                          ],
+                        
                             }
                         ],
                         where: { userId: lawyerCase.lawyerId },
