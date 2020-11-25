@@ -28,6 +28,10 @@ router.get("/", function (req, res, next) {
                 model: Files,
                 as: "profile",
               },
+              {
+                model: Files,
+                as: "header",
+              },
             ],
           },
         ],
@@ -55,12 +59,21 @@ router.post("/uploadProfile", upload.any(), function (req, res, next) {
           function (fileId) {
             console.log(fileId);
             if (fileId) {
-              UserAdditionalInfo.update(
-                { ProfileImgId: fileId, userId: req.user.userId },
-                { where: { userId: req.user.userId } }
-              ).then(() => {
-                res.json({ success: true });
-              });
+              if (file.fieldname == 'logo') {
+                UserAdditionalInfo.update(
+                  { ProfileImgId: fileId, userId: req.user.userId },
+                  { where: { userId: req.user.userId } }
+                ).then(() => {
+                  res.json({ success: true });
+                });
+              } else {
+                UserAdditionalInfo.update(
+                  { headerImgId: fileId, userId: req.user.userId },
+                  { where: { userId: req.user.userId } }
+                ).then(() => {
+                  res.json({ success: true });
+                });
+              }
             }
           }
         );
@@ -126,9 +139,9 @@ router.get("/sponsorsUser", function (req, res, next) {
       User.findAll({
         include: [
           {
-            model: Facility,as: 'lawyerFacility',
+            model: Facility, as: 'lawyerFacility',
             through: { attributes: [] },
-            where:{facilityId:req.user.facilities[0].facilityId}
+            where: { facilityId: req.user.facilities[0].facilityId }
           },
           {
             model: UserAdditionalInfo,
@@ -140,21 +153,21 @@ router.get("/sponsorsUser", function (req, res, next) {
             ],
           },
           {
-            model:Organization
+            model: Organization
           },
           {
             model: Role,
             through: { attributes: [] },
             attributes: ["roleId"],
-            where:{roleId:3}
+            where: { roleId: 3 }
           }
         ],
       }).then((user) => {
         var n = 2
         randomItems = user.sort(() => .5 - Math.random()).slice(0, n);
         res.json({ success: true, data: randomItems });
-      }).catch((next)=>{
-          console.log(next)
+      }).catch((next) => {
+        console.log(next)
       });
     } else {
       res.status(401).json({ success: false, data: "User not authorized." });
