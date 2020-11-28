@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const request = require("request");
+const { User } = require("../models");
 const UserMeta = require("../models").UserMeta;
 const Lawyer_Facility = require("../models").lawyer_facility;
+var passport = require('passport');
 
 // sk_test_zlRA9Hh43Aa6pM80pxdf2mcc00ksE2l4hz
 //sk_live_TgvUP4xiCxLmNh4KQx4MxATc00MfApKkpG
@@ -132,18 +134,47 @@ router.post("/subscribe_plan", async function (req, res, next) {
   }
 /* subcription details */
 
-router.post("/subcription_details", async function (req, res, next) {
-  stripe.subscriptions
-    .retrieve(req.body.sub_id)
+router.post("/subcription_details", passport.authenticate('jwt', { session: false }), async function (req, res, next) {
+  User.findOne(
+    {
+      include:[
+        {
+          model:UserMeta,
+          where:{metaKey:'sub_id'}
+        }
+      ],
+      where:{userId:req.user.userId}
+  }).then((user)=>{
+    stripe.subscriptions
+    .retrieve(user.userMeta[0].metaValue)
     .then((data) => {
       stripe.customers
         .retrieve(data.customer)
         .then((customer) => {
-          res.json({ success: true, data: customer });
+          stripe.customers
+          .retrieveSource(
+            customer.id,
+           customer.default_source
+          ).then((card)=>{
+            let x = []
+             y = {
+               "lastFourDigit":card.last4,
+               "amount":data.plan.amount,
+               "status":data.status,
+               "created":data.plan.created
+             }
+             x.push(y)
+          res.json({ success: true, data: x });
+          }).catch((next)=>{
+            console.log(next)
+          })
+        }).catch((next)=>{
+          console.log(next)
         })
-        .catch(next);
+    }).catch((next)=>{
+      console.log(next)
     })
-    .catch(next);
+  })
 });
 
 /* update card */

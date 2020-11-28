@@ -261,4 +261,5 @@ router.get('/lawyer/allCases', function (req, res, next) {
         }
     });
 })
+
 module.exports = router; 
