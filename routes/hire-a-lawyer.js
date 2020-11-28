@@ -359,6 +359,9 @@ router.get('/getLawyerInfo/:userId', function (req, res, next) {
                         include: [
                             {
                                 model: Files, as: 'profile'
+                            },
+                            {
+                              model:Files,as:'header'
                             }
                         ]
                     }
