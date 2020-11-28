@@ -13,6 +13,7 @@ const utils = require("../utils/file");
 const util = require("../utils/validateUser");
 const multer = require("multer");
 const { Role } = require("../models");
+const Message = require('../models').Messages;
 const upload = multer({ dest: "uploads/" });
 // To get all requested cases.
 
@@ -281,5 +282,39 @@ router.post("/status-update", function (req, res, next) {
     }
   });
 });
+
+
+// find lawyer case count
+router.get("/dasboard/count", function (req, res, next) {
+  util.validate([3], req.user.roles, function (isAuthenticated) {
+    if (isAuthenticated) {
+      Lawyer_case.findAndCountAll({
+        where: { lawyerId: req.user.userId }
+      }).then(cases => {
+        // res.json({ success: true, data: cases.count });
+        Message.findAndCountAll({
+          where: {
+            $or: [{ senderId: req.user.userId }, { receiverId: req.user.userId }],
+          },
+        }).then(data => {
+          Lawyer_case.findAndCountAll({
+            where: { lawyerId: req.user.userId, status: 'inmate_accepted' }
+          }).then(myCases => {
+            let count = {
+              caseCount: cases.count,
+              messageCount: data.count,
+              myCases: myCases.count
+            }
+            res.json({ success: true, data: count });
+          })
+
+        })
+
+      })
+    }
+
+  })
+})
+
 
 module.exports = router;
