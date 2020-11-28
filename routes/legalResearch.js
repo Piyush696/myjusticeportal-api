@@ -9,6 +9,38 @@ const UserMeta = require('../models').UserMeta;
 const utils = require('../utils/file');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
+
+// To get file DownloadLink.
+
+router.post('/fileDownloadLink', function (req, res, next) {
+    util.validate([1], req.user.roles, function (isAuthenticated) {
+        if (isAuthenticated) {
+            LegalResearch.findOne({
+                where: { userId: req.user.userId, researcherFileId: req.body.fileId },
+                attributes: ['legalResearchId'],
+                include: [
+                    {
+                        model: File, as: 'researcherFile',
+                        attributes: ['fileId', 'bucket', 'fileName', 'createdAt', 'updatedAt', 'createdByUserId'],
+                        where: { fileId: req.body.fileId }
+                    }
+                ]
+            }).then((data) => {
+                utils.getSingleSignedURL(data.researcherFile, function (downloadLink) {
+                    if (downloadLink) {
+                        res.json({ success: true, data: downloadLink });
+                    }
+                })
+            }).catch((next)=>{
+                console.log(next)
+            });
+        }
+        else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    })
+})
+
 /* post legal research. */
 router.post('/', function (req, res, next) {
     util.validate([1], req.user.roles, function (isAuthenticated) {
