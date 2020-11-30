@@ -23,6 +23,9 @@ router.get("/", function (req, res, next) {
       User.findOne({
         include: [
           {
+            model:Organization
+          },
+          {
             model: UserAdditionalInfo,
             include: [
               {
