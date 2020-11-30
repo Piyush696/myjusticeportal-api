@@ -241,7 +241,7 @@ router.get("/lawyer/Cases", function (req, res, next) {
                 data.map((x) => {
                   if (x.dataValues.caseId === element.dataValues.caseId) {
                     x.dataValues["status"] = element.dataValues.status;
-                    x.dataValues["sentAt"] = element.dataValues.createdAt;
+                    x.dataValues["sentAt"] = element.dataValues.updatedAt;
                     if (count === Array.length - 1) {
                       let x = data;
                       res.json({ success: true, data: x });
