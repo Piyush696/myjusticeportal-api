@@ -160,7 +160,7 @@ router.delete('/:userId', passport.authenticate('jwt', { session: false }), func
 // single user.
 
 router.get('/singleUser/:userId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-    if (req.user.roles[0].roleId === 7) {
+    if (req.user.roles[0].roleId === 7 || req.user.roles[0].roleId === 1 || req.user.roles[0].roleId === 3) {
         User.findOne({
             include: [
                 {
