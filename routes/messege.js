@@ -22,7 +22,7 @@ router.get('/', function (req, res, next) {
             }).then(data => {
                 let caseIds = data.map(x => x.caseId)
                 Lawyer_case.findAll({
-                    where: { caseId: caseIds, status: 'inmate_accepted' }
+                    where: { caseId: caseIds, status: 'approved' }
                 }).then((cases) => {
                     let lawyerIds = cases.map(x => x.lawyerId)
                     User.findAll({
