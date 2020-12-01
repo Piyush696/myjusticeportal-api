@@ -116,7 +116,7 @@ router.get('/:caseId', function (req, res, next) {
                     },
                     {
                         model: Files, as: 'caseFile',
-                         attributes: ['fileId', 'fileName', 'fileType', 'createdAt', 'updatedAt', 'createdByUserId'],
+                        attributes: ['fileId', 'fileName', 'fileType', 'createdAt', 'updatedAt', 'createdByUserId'],
                         include: [
                             {
                                 model: User, as: 'createdBy',
@@ -186,7 +186,7 @@ router.get('/lawyer-case/:caseId', function (req, res, next) {
     util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Lawyer_case.findOne({
-                where: { caseId: req.params.caseId, status: 'Approved' }
+                where: { caseId: req.params.caseId, status: 'inmate_accepted' }
                 // attributes: ['userId']
             }).then((lawyerCase) => {
                 if (lawyerCase) {
@@ -195,15 +195,15 @@ router.get('/lawyer-case/:caseId', function (req, res, next) {
                             {
                                 model: Organization,
                                 attributes: ['organizationId', 'name']
-                            },{
-                        
-                                        model: UserAdditionalInfo,include: [
-                                            {
-                                              model: Files,
-                                              as: "profile",
-                                            },
-                                          ],
-                        
+                            }, {
+
+                                model: UserAdditionalInfo, include: [
+                                    {
+                                        model: Files,
+                                        as: "profile",
+                                    },
+                                ],
+
                             }
                         ],
                         where: { userId: lawyerCase.lawyerId },
