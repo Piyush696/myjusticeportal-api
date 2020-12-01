@@ -38,6 +38,7 @@ const caseFileRouter = require('./routes/case-file');
 const facilityRoutes = require('./routes/facility');
 const specialtyRoutes = require('./routes/specialty');
 
+const inmate_defender = require('./routes/inmate_defender');
 
 const allUsersLoginRoutes = require('./routes/core/login');
 
@@ -126,6 +127,7 @@ app.use('/api/stripe', stripeRouter);
 
 app.use('/api/legalResearch', passport.authenticate('jwt', { session: false }), legalResearchRouter);
 
+app.use('/api/inmatdefender', passport.authenticate('jwt', { session: false }), inmate_defender);
 //Private routes.
 // app.use(authMiddleware.verifyToken);
 

@@ -43,6 +43,7 @@ db.UserAdditionalInfo = require('./userAdditionalInfo')(sequelize, Sequelize);
 
 db.lawyer_facility = require('./lawyer_facility')(sequelize, Sequelize);
 
+
 /* Mapings */
 
 db.Organization.hasMany(db.User, { foreignKey: 'organizationId', sourceKey: 'organizationId' });
@@ -55,6 +56,7 @@ db.Organization.belongsTo(db.Files, { as: 'logo', foreignKey: 'logoFileId' });
 
 db.UserAdditionalInfo.belongsTo(db.Files, { as: 'profile', foreignKey: 'ProfileImgId' });
 db.UserAdditionalInfo.belongsTo(db.Files, { as: 'header', foreignKey: 'headerImgId' });
+
 db.Messages.belongsTo(db.User, { as: 'sender', foreignKey: 'senderId' });
 db.Messages.belongsTo(db.User, { as: 'receiver', foreignKey: 'receiverId' });
 // db.Messages.hasOne(db.User, { as: 'receiver', foreignKey: 'userId' });
@@ -89,11 +91,16 @@ db.Case.belongsToMany(db.User, { through: 'lawyer_case', foreignKey: 'caseId' })
 
 db.Facility.belongsToMany(db.Organization, { through: 'org_facility', foreignKey: 'facilityId' });
 db.Organization.belongsToMany(db.Facility, { through: 'org_facility', foreignKey: 'organizationId' });
+
 db.Facility.belongsTo(db.Address, { foreignKey: 'addressId' });
+
 db.Facility.belongsToMany(db.User, { through: 'user_facility', foreignKey: 'facilityId' });
 db.User.belongsToMany(db.Facility, { through: 'user_facility', foreignKey: 'userId' });
 
 db.User.belongsToMany(db.Facility, { as: 'lawyerFacility', through: 'lawyer_facility', foreignKey: 'lawyerId' });
 db.Facility.belongsToMany(db.User, { as: 'lawyerFacility', through: 'lawyer_facility', foreignKey: 'facilityId' });
+
+db.User.belongsToMany(db.User, { as:'publicdefender', through: 'inmate_defender', foreignKey: 'publicdefenderId' });
+db.User.belongsToMany(db.User, { as:'inmate', through: 'inmate_defender', foreignKey: 'inmateId' });
 
 module.exports = db;
