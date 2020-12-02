@@ -292,8 +292,7 @@ router.post("/reject-case", function (req, res, next) {
 router.post("/hide/hide-case", function (req, res, next) {
   util.validate([3], req.user.roles, function (isAuthenticated) {
     if (isAuthenticated) {
-      Lawyer_case.update(
-        { isHide: "true" },
+      Lawyer_case.update({ isHide: req.body.isHide },
         {
           where: { caseId: req.body.caseId, lawyerId: req.user.userId },
         }
