@@ -186,7 +186,7 @@ router.get('/lawyer-case/:caseId', function (req, res, next) {
     util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Lawyer_case.findOne({
-                where: { caseId: req.params.caseId, status: 'inmate_accepted' }
+                where: { caseId: req.params.caseId, status: 'Approved' }
                 // attributes: ['userId']
             }).then((lawyerCase) => {
                 if (lawyerCase) {
