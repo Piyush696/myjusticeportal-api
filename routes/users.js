@@ -44,6 +44,12 @@ router.get('/user', passport.authenticate('jwt', { session: false }), function (
                 }
             },
             {
+                model: Facility,
+                through: {
+                  attributes: [],
+                },
+              },
+            {
                 model: userMeta
             }
         ], where: { userId: req.user.userId }
@@ -167,6 +173,11 @@ router.get('/singleUser/:userId', passport.authenticate('jwt', { session: false 
                     model: Role, through: {
                         attributes: []
                     }
+                },
+                {
+                    model: Facility, through: {
+                        attributes: []
+                    } 
                 }
             ], where: { userId: req.params.userId }
         }).then((userData) => {
@@ -259,6 +270,27 @@ router.put('/changeRole', passport.authenticate('jwt', { session: false }), (req
         }).then((userData) => {
             Promise.resolve(userData.setRoles(req.body.roleId)).then((userRole) => {
                 res.json({ success: true, data: userData });
+            })
+        }).catch(next);
+    } else {
+        res.json({ success: false });
+    }
+})
+
+// Change Facility.
+router.put('/changeFacility', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    if (req.user.roles[0].roleId === 7) {
+        User.findOne({
+            include: [
+                {
+                    model: Facility, through: {
+                        attributes: []
+                    }
+                }
+            ], where: { userId: parseInt(req.body.userId) }
+        }).then((userData) => {
+            Promise.resolve(userData.addFacility(req.body.facilityId)).then((userFacility) => {
+                res.json({ success: true, data: userFacility });
             })
         }).catch(next);
     } else {
