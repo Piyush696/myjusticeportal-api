@@ -132,53 +132,57 @@ router.post("/subscribe_plan", async function (req, res, next) {
           callback(result);
       })
   }
-/* subcription details */
 
-router.post("/subcription_details", passport.authenticate('jwt', { session: false }), async function (req, res, next) {
-  User.findOne(
-    {
-      include:[
-        {
-          model:UserMeta,
-          where:{metaKey:'sub_id'}
-        }
-      ],
-      where:{userId:req.user.userId}
-  }).then((user)=>{
-    stripe.subscriptions
-    .retrieve(user.userMeta[0].metaValue)
-    .then((data) => {
-      stripe.customers
-        .retrieve(data.customer)
-        .then((customer) => {
-          stripe.customers
-          .retrieveSource(
-            customer.id,
-           customer.default_source
-          ).then((card)=>{
-            let x = []
-             y = {
-               "lastFourDigit":card.last4,
-               "amount":data.plan.amount,
-               "status":data.status,
-               "created":data.plan.created
-             }
-             x.push(y)
-          res.json({ success: true, data: x });
-          }).catch((next)=>{
-            console.log(next)
-          })
-        }).catch((next)=>{
-          console.log(next)
-        })
-    }).catch((next)=>{
-      console.log(next)
+
+/* Validate card */
+
+router.post("/validate_card", async function (req, res, next) {
+  stripe.tokens
+    .create({
+      card: {
+        number: req.body.number,
+        exp_month: "12",
+        exp_year: new Date().getFullYear() + 1,
+        cvc: "123",
+      },
     })
-  })
+    .then((token) => {
+      res.json({ success: true, data: token });
+    })
+    .catch(next);
 });
 
-/* update card */
+/* validate coupon */
 
+router.post("/validate_coupan", async function (req, res, next) {
+  stripe.coupons
+    .retrieve(req.body.coupon)
+    .then((coupon) => {
+      res.json({ success: true, data: coupon });
+    })
+    .catch(next);
+});
+
+router.post("/list-transaction", passport.authenticate('jwt', { session: false }), async function (req, res, next) {
+User.findOne({
+  include:[
+      {
+        model:UserMeta,
+        where:{metaKey:'cust_id'},
+        attributes: ['metaKey', 'metaValue']
+      }
+   ],
+   where: { userId: req.user.userId },
+   attributes: ['userId', 'userName', 'firstName', 'middleName', 'lastName']
+}).then((user)=>{
+  stripe.customers.listBalanceTransactions(user.userMeta[0].metaValue).then((transactions)=>{
+    res.json({ success: true, data: transactions });
+  }).catch(next)
+}).catch(next)
+})
+
+
+/* update card */
 router.post("/update_card", async function (req, res, next) {
   stripe.tokens
     .create({
@@ -215,35 +219,37 @@ router.post("/update_card", async function (req, res, next) {
     .catch(next);
 });
 
-/* Validate card */
-
-router.post("/validate_card", async function (req, res, next) {
-  stripe.tokens
-    .create({
-      card: {
-        number: req.body.number,
-        exp_month: "12",
-        exp_year: new Date().getFullYear() + 1,
-        cvc: "123",
-      },
+ 
+/*update plan */
+router.post("/update_plan", passport.authenticate('jwt', { session: false }), async function (req, res, next) {
+  User.findOne(
+    {
+      include:[
+        {
+          model:UserMeta,
+          where:{metaKey:'sub_id'}
+        }
+      ],
+      where:{userId:req.user.userId}
+  }).then((user) => {
+    stripe.subscriptions
+    .retrieve(user.userMeta[0].metaValue)
+    .then((data) => {
+      stripe.plans.del(data.items.data[0].plan.id).then(() => {
+        stripe.plans
+        .create({
+          amount: 400,
+          currency: 'usd',
+          interval: 'month',
+          product: "prod_IF9YlbHmWQ8ezq",
+        })
+        .then((plan) => {
+          res.json({ success: true, data: plan });
+          })
+      })
     })
-    .then((token) => {
-      res.json({ success: true, data: token });
-    })
-    .catch(next);
+  })
 });
-
-/* validate coupon */
-
-router.post("/validate_coupan", async function (req, res, next) {
-  stripe.coupons
-    .retrieve(req.body.coupon)
-    .then((coupon) => {
-      res.json({ success: true, data: coupon });
-    })
-    .catch(next);
-});
-
 
 
 module.exports = router;

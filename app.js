@@ -44,11 +44,9 @@ const allUsersLoginRoutes = require('./routes/core/login');
 
 const organizationRouter = require('./routes/organization');
 const hireaLawyerRouter = require('./routes/hire-a-lawyer');
-
 const messageRouter = require('./routes/messege');
-
-
 const publicDefenderRoutes = require('./routes/public-defender');
+const lawyerFacilityRouter = require('./routes/lawyer_facility');
 
 const env = process.env.NODE_ENV = process.env.NODE_ENV || 'local';
 
@@ -128,6 +126,8 @@ app.use('/api/stripe', stripeRouter);
 app.use('/api/legalResearch', passport.authenticate('jwt', { session: false }), legalResearchRouter);
 
 app.use('/api/inmatdefender', passport.authenticate('jwt', { session: false }), inmate_defender);
+
+app.use('/api/lawyerFacility', passport.authenticate('jwt', { session: false }), lawyerFacilityRouter);
 //Private routes.
 // app.use(authMiddleware.verifyToken);
 

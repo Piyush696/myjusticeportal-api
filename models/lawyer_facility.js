@@ -8,6 +8,15 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             autoIncrement: true
         },
+        planSelected: {
+            type: DataTypes.ENUM('Up to 5 Connections', 'Up to 25 Connections', 'Unlimited Connections'),
+            allowNull: false
+        },
+        isSelected: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: false
+        },
         isSponsors: {
             type: DataTypes.BOOLEAN,
             allowNull: true,

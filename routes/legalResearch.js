@@ -31,9 +31,7 @@ router.post('/fileDownloadLink', function (req, res, next) {
                         res.json({ success: true, data: downloadLink });
                     }
                 })
-            }).catch((next)=>{
-                console.log(next)
-            });
+            }).catch(next);
         }
         else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
