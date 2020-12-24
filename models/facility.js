@@ -8,12 +8,12 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true
         },
         facilityCode: {
-            type: DataTypes.STRING(6),
+            type: DataTypes.STRING(7),
             allowNull: true,
             validate: {
                 len: {
-                    args: 5,
-                    msg: "Facility code must be 5 Characters."
+                    args: 7,
+                    msg: "Facility code must be 7 Characters."
                 },
                 isAlphanumeric: {
                     msg: 'Facility code must contanis only Numbers and Alphabets'
