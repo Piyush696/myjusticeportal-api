@@ -86,6 +86,17 @@ router.get(
   }
 );
 
+router.post("/getModalValue", passport.authenticate("jwt", { session: false }),async function (req, res, next) {
+    UserMeta.findOne({
+      where: { metaKey: req.body.metaKey, userId: req.user.userId },
+    })
+      .then((result) => {
+        res.json({ success: true, data: result });
+      })
+      .catch(next);
+  }
+);
+
 router.put("/", function (req, res, next) {
   UserMeta.update(
     { metaValue: req.body.metaValue },
@@ -97,7 +108,6 @@ router.put("/", function (req, res, next) {
     .catch(next);
 });
 
-// get userMeta value.
 
 router.post(
   "/getValue",
@@ -146,35 +156,14 @@ router.get("/user/userMeta",passport.authenticate("jwt", { session: false }),asy
   }
 );
 
-router.post(
-  "/modal/caseCreate",
-  passport.authenticate("jwt", { session: false }),
-  async function (req, res, next) {
-    UserMeta.create({
-      metaKey: "case_model",
-      metaValue: req.body.metaValue,
-      userId: req.user.userId,
-      createdBy: req.user.userId,
-    })
+router.post("/modal/caseCreate", passport.authenticate("jwt", { session: false }), async function (req, res, next) {
+  req.body.userMeta['userId'] = req.user.userId
+  req.body.userMeta['createdBy'] = req.user.userId
+    UserMeta.create(req.body.userMeta)
       .then((result) => {
         res.json({ success: true, data: result });
       })
       .catch(next);
   }
 );
-
-router.get(
-  "/getCaseModalValue",
-  passport.authenticate("jwt", { session: false }),
-  async function (req, res, next) {
-    UserMeta.findOne({
-      where: { metaKey: "case_model", userId: req.user.userId },
-    })
-      .then((result) => {
-        res.json({ success: true, data: result });
-      })
-      .catch(next);
-  }
-);
-
 module.exports = router;
