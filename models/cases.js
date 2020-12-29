@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             validate: {
                 len: {
-                    args: [1, 50],
+                    args: [0, 50],
                     msg: "county Of Arrest must be between 1 and 50 characters in length"
                 }
             }
