@@ -186,7 +186,10 @@ router.get('/lawyer-case/:caseId', function (req, res, next) {
     util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Lawyer_case.findOne({
-                where: { caseId: req.params.caseId, status: 'Approved' }
+                where: {
+                    $or: [{ caseId: req.params.caseId , status:'Approved' }, { caseId: req.params.caseId , status:'chatEnabled' }],
+                  },
+                // where: { caseId: req.params.caseId, status: 'Approved' }
                 // attributes: ['userId']
             }).then((lawyerCase) => {
                 if (lawyerCase) {
