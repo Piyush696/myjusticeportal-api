@@ -22,13 +22,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         countyOfArrest: {
             type: DataTypes.STRING,
-            allowNull: false,
-            validate: {
-                len: {
-                    args: [0, 50],
-                    msg: "county Of Arrest must be between 1 and 50 characters in length"
-                }
-            }
+            allowNull: true,
         },
         stateOfArrest: {
             type: DataTypes.STRING,

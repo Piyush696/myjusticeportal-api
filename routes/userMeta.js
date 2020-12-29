@@ -86,6 +86,17 @@ router.get(
   }
 );
 
+router.post("/getModalValue", passport.authenticate("jwt", { session: false }),async function (req, res, next) {
+    UserMeta.findOne({
+      where: { metaKey: req.body.metaKey, userId: req.user.userId },
+    })
+      .then((result) => {
+        res.json({ success: true, data: result });
+      })
+      .catch(next);
+  }
+);
+
 router.put("/", function (req, res, next) {
   UserMeta.update(
     { metaValue: req.body.metaValue },
@@ -97,7 +108,6 @@ router.put("/", function (req, res, next) {
     .catch(next);
 });
 
-// get userMeta value.
 
 router.post(
   "/getValue",
@@ -156,25 +166,4 @@ router.post("/modal/caseCreate", passport.authenticate("jwt", { session: false }
       .catch(next);
   }
 );
-
-router.get("/getCaseModalValue", passport.authenticate("jwt", { session: false }),async function (req, res, next) {
-    UserMeta.findOne({
-      where: { metaKey: "case_model", userId: req.user.userId },
-    })
-      .then((result) => {
-        res.json({ success: true, data: result });
-      })
-      .catch(next);
-  }
-);
-
-router.get("/getFindLawyerModal", passport.authenticate("jwt", { session: false }),async function (req, res, next) {
-  UserMeta.findOne({
-    where: { metaKey: "findlawyer_model", userId: req.user.userId },
-  }).then((result) => {
-      res.json({ success: true, data: result });
-    }).catch(next);
-}
-);
-
 module.exports = router;
