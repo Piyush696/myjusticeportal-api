@@ -66,7 +66,6 @@ router.get('/getPendingCaseInfo', function (req, res, next) {
                 where: { userId: req.user.userId }
             }).then(data => {
                 let caseIds = data.map(data => data.caseId);
-                console.log(caseIds)
                 Lawyer_case.findAll({ where: { caseId: caseIds } }).then((lawyers) => {
                     let lawyerIds = lawyers.map(data => data.lawyerId);
                     User.findAll({
@@ -212,7 +211,6 @@ router.get('/lawyer-case/:caseId', function (req, res, next) {
                         where: { userId: lawyerCase.lawyerId },
                         attributes: ['userId', 'firstName', 'middleName', 'lastName']
                     }).then((user) => {
-                        console.log('saed', lawyerCase.lawyerId)
                         res.json({ success: true, data: user });
                     })
                 } else {

@@ -26,13 +26,13 @@ module.exports = (sequelize, DataTypes) => {
         },
         stateOfArrest: {
             type: DataTypes.STRING,
-            allowNull: false,
-            validate: {
-                len: {
-                    args: [1, 50],
-                    msg: "state Of Arrest must be between 1 and 50 characters in length"
-                }
-            }
+            allowNull: true,
+            // validate: {
+            //     len: {
+            //         args: [1, 50],
+            //         msg: "state Of Arrest must be between 1 and 50 characters in length"
+            //     }
+            // }
         },
         dateOfArrest: {
             type: DataTypes.DATE,

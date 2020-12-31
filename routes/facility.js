@@ -75,11 +75,14 @@ router.get('/', function (req, res, next) {
 router.put('/:facilityId', function (req, res, next) {
     util.validate([7], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
-            Facility.update(req.body.facility, { where: { facilityId: req.params.facilityId } }).then(() => {
-                Address.update(req.body.facilityAddress, { where: { addressId: req.body.facilityAddressId } }).then((data) => {
+            Facility.update(req.body.facility, { where: { facilityId: parseInt(req.params.facilityId) } }).then(() => {
+                Address.update(req.body.facilityAddress, { where: { addressId: parseInt(req.body.facilityAddressId) } }).then((data) => {
                     res.json({ success: true, data: data });
+                }).catch((next)=>{
+                    console.log(next)
                 })
             }).catch(next => {
+                console.log(next)
                 utils.validator(next, function (err) {
                     res.status(400).json(err)
                 })
