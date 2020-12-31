@@ -120,9 +120,7 @@ router.put('/updateUser', passport.authenticate('jwt', { session: false }), (req
         where: { userId: req.user.userId }
     }).then(result => {
         res.json({ success: true, data: result });
-    }).catch((next)=>{
-        console.log(next)
-    });
+    }).catch(next);
 })
 
 /*update Password */
@@ -133,7 +131,6 @@ router.put('/reset-pass', function (req, res, next) {
     User.findOne({
         where: { userName: req.body.userName }
     }).then((user) => {
-        console.log(req.body)
         // if (user.securityQuestionAnswered === 3) {
         if (req.body.password && req.body.password.length) {
             newData.password = User.generateHash(req.body.password);
@@ -144,13 +141,9 @@ router.put('/reset-pass', function (req, res, next) {
         query.where = { userName: req.body.userName }
         User.update(newData, query).then(() => {
             res.json({ success: true, newData });
-        }).catch((next) => {
-            console.log(next)
-        })
+        }).catch(next)
         // }
-    }).catch((next) => {
-        console.log(next)
-    })
+    }).catch(next)
 });
 
 // delete user.
