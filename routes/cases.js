@@ -19,6 +19,7 @@ router.post('/', function (req, res, next) {
             Case.create(req.body).then(data => {
                 res.json({ success: true, data: data });
             }).catch(next => {
+                console.log(next)
                 utils.validator(next, function (err) {
                     res.status(400).json(err)
                 })

@@ -113,17 +113,21 @@ router.put('/', function (req, res, next) {
 // myacc User Update
 
 router.put('/updateUser', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    if(req.body.userEmail){
+        req.body['email'] = req.body.userEmail
+    }
     User.update(req.body, {
         where: { userId: req.user.userId }
     }).then(result => {
         res.json({ success: true, data: result });
-    }).catch(next);
+    }).catch((next)=>{
+        console.log(next)
+    });
 })
 
 /*update Password */
 
 router.put('/reset-pass', function (req, res, next) {
-    console.log(req.body)
     let newData = {};
     let query = {};
     User.findOne({
