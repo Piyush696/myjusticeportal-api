@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: false
         },
         practiceAreas: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(5000),
             allowNull: true,
         },
     }, {

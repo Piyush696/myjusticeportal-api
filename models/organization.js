@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         specialty: {
-            type: DataTypes.STRING(100),
+            type: DataTypes.STRING(5000),
             allowNull: true
         },
         tagline: {
