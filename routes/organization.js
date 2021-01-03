@@ -3,7 +3,7 @@ const router = express.Router();
 const uuidv1 = require('uuid/v1');
 const request = require('request');
 const jwt = require('jsonwebtoken');
-
+var passport = require('passport');
 const config = require('../config/config');
 const User = require('../models').User;
 const Organization = require('../models').Organization;
@@ -155,7 +155,7 @@ router.get('/all-user', function (req, res, next) {
             Organization.findOne({
                 include: [
                     {
-                        model: User, attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'createdAt'],
+                        model: User, attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName','mobile', 'createdAt'],
                         include: [
                             {
                                 model: Role, through: {
@@ -260,5 +260,19 @@ router.put('/:addressId', function (req, res, next) {
         }
     })
 })
+
+router.delete('/deletedInvitedUser/:userId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+    util.validate([3], req.user.roles, function (isAuthenticated) {
+        if(isAuthenticated){
+            User.destroy({
+                where: { userId: req.params.userId }
+            }).then(() => {
+                res.json({ success: true });
+            }).catch(next);
+        } else {
+            res.status(401).json({ success: false, data: 'User not authorized.' }); 
+        }
+    })
+});
 
 module.exports = router;
