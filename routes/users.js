@@ -113,6 +113,9 @@ router.put('/', function (req, res, next) {
 // myacc User Update
 
 router.put('/updateUser', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    if(req.body.userEmail){
+        req.body['email'] = req.body.userEmail
+    }
     User.update(req.body, {
         where: { userId: req.user.userId }
     }).then(result => {
@@ -123,13 +126,11 @@ router.put('/updateUser', passport.authenticate('jwt', { session: false }), (req
 /*update Password */
 
 router.put('/reset-pass', function (req, res, next) {
-    console.log(req.body)
     let newData = {};
     let query = {};
     User.findOne({
         where: { userName: req.body.userName }
     }).then((user) => {
-        console.log(req.body)
         // if (user.securityQuestionAnswered === 3) {
         if (req.body.password && req.body.password.length) {
             newData.password = User.generateHash(req.body.password);
@@ -140,13 +141,9 @@ router.put('/reset-pass', function (req, res, next) {
         query.where = { userName: req.body.userName }
         User.update(newData, query).then(() => {
             res.json({ success: true, newData });
-        }).catch((next) => {
-            console.log(next)
-        })
+        }).catch(next)
         // }
-    }).catch((next) => {
-        console.log(next)
-    })
+    }).catch(next)
 });
 
 // delete user.
