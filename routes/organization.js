@@ -253,7 +253,9 @@ router.put('/:addressId', function (req, res, next) {
                 Address.update(req.body.address, { where: { addressId: req.params.addressId } }).then((data) => {
                     res.json({ success: true, data: data });
                 })
-            }).catch(next)
+            }).catch((err)=>{
+                res.json({ success: false, data: err });
+            })
         }
         else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
