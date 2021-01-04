@@ -62,6 +62,14 @@ router.get("/organizations", function (req, res, next) {
           },
           {
             model: Organization,
+            include: [
+              {
+                model: Address
+              }
+            ],
+            attributes: [
+              "organizationId"
+            ],
           },
           {
             model: UserAdditionalInfo,
