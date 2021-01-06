@@ -299,7 +299,7 @@ router.get("/dasboard/count", function (req, res, next) {
           },
         }).then(data => {
           Lawyer_case.findAndCountAll({
-            where: { lawyerId: req.user.userId, status: 'inmate_accepted' }
+            where: { lawyerId: req.user.userId, status: 'Approved' }
           }).then(myCases => {
             let count = {
               caseCount: cases.count,

@@ -286,9 +286,9 @@ router.put('/changeFacility', passport.authenticate('jwt', { session: false }), 
                 }
             ], where: { userId: parseInt(req.body.userId) }
         }).then((userData) => {
-            Promise.resolve(userData.addFacility(req.body.facilityId)).then((userFacility) => {
+            Promise.resolve(userData.setFacilities(req.body.facilityId)).then((userFacility) => {
                 res.json({ success: true, data: userFacility });
-            })
+            }).catch(next)
         }).catch(next);
     } else {
         res.json({ success: false });
