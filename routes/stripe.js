@@ -4,7 +4,8 @@ const request = require("request");
 const { User } = require("../models");
 const UserMeta = require("../models").UserMeta;
 const Lawyer_Facility = require("../models").lawyer_facility;
-var passport = require('passport');
+var passport = require("passport");
+const { Op } = require("sequelize");
 
 // sk_test_zlRA9Hh43Aa6pM80pxdf2mcc00ksE2l4hz
 //sk_live_TgvUP4xiCxLmNh4KQx4MxATc00MfApKkpG
@@ -89,50 +90,25 @@ router.post("/subscribe_plan", async function (req, res, next) {
               createdBy: req.body.userId,
             },
           ];
-          UserMeta.findAll({ where: {  
-            $or: [{ metaKey: 'sub_id', userId: req.body.userId }, { metaKey: 'cust_id',userId: req.body.userId }],  } }).then((data) => {
-            if ( data && data.length > 0) {
-              let count = 0;
-              data.forEach((element, index, Array) => {
-                if(element.metaKey === 'sub_id'){
-                  UserMeta.update({ metaValue: subscribePlan.id, updatedBy: req.body.userId }, { where: { metaKey: element.metaKey, userId: req.body.userId } }).then((result) => {
-                }).catch(next);
-                } else  {
-                  UserMeta.update({ metaValue: req.body.customer, updatedBy: req.body.userId }, { where: { metaKey: element.metaKey, userId: req.body.userId } }).then((result) => {
-                }).catch(next);
-                }
-                if (count === Array.length - 1) {
-                  res.json({ success: true, data: subscribePlan });
-              }
-              count++
-              });
-            }
-            else {
-              UserMeta.bulkCreate(userMetaList).then((result) => {
-                if(result){
-                  setLawyerFacilityAddons(req.body.facilityList, function (setFacilityLawyer) {
-                    if(setFacilityLawyer){
-                        res.json({ success: true, data: subscribePlan })
+          UserMeta.bulkCreate(userMetaList)
+            .then((result) => {
+              if (result) {
+                setLawyerFacilityAddons(
+                  req.body.facilityList,
+                  function (setFacilityLawyer) {
+                    if (setFacilityLawyer) {
+                      res.json({ success: true, data: subscribePlan });
                     }
-                  })
-                }                
-            }).catch(next);
-            }
-        }).catch(next);
+                  }
+                );
+              }
+            })
+            .catch(next);
         })
         .catch(next);
     })
     .catch(next);
 });
-
-
-
-  function setLawyerFacilityAddons (facilityList, callback) {
-      Lawyer_Facility.bulkCreate(facilityList).then((result) => {
-          callback(result);
-      })
-  }
-
 
 /* Validate card */
 
@@ -163,24 +139,32 @@ router.post("/validate_coupan", async function (req, res, next) {
     .catch(next);
 });
 
-router.post("/list-transaction", passport.authenticate('jwt', { session: false }), async function (req, res, next) {
-User.findOne({
-  include:[
-      {
-        model:UserMeta,
-        where:{metaKey:'cust_id'},
-        attributes: ['metaKey', 'metaValue']
-      }
-   ],
-   where: { userId: req.user.userId },
-   attributes: ['userId', 'userName', 'firstName', 'middleName', 'lastName']
-}).then((user)=>{
-  stripe.customers.listBalanceTransactions(user.userMeta[0].metaValue).then((transactions)=>{
-    res.json({ success: true, data: transactions });
-  }).catch(next)
-}).catch(next)
-})
-
+router.post(
+  "/list-transaction",
+  passport.authenticate("jwt", { session: false }),
+  async function (req, res, next) {
+    User.findOne({
+      include: [
+        {
+          model: UserMeta,
+          where: { metaKey: "cust_id" },
+          attributes: ["metaKey", "metaValue"],
+        },
+      ],
+      where: { userId: req.user.userId },
+      attributes: ["userId", "userName", "firstName", "middleName", "lastName"],
+    })
+      .then((user) => {
+        stripe.customers
+          .listBalanceTransactions(user.userMeta[0].metaValue)
+          .then((transactions) => {
+            res.json({ success: true, data: transactions });
+          })
+          .catch(next);
+      })
+      .catch(next);
+  }
+);
 
 /* update card */
 router.post("/update_card", async function (req, res, next) {
@@ -219,37 +203,137 @@ router.post("/update_card", async function (req, res, next) {
     .catch(next);
 });
 
- 
 /*update plan */
-router.post("/update_plan", passport.authenticate('jwt', { session: false }), async function (req, res, next) {
-  User.findOne(
-    {
-      include:[
+router.post(
+  "/update_plan",
+  passport.authenticate("jwt", { session: false }),
+  async function (req, res, next) {
+    User.findOne({
+      include: [
         {
-          model:UserMeta,
-          where:{metaKey:'sub_id'}
-        }
+          model: UserMeta,
+          where: {
+            metaKey: {
+              $or: [
+                  { $eq: 'cust_id' },
+                  { $eq: 'sub_id' }
+              ]
+          }
+          },
+        },
       ],
-      where:{userId:req.user.userId}
-  }).then((user) => {
-    stripe.subscriptions
-    .retrieve(user.userMeta[0].metaValue)
-    .then((data) => {
-      stripe.plans.del(data.items.data[0].plan.id).then(() => {
-        stripe.plans
-        .create({
-          amount: 400,
-          currency: 'usd',
-          interval: 'month',
-          product: "prod_IF9YlbHmWQ8ezq",
+      attributes: ["userId"],
+      where: { userId: req.user.userId },
+    }).then((user) => {
+      stripe.subscriptions
+        .retrieve(user.userMeta[0].metaValue)
+        .then((data) => {
+          stripe.plans
+            .del(data.items.data[0].plan.id)
+            .then(() => {
+              stripe.plans
+                .create({
+                  amount: req.body.amount,
+                  currency: "usd",
+                  interval: "month",
+                  product: "prod_IF9YlbHmWQ8ezq",
+                })
+                .then((plan) => {
+                  stripe.subscriptions
+                    .create({
+                      customer: user.userMeta[1].metaValue,
+                      items: [
+                        {
+                          plan: plan.id,
+                        },
+                      ],
+                    })
+                    .then((subscribePlan) => {
+                      deleteLawyerFacilityAddons(
+                        req.body.userId,
+                        function (deleteFacilityLawyer) {
+                          if (deleteFacilityLawyer) {
+                            setLawyerFacilityAddons(
+                              req.body.facilityList,
+                              function (setFacilityLawyer) {
+                                if (setFacilityLawyer) {
+                                  UserMeta.update(
+                                    {
+                                      metaValue: subscribePlan.id,
+                                    },
+                                    {
+                                      where: {
+                                        metaKey: "sub_id",
+                                        userId: req.user.userId,
+                                      },
+                                    }
+                                  )
+                                    .then((result) => {
+                                      res.json({
+                                        success: true,
+                                        data: subscribePlan,
+                                      });
+                                    })
+                                    .catch((next) => {
+                                      console.log(next);
+                                    });
+                                }
+                              }
+                            );
+                          }
+                        }
+                      );
+                    })
+                    .catch((next) => {
+                      console.log(next);
+                    });
+                })
+                .catch((next) => {
+                  console.log(next);
+                });
+            })
+            .catch((next) => {
+              console.log(next);
+            });
         })
-        .then((plan) => {
-          res.json({ success: true, data: plan });
-          })
-      })
-    })
-  })
-});
+        .catch((next) => {
+          console.log(next);
+        });
+    });
+  }
+);
 
+function deleteLawyerFacilityAddons(userId, callback) {
+  Lawyer_Facility.findAll({ where: { lawyerId: userId } }).then(
+    (lawyerFacility) => {
+      let count = 0;
+      lawyerFacility.forEach((element, index, Array) => {
+        Lawyer_Facility.destroy({
+          where: { lawyer_facilityId: element.lawyer_facilityId },
+        }).then((data) => {
+          if (count === Array.length - 1) {
+            callback(data);
+          }
+          count++;
+        });
+      });
+    }
+  );
+}
+
+function setLawyerFacilityAddons(facilityList, callback) {
+  let count = 0;
+  facilityList.forEach((element, index, Array) => {
+    Lawyer_Facility.create(element)
+      .then((result) => {
+        if (count === Array.length - 1) {
+          callback(result);
+        }
+      })
+      .catch((next) => {
+        console.log(next);
+      });
+  });
+}
 
 module.exports = router;
