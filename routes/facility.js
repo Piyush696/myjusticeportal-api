@@ -7,6 +7,7 @@ const Address = require('../models').Address
 const util = require('../utils/validateUser');
 const utils = require('../utils/validation');
 const Sequelize = require('sequelize');
+const Lawyer_Facility = require("../models").lawyer_facility;
 
 // create Facility
 
@@ -140,4 +141,13 @@ router.get('/facility/userCount', function (req, res, next) {
     }).catch(next);
 })
 
+router.get('/planSelectedFaciltiy', function (req, res, next) {
+    Lawyer_Facility.findAll({
+        attributes: ["planSelected"],
+        where: { lawyerId: req.user.userId }
+    }).then(data => {
+        res.json({ success: true, data: data });
+    }).catch(next)
+  })
+  
 module.exports = router;
