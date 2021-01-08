@@ -74,6 +74,18 @@ router.post("/createUserMetaList", async function (req, res, next) {
     .catch(next);
 });
 
+router.post("/createUserMeta", passport.authenticate("jwt", { session: false }), async function (req, res, next) {
+  console.log(req.body)
+  UserMeta.create({
+    metaKey: req.body.metaKey,
+    metaValue: req.body.metaValue,
+    userId: req.user.userId,
+    createdBy: req.user.userId,
+  }).then((result) => {
+    res.json({ success: true, data: result });
+  }).catch(next => console.log(next));
+});
+
 router.get(
   "/",
   passport.authenticate("jwt", { session: false }),
@@ -86,15 +98,15 @@ router.get(
   }
 );
 
-router.post("/getModalValue", passport.authenticate("jwt", { session: false }),async function (req, res, next) {
-    UserMeta.findOne({
-      where: { metaKey: req.body.metaKey, userId: req.user.userId },
+router.post("/getModalValue", passport.authenticate("jwt", { session: false }), async function (req, res, next) {
+  UserMeta.findOne({
+    where: { metaKey: req.body.metaKey, userId: req.user.userId },
+  })
+    .then((result) => {
+      res.json({ success: true, data: result });
     })
-      .then((result) => {
-        res.json({ success: true, data: result });
-      })
-      .catch(next);
-  }
+    .catch(next);
+}
 );
 
 router.put("/", function (req, res, next) {
@@ -142,28 +154,28 @@ router.put(
   }
 );
 
-router.get("/user/userMeta",passport.authenticate("jwt", { session: false }),async function (req, res, next) {
-    User.findOne({
-      include: [
-        {
-          model: UserMeta,
-        }
-      ],
-      where: { userId: req.user.userId },
-    }).then((user) => {
-      res.json({ success: true, data: user });
-    });
-  }
+router.get("/user/userMeta", passport.authenticate("jwt", { session: false }), async function (req, res, next) {
+  User.findOne({
+    include: [
+      {
+        model: UserMeta,
+      }
+    ],
+    where: { userId: req.user.userId },
+  }).then((user) => {
+    res.json({ success: true, data: user });
+  });
+}
 );
 
 router.post("/modal/caseCreate", passport.authenticate("jwt", { session: false }), async function (req, res, next) {
   req.body.userMeta['userId'] = req.user.userId
   req.body.userMeta['createdBy'] = req.user.userId
-    UserMeta.create(req.body.userMeta)
-      .then((result) => {
-        res.json({ success: true, data: result });
-      })
-      .catch(next);
-  }
+  UserMeta.create(req.body.userMeta)
+    .then((result) => {
+      res.json({ success: true, data: result });
+    })
+    .catch(next);
+}
 );
 module.exports = router;
