@@ -35,6 +35,7 @@ router.post('/', function (req, res, next) {
                     Promise.resolve(user.setRoles(roles)).then(() => {
                         const clientIp = requestIp.getClientIp(req);
                         return Facility.findOne({ where: { ipAddress: clientIp } }).then((facility) => {
+                            console.log(facility)
                             if (facility) {
                                 user['roles'] = roles;
                                 user['facilities'] = [facility];
@@ -46,7 +47,9 @@ router.post('/', function (req, res, next) {
                                             res.json({ success: false });
                                         }
                                     });
-                                }).catch(next);
+                                }).catch((next)=>{
+                                    console.log(next)
+                                });
                             } else {
                                 return Facility.findOne({ where: { ipAddress: 'outside' } }).then((foundFacility) => {
                                     Promise.resolve(user.addFacility(foundFacility)).then(() => {
