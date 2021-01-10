@@ -204,9 +204,7 @@ router.post("/update_card", async function (req, res, next) {
 });
 
 /*update plan */
-router.post(
-  "/update_plan",
-  passport.authenticate("jwt", { session: false }),
+router.post("/update_plan", passport.authenticate("jwt", { session: false }),
   async function (req, res, next) {
     User.findOne({
       include: [
@@ -215,10 +213,10 @@ router.post(
           where: {
             metaKey: {
               $or: [
-                  { $eq: 'cust_id' },
-                  { $eq: 'sub_id' }
+                { $eq: 'cust_id' },
+                { $eq: 'sub_id' }
               ]
-          }
+            }
           },
         },
       ],
