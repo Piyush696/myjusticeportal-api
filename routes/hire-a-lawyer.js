@@ -99,6 +99,7 @@ router.get("/organizations", function (req, res, next) {
           "userName",
           "createdAt",
         ],
+        where: { status: true }
       })
         .then((user) => {
           res.json({ success: true, data: user });
