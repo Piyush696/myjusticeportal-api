@@ -210,7 +210,7 @@ router.get("/:userId", function (req, res, next) {
 
 //set lawyer case
 router.post("/", function (req, res, next) {
-  req.body["status"] = "Requested";
+  req.body["status"] = "Lawyer Requested";
   Lawyer_case.create(req.body)
     .then((lawyerCases) => {
       res.json({ success: true, data: lawyerCases });
