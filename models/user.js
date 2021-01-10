@@ -16,9 +16,9 @@ module.exports = (sequelize, DataTypes) => {
                     args: [1, 50],
                     msg: "First Name must be between 1 and 50 characters in length"
                 },
-                isAlpha: {
-                    msg: 'First name must contanis only Alphabets'
-                }
+                // isAlpha: {
+                //     msg: 'First name must contanis only Alphabets'
+                // }
             }
         },
         middleName: {
@@ -33,9 +33,9 @@ module.exports = (sequelize, DataTypes) => {
                     args: [1, 50],
                     msg: "Last name must be between 1 and 50 characters in length"
                 },
-                isAlpha: {
-                    msg: 'Last name must contanis only Alphabets'
-                }
+                // isAlpha: {
+                //     msg: 'Last name must contanis only Alphabets'
+                // }
             }
         },
         userName: {
