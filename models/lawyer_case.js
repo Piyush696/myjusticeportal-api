@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true
         },
         status: {
-            type: DataTypes.ENUM('Requested', 'Approved', 'Rejected', 'chatEnabled', 'inmate_rejected', 'inmate_accepted'),
+            type: DataTypes.ENUM('Lawyer Requested', 'Lawyer Approved', 'Lawyer Rejected', 'Inmate Rejected', 'Connected', 'Disconnected'),
             allowNull: false
         },
         isHide: {

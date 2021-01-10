@@ -8,8 +8,7 @@ let sequelize;
 
 if (process.env.DATABASE_URL) {
     sequelize = new Sequelize(process.env.DATABASE_URL);
-}
-else {
+} else {
     sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
 
@@ -81,6 +80,7 @@ db.User.hasOne(db.UserAdditionalInfo, { foreignKey: 'userId', sourceKey: 'userId
 db.LegalResearch.belongsTo(db.User, { as: 'inmate', foreignKey: 'userId', sourceKey: 'userId' });
 
 db.Case.belongsTo(db.User, { as: 'inmate', foreignKey: 'userId', sourceKey: 'userId' });
+
 db.Files.belongsTo(db.User, { as: 'createdBy', constraints: false });
 db.Case.belongsToMany(db.Files, { as: 'caseFile', through: 'file_case', foreignKey: 'caseId' });
 db.Files.belongsToMany(db.Case, { through: 'file_case', foreignKey: 'fileId' });
@@ -100,7 +100,7 @@ db.User.belongsToMany(db.Facility, { through: 'user_facility', foreignKey: 'user
 db.User.belongsToMany(db.Facility, { as: 'lawyerFacility', through: 'lawyer_facility', foreignKey: 'lawyerId' });
 db.Facility.belongsToMany(db.User, { as: 'lawyerFacility', through: 'lawyer_facility', foreignKey: 'facilityId' });
 
-db.User.belongsToMany(db.User, { as:'publicdefender', through: 'inmate_defender', foreignKey: 'publicdefenderId' });
-db.User.belongsToMany(db.User, { as:'inmate', through: 'inmate_defender', foreignKey: 'inmateId' });
+db.User.belongsToMany(db.User, { as: 'publicdefender', through: 'inmate_defender', foreignKey: 'publicdefenderId' });
+db.User.belongsToMany(db.User, { as: 'inmate', through: 'inmate_defender', foreignKey: 'inmateId' });
 
 module.exports = db;
