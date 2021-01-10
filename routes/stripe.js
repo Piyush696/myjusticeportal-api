@@ -93,21 +93,32 @@ router.post("/subscribe_plan", async function (req, res, next) {
           UserMeta.bulkCreate(userMetaList)
             .then((result) => {
               if (result) {
-                setLawyerFacilityAddons(
-                  req.body.facilityList,
-                  function (setFacilityLawyer) {
-                    if (setFacilityLawyer) {
-                      res.json({ success: true, data: subscribePlan });
-                    }
+                deleteLawyerFacilityAddons(req.body.userId, function (deleteLawyerFacility) {
+                  console.log('dew',deleteLawyerFacility)
+                  if (deleteLawyerFacility) {
+                    console.log('dew1')
+                    setLawyerFacilityAddons(
+                      req.body.facilityList,
+                      function (setFacilityLawyer) {
+                        console.log('dew2')
+                        if (setFacilityLawyer) {
+                          res.json({ success: true, data: subscribePlan });
+                        }
+                      }
+                    );
                   }
-                );
+                })
               }
-            })
-            .catch(next);
-        })
-        .catch(next);
+            })   .catch((next)=>{
+              console.log(next)
+            });
+        })   .catch((next)=>{
+          console.log(next)
+        });
     })
-    .catch(next);
+    .catch((next)=>{
+      console.log(next)
+    });
 });
 
 /* Validate card */
@@ -304,17 +315,21 @@ router.post("/update_plan", passport.authenticate("jwt", { session: false }),
 function deleteLawyerFacilityAddons(userId, callback) {
   Lawyer_Facility.findAll({ where: { lawyerId: userId } }).then(
     (lawyerFacility) => {
-      let count = 0;
-      lawyerFacility.forEach((element, index, Array) => {
-        Lawyer_Facility.destroy({
-          where: { lawyer_facilityId: element.lawyer_facilityId },
-        }).then((data) => {
-          if (count === Array.length - 1) {
-            callback(data);
-          }
-          count++;
+      if (lawyerFacility) {
+        let count = 0;
+        lawyerFacility.forEach((element, index, Array) => {
+          Lawyer_Facility.destroy({
+            where: { lawyer_facilityId: element.lawyer_facilityId },
+          }).then((data) => {
+            if (count === Array.length - 1) {
+              callback(data);
+            }
+            count++;
+          });
         });
-      });
+      } else {
+        callback(true);
+      }
     }
   );
 }
