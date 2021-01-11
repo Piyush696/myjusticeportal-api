@@ -206,4 +206,19 @@ router.get('/allMessages', function (req, res, next) {
 //     })
 // }, null, true, 'America/Los_Angeles');
 // job.start();
+
+
+// storing the messages sent from the modal
+
+router.post('/createMessage', function (req, res, next) {
+    const data = {
+        "message": req.body.message,
+        "senderId": req.body.senderId,
+        "receiverId": req.body.receiverId
+    }
+    Message.create(data).then((msg) => {
+        console.log(msg)
+        re.json({ success: true, data: 'Message Sent' })
+    }).catch(next)
+})
 module.exports = router;
