@@ -71,8 +71,7 @@ router.get('/users', function (req, res, next) {
                     include: [
                         {
                             model: User, as: 'inmate',
-                            attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName'],
-                            where: { status: true }
+                            attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName']
                         }
                     ],
                     where: { caseId: caseIds },
@@ -115,9 +114,9 @@ router.get('/oldUser', function (req, res, next) {
                 })
                 User.findAll({
                     where: {
-                        userId: uniqueIds,
+                        userId: uniqueIds, status: true
                     },
-                    attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName']
+                    attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName'],
                 }).then((users) => {
                     res.json({ success: true, data: users });
                 })
