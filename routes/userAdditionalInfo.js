@@ -23,7 +23,7 @@ router.get("/", function (req, res, next) {
       User.findOne({
         include: [
           {
-            model:Organization
+            model: Organization
           },
           {
             model: UserAdditionalInfo,
@@ -299,7 +299,7 @@ router.get("/dasboard/count", function (req, res, next) {
           },
         }).then(data => {
           Lawyer_case.findAndCountAll({
-            where: { lawyerId: req.user.userId, status: 'Approved' }
+            where: { lawyerId: req.user.userId, status: 'Connected' }
           }).then(myCases => {
             let count = {
               caseCount: cases.count,

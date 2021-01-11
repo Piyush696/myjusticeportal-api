@@ -186,8 +186,8 @@ router.get('/lawyer-case/:caseId', function (req, res, next) {
         if (isAuthenticated) {
             Lawyer_case.findOne({
                 where: {
-                    $or: [{ caseId: req.params.caseId , status:'Approved' }, { caseId: req.params.caseId , status:'chatEnabled' }],
-                  },
+                    $or: [{ caseId: req.params.caseId, status: 'Connected' }, { caseId: req.params.caseId, status: 'Connected' }],
+                },
                 // where: { caseId: req.params.caseId, status: 'Approved' }
                 // attributes: ['userId']
             }).then((lawyerCase) => {
