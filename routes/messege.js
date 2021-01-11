@@ -71,7 +71,8 @@ router.get('/users', function (req, res, next) {
                     include: [
                         {
                             model: User, as: 'inmate',
-                            attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName']
+                            attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName'],
+                            where: { status: true }
                         }
                     ],
                     where: { caseId: caseIds },
