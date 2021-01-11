@@ -64,14 +64,15 @@ router.get('/users', function (req, res, next) {
     util.validate([3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Lawyer_case.findAll({
-                where: { lawyerId: req.user.userId, status: 'chatEnabled' },
+                where: { lawyerId: req.user.userId, status: 'Connected' },
             }).then(data => {
                 let caseIds = data.map(x => x.caseId)
                 Case.findAll({
                     include: [
                         {
                             model: User, as: 'inmate',
-                            attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName']
+                            attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName'],
+                            where: { status: true }
                         }
                     ],
                     where: { caseId: caseIds },
@@ -206,4 +207,19 @@ router.get('/allMessages', function (req, res, next) {
 //     })
 // }, null, true, 'America/Los_Angeles');
 // job.start();
+
+
+// storing the messages sent from the modal
+
+router.post('/createMessage', function (req, res, next) {
+    const data = {
+        "message": req.body.message,
+        "senderId": req.body.senderId,
+        "receiverId": req.body.receiverId
+    }
+    Message.create(data).then((msg) => {
+        res.json({ success: true, data: 'Message Sent' })
+    }).catch(next)
+})
+
 module.exports = router;
