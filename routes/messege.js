@@ -14,8 +14,8 @@ const CronJob = require('cron').CronJob;
 const uuidv1 = require('uuid/v1');
 
 // get messaged user of sender.
-router.get('/', function (req, res, next) {
-    util.validate([1], req.user.roles, function (isAuthenticated) {
+router.get('/', function(req, res, next) {
+    util.validate([1], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             Case.findAll({
                 where: { userId: req.user.userId }
@@ -43,8 +43,8 @@ router.get('/', function (req, res, next) {
 
 
 // get history messages of user.
-router.get('/allMessages/:receiverId', function (req, res, next) {
-    util.validate([1, 3], req.user.roles, function (isAuthenticated) {
+router.get('/allMessages/:receiverId', function(req, res, next) {
+    util.validate([1, 3], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             Message.findAll({
                 where: {
@@ -60,20 +60,19 @@ router.get('/allMessages/:receiverId', function (req, res, next) {
 })
 
 // get all users for lawyer.
-router.get('/users', function (req, res, next) {
-    util.validate([3], req.user.roles, function (isAuthenticated) {
+router.get('/users', function(req, res, next) {
+    util.validate([3], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             Lawyer_case.findAll({
                 where: { lawyerId: req.user.userId, status: 'Connected' },
             }).then(data => {
                 let caseIds = data.map(x => x.caseId)
                 Case.findAll({
-                    include: [
-                        {
-                            model: User, as: 'inmate',
-                            attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName']
-                        }
-                    ],
+                    include: [{
+                        model: User,
+                        as: 'inmate',
+                        attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName']
+                    }],
                     where: { caseId: caseIds },
                 }).then((cases) => {
                     let inmate = [];
@@ -95,8 +94,8 @@ router.get('/users', function (req, res, next) {
 })
 
 // get old messsged user.
-router.get('/oldUser', function (req, res, next) {
-    util.validate([1], req.user.roles, function (isAuthenticated) {
+router.get('/oldUser', function(req, res, next) {
+    util.validate([1], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             Message.findAll({
                 where: {
@@ -105,6 +104,7 @@ router.get('/oldUser', function (req, res, next) {
             }).then(data => {
                 let uniqueUsers = data.filter((v, i, a) => a.findIndex(t => ((t.senderId === v.senderId))) === i)
                 let userIds = uniqueUsers.map(x => x.senderId)
+
                 function onlyUnique(value, index, self) {
                     return self.indexOf(value) === index;
                 }
@@ -114,7 +114,8 @@ router.get('/oldUser', function (req, res, next) {
                 })
                 User.findAll({
                     where: {
-                        userId: uniqueIds, status: true
+                        userId: uniqueIds,
+                        status: true
                     },
                     attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName'],
                 }).then((users) => {
@@ -130,8 +131,8 @@ router.get('/oldUser', function (req, res, next) {
 
 // to get last user with whom we texted
 
-router.get('/allMessages', function (req, res, next) {
-    util.validate([1, 3], req.user.roles, function (isAuthenticated) {
+router.get('/allMessages', function(req, res, next) {
+    util.validate([1, 3], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             Message.findAll({
                 order: [
@@ -210,7 +211,7 @@ router.get('/allMessages', function (req, res, next) {
 
 // storing the messages sent from the modal
 
-router.post('/createMessage', function (req, res, next) {
+router.post('/createMessage', function(req, res, next) {
     const data = {
         "message": req.body.message,
         "senderId": req.body.senderId,

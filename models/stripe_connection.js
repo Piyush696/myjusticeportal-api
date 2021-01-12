@@ -13,6 +13,10 @@ module.exports = (sequelize, DataTypes) => {
         authKey: {
             type: DataTypes.STRING,
             allowNull: false,
+        },
+        productId: {
+            type: DataTypes.STRING,
+            allowNull: false,
         }
     }, {
         tableName: 'stripeConnection',
