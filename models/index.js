@@ -81,13 +81,14 @@ db.LegalResearch.belongsTo(db.User, { as: 'inmate', foreignKey: 'userId', source
 
 db.Case.belongsTo(db.User, { as: 'inmate', foreignKey: 'userId', sourceKey: 'userId' });
 
+db.User.hasMany(db.Case, { foreignKey: 'userId', sourceKey: 'userId' });
+
 db.Files.belongsTo(db.User, { as: 'createdBy', constraints: false });
 db.Case.belongsToMany(db.Files, { as: 'caseFile', through: 'file_case', foreignKey: 'caseId' });
 db.Files.belongsToMany(db.Case, { through: 'file_case', foreignKey: 'fileId' });
 
 db.User.belongsToMany(db.Case, { as: 'lawyer', through: 'lawyer_case', foreignKey: 'lawyerId' });
 db.Case.belongsToMany(db.User, { through: 'lawyer_case', foreignKey: 'caseId' });
-
 
 db.Facility.belongsToMany(db.Organization, { through: 'org_facility', foreignKey: 'facilityId' });
 db.Organization.belongsToMany(db.Facility, { through: 'org_facility', foreignKey: 'organizationId' });
