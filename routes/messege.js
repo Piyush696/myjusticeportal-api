@@ -50,6 +50,9 @@ router.get('/allMessages/:receiverId', function(req, res, next) {
                 where: {
                     $or: [{ senderId: req.user.userId, receiverId: req.params.receiverId }, { senderId: req.params.receiverId, receiverId: req.user.userId, }],
                 },
+                order: [
+                    ['createdAt', 'ASC']
+                ]
             }).then(data => {
                 res.json({ success: true, data: data });
             }).catch(next)
@@ -65,23 +68,25 @@ router.get('/users', function(req, res, next) {
         if (isAuthenticated) {
             Lawyer_case.findAll({
                 where: { lawyerId: req.user.userId, status: 'Connected' },
-            }).then(data => {
+            }).then((data) => {
                 let caseIds = data.map(x => x.caseId)
                 Case.findAll({
                     include: [{
                         model: User,
+                        where: { status: true },
                         as: 'inmate',
                         attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName']
                     }],
                     where: { caseId: caseIds },
-                }).then((cases) => {
-                    let inmate = [];
+                    attributes: ['caseId']
+                }).then((users) => {
+                    let connectedInmates = [];
                     let count = 0;
-                    cases.forEach((element, index, Array) => {
-                        inmate.push(element.inmate)
+                    users.forEach((element, index, Array) => {
+                        connectedInmates.push(element.inmate)
                         if (count === Array.length - 1) {
-                            inmate = inmate.filter((v, i, a) => a.findIndex(t => (t.userId === v.userId)) === i)
-                            res.json({ success: true, data: inmate })
+                            connectedInmates = connectedInmates.filter((v, i, a) => a.findIndex(t => (t.userId === v.userId)) === i)
+                            res.json({ success: true, data: connectedInmates })
                         }
                         count++
                     });
@@ -93,35 +98,30 @@ router.get('/users', function(req, res, next) {
     })
 })
 
+
 // get old messsged user.
 router.get('/oldUser', function(req, res, next) {
     util.validate([1], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
-            Message.findAll({
-                where: {
-                    $or: [{ senderId: req.user.userId }, { receiverId: req.user.userId }],
-                },
-            }).then(data => {
-                let uniqueUsers = data.filter((v, i, a) => a.findIndex(t => ((t.senderId === v.senderId))) === i)
-                let userIds = uniqueUsers.map(x => x.senderId)
-
-                function onlyUnique(value, index, self) {
-                    return self.indexOf(value) === index;
-                }
-                var uniqueIds = userIds.filter(onlyUnique);
-                uniqueIds = uniqueIds.filter(x => {
-                    return x !== req.user.userId
+            User.findOne({
+                include: [{
+                    model: Case,
+                }],
+                where: { userId: req.user.userId }
+            }).then((user) => {
+                let caseIds = user.cases.map((x) => x.caseId)
+                Lawyer_case.findAll({
+                    where: { caseId: caseIds, status: 'Connected' }
+                }).then((lawyer) => {
+                    let userIds = lawyer.map((x) => x.lawyerId)
+                    User.findAll({
+                        where: { userId: userIds, status: true },
+                        attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName'],
+                    }).then((connectedLawyers) => {
+                        res.json({ success: true, data: connectedLawyers });
+                    })
                 })
-                User.findAll({
-                    where: {
-                        userId: uniqueIds,
-                        status: true
-                    },
-                    attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName'],
-                }).then((users) => {
-                    res.json({ success: true, data: users });
-                })
-            }).catch(next)
+            })
         } else {
             res.json({ success: true, data: 'Unauthorized user.' });
         }

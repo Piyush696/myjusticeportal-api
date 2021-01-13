@@ -22,14 +22,14 @@ router.post("/", async function(req, res, next) {
             stripe.customers
                 .create({
                     email: req.body.email,
-                    // name: "Piyush",
-                    // address: {
-                    //     line1: "510 Townsend St",
-                    //     postal_code: "560029",
-                    //     city: "San Francisco",
-                    //     state: "BL",
-                    //     country: "IN",
-                    // },
+                    name: "Piyush",
+                    address: {
+                        line1: "510 Townsend St",
+                        postal_code: "560029",
+                        city: "San Francisco",
+                        state: "BL",
+                        country: "IN",
+                    },
                 })
                 .then((customer) => {
                     stripe.customers
