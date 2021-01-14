@@ -104,4 +104,7 @@ db.Facility.belongsToMany(db.User, { as: 'lawyerFacility', through: 'lawyer_faci
 db.User.belongsToMany(db.User, { as: 'publicdefender', through: 'inmate_defender', foreignKey: 'publicdefenderId' });
 db.User.belongsToMany(db.User, { as: 'inmate', through: 'inmate_defender', foreignKey: 'inmateId' });
 
+db.User.belongsToMany(db.Facility, { as: 'defender', through: 'defender_facility', foreignKey: 'defenderId' });
+db.Facility.belongsToMany(db.User, { as: 'defender', through: 'defender_facility', foreignKey: 'facilityId' });
+
 module.exports = db;

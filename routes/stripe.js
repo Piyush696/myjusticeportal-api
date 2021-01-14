@@ -3,6 +3,7 @@ const router = express.Router();
 const request = require("request");
 const { User } = require("../models");
 const UserMeta = require("../models").UserMeta;
+const Facility = require("../models").Facility;
 const Lawyer_Facility = require("../models").lawyer_facility;
 var passport = require("passport");
 const { Op } = require("sequelize");
@@ -51,8 +52,7 @@ router.post("/", async function(req, res, next) {
                 })
                 .then((addCard) => {
                     res.json({ success: true, data: addCard });
-                })
-                .catch(next);
+                }).catch(next);
         }
     })
 });
@@ -78,7 +78,7 @@ router.post("/subscribe_plan", async function(req, res, next) {
                         customer: req.body.customer,
                         items: [{
                             plan: plan.id,
-                        }, ],
+                        }],
                     })
                     .then((subscribePlan) => {
                         let userMetaList = [{
@@ -344,17 +344,45 @@ function deleteLawyerFacilityAddons(userId, callback) {
 function setLawyerFacilityAddons(facilityList, callback) {
     let count = 0;
     facilityList.forEach((element, index, Array) => {
-        Lawyer_Facility.create(element)
-            .then((result) => {
-                if (count === Array.length - 1) {
-                    callback(result);
-                }
-                count++;
+        if (element.defenderId) {
+            User.findOne({ where: { userId: element.defenderId } }).then((foundUser) => {
+                Facility.findOne({ where: { facilityId: element.facilityId } }).then((foundFacility) => {
+                    Promise.resolve(foundUser.addFacility(foundFacility)).then(() => {
+                        if (count === Array.length - 1) {
+                            callback(foundFacility);
+                        }
+                        count++;
+                    })
+                })
             })
-            .catch((next) => {
-                console.log(next);
-            });
+        } else if (element.lawyerId) {
+            Lawyer_Facility.create(element)
+                .then((result) => {
+                    if (count === Array.length - 1) {
+                        callback(result);
+                    }
+                    count++;
+                })
+                .catch((next) => {
+                    console.log(next);
+                });
+        }
     });
 }
+
+// function setDefenderFacility(facilityList, callback) {
+//     console.log(facilityList)
+//     let count = 0;
+//     facilityList.forEach((element, index, Array) => {
+//         User.findOne({ where: { userId: element.defenderId } }).then((foundUser) => {
+//             Facility.findOne({ where: { facilityId: element.facilityIds } }).then((foundFacility) => {
+//                 Promise.resolve(foundUser.addFacilities(foundFacility)).then(() => {
+//                     return res.json({ success: true, data: createdUser });
+//                 })
+//             }).catch(next);
+//         })
+//     });
+// }
+
 
 module.exports = router;
