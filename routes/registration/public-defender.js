@@ -30,24 +30,15 @@ router.post('/registration', function(req, res, next) {
                 req.body.organization.addressId = createdAddress.addressId;
                 Organization.create(req.body.organization).then((createdOrg) => {
                     User.update({ organizationId: createdOrg.organizationId }, { where: { userId: createdUser.userId } }).then(() => {
-                        Facility.findAll({ where: { facilityId: req.body.facilityIds } }).then((foundFacility) => {
-                            console.log(foundFacility)
-                            return Role.findOne({ where: { roleId: 5 } }).then((roles) => {
-                                Promise.resolve(createdUser.addRole(roles)).then(() => {
-                                    Promise.resolve(createdOrg.addFacilities(foundFacility)).then(() => {
-                                        Promise.resolve(createdUser.addFacilities(foundFacility)).then(() => {
-                                            return res.json({ success: true, data: createdUser });
-                                        })
-                                    }).catch(next);
-                                }).catch(next);
+                        return Role.findOne({ where: { roleId: 5 } }).then((roles) => {
+                            Promise.resolve(createdUser.addRole(roles)).then(() => {
+                                return res.json({ success: true, data: createdUser });
                             }).catch(next);
                         }).catch(next);
                     }).catch(next);
                 }).catch(next);
             }).catch(next);
-        }).catch((next) => {
-            console.log(next)
-        });
+        }).catch(next);
     }).catch(next);
 });
 
