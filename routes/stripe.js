@@ -5,6 +5,7 @@ const { User } = require("../models");
 const UserMeta = require("../models").UserMeta;
 const Facility = require("../models").Facility;
 const Lawyer_Facility = require("../models").lawyer_facility;
+const Defender_Facility = require("../models").defender_facility;
 var passport = require("passport");
 const { Op } = require("sequelize");
 var StripeConnection = require("../models").StripeConnection
@@ -23,14 +24,14 @@ router.post("/", async function(req, res, next) {
             stripe.customers
                 .create({
                     email: req.body.email,
-                    // name: "Piyush",
-                    // address: {
-                    //     line1: "510 Townsend St",
-                    //     postal_code: "560029",
-                    //     city: "San Francisco",
-                    //     state: "BL",
-                    //     country: "IN",
-                    // },
+                    name: "Piyush",
+                    address: {
+                        line1: "510 Townsend St",
+                        postal_code: "560029",
+                        city: "San Francisco",
+                        state: "BL",
+                        country: "IN",
+                    },
                 })
                 .then((customer) => {
                     stripe.customers
@@ -345,15 +346,16 @@ function setLawyerFacilityAddons(facilityList, callback) {
     let count = 0;
     facilityList.forEach((element, index, Array) => {
         if (element.defenderId) {
-            User.findOne({ where: { userId: element.defenderId } }).then((foundUser) => {
+            User.findOne({ where: { userId: element.defenderId } }).then((foundDefender) => {
                 Facility.findOne({ where: { facilityId: element.facilityId } }).then((foundFacility) => {
-                    Promise.resolve(foundUser.addFacility(foundFacility)).then(() => {
-                        if (count === Array.length - 1) {
-                            callback(foundFacility);
-                        }
-                        count++;
-                    })
-                })
+                    Defender_Facility.create(element)
+                        .then(() => {
+                            if (count === Array.length - 1) {
+                                callback(foundFacility);
+                            }
+                            count++;
+                        })
+                }).catch(next)
             })
         } else if (element.lawyerId) {
             Lawyer_Facility.create(element)
@@ -363,26 +365,10 @@ function setLawyerFacilityAddons(facilityList, callback) {
                     }
                     count++;
                 })
-                .catch((next) => {
-                    console.log(next);
-                });
+                .catch(next);
         }
     });
 }
-
-// function setDefenderFacility(facilityList, callback) {
-//     console.log(facilityList)
-//     let count = 0;
-//     facilityList.forEach((element, index, Array) => {
-//         User.findOne({ where: { userId: element.defenderId } }).then((foundUser) => {
-//             Facility.findOne({ where: { facilityId: element.facilityIds } }).then((foundFacility) => {
-//                 Promise.resolve(foundUser.addFacilities(foundFacility)).then(() => {
-//                     return res.json({ success: true, data: createdUser });
-//                 })
-//             }).catch(next);
-//         })
-//     });
-// }
 
 
 module.exports = router;

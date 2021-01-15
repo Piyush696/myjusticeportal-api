@@ -33,15 +33,13 @@ db.lawyer_case = require('./lawyer_case')(sequelize, Sequelize);
 db.bondsman_user = require('./bondsman_user')(sequelize, Sequelize);
 db.file_case = require('./file_case')(sequelize, Sequelize);
 db.Messages = require('./messages')(sequelize, Sequelize);
-
 db.Specialty = require('./specialty')(sequelize, Sequelize);
-
 db.LegalResearch = require('./legalResearch')(sequelize, Sequelize);
 db.StripeConnection = require('./stripe_connection')(sequelize, Sequelize);
 db.UserAdditionalInfo = require('./userAdditionalInfo')(sequelize, Sequelize);
 
 db.lawyer_facility = require('./lawyer_facility')(sequelize, Sequelize);
-
+db.defender_facility = require('./defender_facility')(sequelize, Sequelize);
 
 /* Mapings */
 
