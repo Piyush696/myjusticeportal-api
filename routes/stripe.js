@@ -349,9 +349,9 @@ function setLawyerFacilityAddons(facilityList, callback) {
             User.findOne({ where: { userId: element.defenderId } }).then((foundDefender) => {
                 Facility.findOne({ where: { facilityId: element.facilityId } }).then((foundFacility) => {
                     Defender_Facility.create(element)
-                        .then(() => {
+                        .then((result) => {
                             if (count === Array.length - 1) {
-                                callback(foundFacility);
+                                callback(result);
                             }
                             count++;
                         })
