@@ -11,14 +11,14 @@ const validateUtil = require('../utils/validateUser');
 
 // To upload file.
 
-router.post('/uploadFile', upload.any(), function (req, res, next) {
+router.post('/uploadFile', upload.any(), function(req, res, next) {
     console.log(req.user)
-    validateUtil.validate([3], req.user.roles, function (isAuthenticated) {
+    validateUtil.validate([3], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             let itemsProcessed = 1;
             req.files.forEach((file, index, array) => {
-                utils.uploadFile(file, file.mimetype, req.user.userId, 'mjp-private', 'private', function (fileId) {
-                    if (fileId) {  
+                utils.uploadFile(file, file.mimetype, req.user.userId, 'mjp-private', 'private', function(fileId) {
+                    if (fileId) {
                         console.log(fileId)
                         req.body.fileId = fileId;
                         File_case.create(req.body).then(() => {
@@ -31,8 +31,7 @@ router.post('/uploadFile', upload.any(), function (req, res, next) {
                     }
                 });
             });
-        }
-        else {
+        } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     })
@@ -40,16 +39,15 @@ router.post('/uploadFile', upload.any(), function (req, res, next) {
 
 // To delete a file by id.
 
-router.delete('/deleteFile/:fileId', function (req, res, next) {
-    validateUtil.validate([1,3], req.user.roles, function (isAuthenticated) {
+router.delete('/deleteFile/:fileId', function(req, res, next) {
+    validateUtil.validate([1, 3], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
-            utils.deleteFile(req.params.fileId, function (deleteFile) {
+            utils.deleteFile(req.params.fileId, function(deleteFile) {
                 if (deleteFile) {
                     res.json({ success: true });
                 }
             })
-        }
-        else {
+        } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     })
@@ -57,28 +55,27 @@ router.delete('/deleteFile/:fileId', function (req, res, next) {
 
 // To get file DownloadLink.
 
-router.post('/fileDownloadLink', function (req, res, next) {
-    validateUtil.validate([1], req.user.roles, function (isAuthenticated) {
+router.post('/fileDownloadLink', function(req, res, next) {
+    validateUtil.validate([1, 5], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             Case.findOne({
-                where: { userId: req.user.userId, caseId: req.body.caseId },
+                where: { caseId: parseInt(req.body.caseId) },
                 attributes: ['caseId'],
-                include: [
-                    {
-                        model: Files, as: 'caseFile',
-                        attributes: ['fileId', 'bucket', 'fileName', 'createdAt', 'updatedAt', 'createdByUserId'],
-                        where: { fileId: req.body.fileId }
-                    }
-                ]
+                include: [{
+                    model: Files,
+                    as: 'caseFile',
+                    attributes: ['fileId', 'bucket', 'fileName', 'createdAt', 'updatedAt', 'createdByUserId'],
+                    where: { fileId: req.body.fileId }
+                }]
             }).then((data) => {
-                utils.getSingleSignedURL(data.caseFile[0], function (downloadLink) {
+                console.log(data)
+                utils.getSingleSignedURL(data.caseFile[0], function(downloadLink) {
                     if (downloadLink) {
                         res.json({ success: true, data: downloadLink });
                     }
                 })
             }).catch(next);
-        }
-        else {
+        } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     })
