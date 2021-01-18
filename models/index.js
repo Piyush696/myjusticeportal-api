@@ -39,7 +39,7 @@ db.StripeConnection = require('./stripe_connection')(sequelize, Sequelize);
 db.UserAdditionalInfo = require('./userAdditionalInfo')(sequelize, Sequelize);
 
 db.lawyer_facility = require('./lawyer_facility')(sequelize, Sequelize);
-db.inmate_defender = require('./inmate_defender')(sequelize, Sequelize);
+db.defender_case = require('./defender_case')(sequelize, Sequelize);
 db.defender_facility = require('./defender_facility')(sequelize, Sequelize);
 
 /* Mapings */
@@ -86,9 +86,6 @@ db.Files.belongsTo(db.User, { as: 'createdBy', constraints: false });
 db.Case.belongsToMany(db.Files, { as: 'caseFile', through: 'file_case', foreignKey: 'caseId' });
 db.Files.belongsToMany(db.Case, { through: 'file_case', foreignKey: 'fileId' });
 
-db.User.belongsToMany(db.Case, { as: 'lawyer', through: 'lawyer_case', foreignKey: 'lawyerId' });
-db.Case.belongsToMany(db.User, { through: 'lawyer_case', foreignKey: 'caseId' });
-
 db.Facility.belongsToMany(db.Organization, { through: 'org_facility', foreignKey: 'facilityId' });
 db.Organization.belongsToMany(db.Facility, { through: 'org_facility', foreignKey: 'organizationId' });
 
@@ -100,10 +97,16 @@ db.User.belongsToMany(db.Facility, { through: 'user_facility', foreignKey: 'user
 db.User.belongsToMany(db.Facility, { as: 'lawyerFacility', through: 'lawyer_facility', foreignKey: 'lawyerId' });
 db.Facility.belongsToMany(db.User, { as: 'lawyerFacility', through: 'lawyer_facility', foreignKey: 'facilityId' });
 
-db.User.belongsToMany(db.User, { as: 'publicdefender', through: 'inmate_defender', foreignKey: 'publicdefenderId' });
-db.User.belongsToMany(db.User, { as: 'inmate', through: 'inmate_defender', foreignKey: 'inmateId' });
 
 db.User.belongsToMany(db.Facility, { as: 'defender', through: 'defender_facility', foreignKey: 'defenderId' });
 db.Facility.belongsToMany(db.User, { as: 'defender', through: 'defender_facility', foreignKey: 'facilityId' });
+
+
+db.User.belongsToMany(db.Case, { as: 'lawyer', through: 'lawyer_case', foreignKey: 'lawyerId' });
+db.Case.belongsToMany(db.User, { through: 'lawyer_case', foreignKey: 'caseId' });
+
+db.User.belongsToMany(db.Case, { as: 'publicdefender', through: 'defender_case', foreignKey: 'publicdefenderId' });
+db.Case.belongsToMany(db.User, { as: 'publicdefender', through: 'defender_case', foreignKey: 'caseId' });
+
 
 module.exports = db;
