@@ -17,25 +17,25 @@ const Message = require('../models').Messages;
 const upload = multer({ dest: "uploads/" });
 // To get all requested cases.
 
-router.get("/", function(req, res, next) {
-    util.validate([3, 5], req.user.roles, function(isAuthenticated) {
+router.get("/", function (req, res, next) {
+    util.validate([3, 5], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             User.findOne({
                 include: [{
-                        model: Organization
+                    model: Organization
+                },
+                {
+                    model: UserAdditionalInfo,
+                    include: [{
+                        model: Files,
+                        as: "profile",
                     },
                     {
-                        model: UserAdditionalInfo,
-                        include: [{
-                                model: Files,
-                                as: "profile",
-                            },
-                            {
-                                model: Files,
-                                as: "header",
-                            },
-                        ],
+                        model: Files,
+                        as: "header",
                     },
+                    ],
+                },
                 ],
                 where: { userId: req.user.userId },
             }).then((users) => {
@@ -47,30 +47,37 @@ router.get("/", function(req, res, next) {
     });
 });
 
-router.post("/uploadProfile", upload.any(), function(req, res, next) {
-    util.validate([3, 5], req.user.roles, function(isAuthenticated) {
-        console.log(req.files);
+router.post("/uploadProfile", upload.any(), function (req, res, next) {
+    util.validate([3, 5], req.user.roles, function (isAuthenticated) {
+        let itemsProcessed = 0
         if (isAuthenticated) {
-            req.files.forEach((file) => {
+            req.files.forEach((file, array) => {
                 utils.uploadFile(
                     file,
                     file.mimetype,
                     req.user.userId,
                     "mjp-public",
                     "public-read",
-                    function(fileId) {
+                    function (fileId) {
                         console.log(fileId);
                         if (fileId) {
-                            if (file.fieldname == 'logo') {
-                                UserAdditionalInfo.update({ ProfileImgId: fileId, userId: req.user.userId }, { where: { userId: req.user.userId } }).then(() => {
-                                    res.json({ success: true });
-                                });
+                            if (itemsProcessed == array.length) {
+                                if (file.fieldname == 'logo') {
+                                    UserAdditionalInfo.update({ ProfileImgId: fileId, userId: req.user.userId }, { where: { userId: req.user.userId } }).then(() => {
+
+                                    });
+                                } else {
+                                    UserAdditionalInfo.update({ headerImgId: fileId, userId: req.user.userId }, { where: { userId: req.user.userId } }).then(() => {
+
+                                    });
+                                }
+                                itemsProcessed++;
                             } else {
-                                UserAdditionalInfo.update({ headerImgId: fileId, userId: req.user.userId }, { where: { userId: req.user.userId } }).then(() => {
-                                    res.json({ success: true });
-                                });
+                                res.json({ success: true });
+
                             }
                         }
+
                     }
                 );
             });
@@ -82,8 +89,8 @@ router.post("/uploadProfile", upload.any(), function(req, res, next) {
 
 // To set data after case inmate approve.
 
-router.post("/inmateStatus", function(req, res, next) {
-    util.validate([1], req.user.roles, function(isAuthenticated) {
+router.post("/inmateStatus", function (req, res, next) {
+    util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Lawyer_case.update({ status: req.body.status }, {
                 where: { caseId: req.body.caseId, lawyerId: req.body.lawyerId },
@@ -96,15 +103,15 @@ router.post("/inmateStatus", function(req, res, next) {
     });
 });
 
-router.put("/", function(req, res, next) {
-    util.validate([3, 5], req.user.roles, function(isAuthenticated) {
+router.put("/", function (req, res, next) {
+    util.validate([3, 5], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             UserAdditionalInfo.findOne({ where: { userId: req.user.userId } }).then(
                 (user) => {
                     if (user) {
                         UserAdditionalInfo.update(req.body.additionalInfo, {
-                                where: { userId: req.user.userId },
-                            })
+                            where: { userId: req.user.userId },
+                        })
                             .then((data) => {
                                 res.json({ success: true, data: data });
                             })
@@ -126,32 +133,32 @@ router.put("/", function(req, res, next) {
 });
 
 //list of all organizations those who are linked to a facility and role is lawyer.
-router.get("/sponsorsUser", function(req, res, next) {
-    util.validate([1], req.user.roles, function(isAuthenticated) {
+router.get("/sponsorsUser", function (req, res, next) {
+    util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             User.findAll({
                 include: [{
-                        model: Facility,
-                        as: 'lawyerFacility',
-                        through: { attributes: [] },
-                        where: { facilityId: req.user.facilities[0].facilityId }
-                    },
-                    {
-                        model: UserAdditionalInfo,
-                        include: [{
-                            model: Files,
-                            as: "profile",
-                        }, ],
-                    },
-                    {
-                        model: Organization
-                    },
-                    {
-                        model: Role,
-                        through: { attributes: [] },
-                        attributes: ["roleId"],
-                        where: { roleId: 3 }
-                    }
+                    model: Facility,
+                    as: 'lawyerFacility',
+                    through: { attributes: [] },
+                    where: { facilityId: req.user.facilities[0].facilityId }
+                },
+                {
+                    model: UserAdditionalInfo,
+                    include: [{
+                        model: Files,
+                        as: "profile",
+                    },],
+                },
+                {
+                    model: Organization
+                },
+                {
+                    model: Role,
+                    through: { attributes: [] },
+                    attributes: ["roleId"],
+                    where: { roleId: 3 }
+                }
                 ],
             }).then((user) => {
                 var n = 2
@@ -164,26 +171,26 @@ router.get("/sponsorsUser", function(req, res, next) {
     });
 });
 
-router.get("/:userId", function(req, res, next) {
-    util.validate([1], req.user.roles, function(isAuthenticated) {
+router.get("/:userId", function (req, res, next) {
+    util.validate([1], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             User.findOne({
-                    include: [{
-                            model: Organization,
-                            attributes: [
-                                "organizationId",
-                                "name",
-                                "orgCode",
-                                "type",
-                                "specialty",
-                            ],
-                        },
-                        {
-                            model: UserAdditionalInfo,
-                        },
+                include: [{
+                    model: Organization,
+                    attributes: [
+                        "organizationId",
+                        "name",
+                        "orgCode",
+                        "type",
+                        "specialty",
                     ],
-                    where: { userId: req.params.userId },
-                })
+                },
+                {
+                    model: UserAdditionalInfo,
+                },
+                ],
+                where: { userId: req.params.userId },
+            })
                 .then((userData) => {
                     res.json({ success: true, data: userData });
                 })
@@ -195,7 +202,7 @@ router.get("/:userId", function(req, res, next) {
 });
 
 //set lawyer case
-router.post("/", function(req, res, next) {
+router.post("/", function (req, res, next) {
     req.body["status"] = "Lawyer Requested";
     Lawyer_case.create(req.body)
         .then((lawyerCases) => {
@@ -206,22 +213,22 @@ router.post("/", function(req, res, next) {
 
 // To get all requested cases.
 
-router.get("/lawyer/Cases", function(req, res, next) {
-    util.validate([3], req.user.roles, function(isAuthenticated) {
+router.get("/lawyer/Cases", function (req, res, next) {
+    util.validate([3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Lawyer_case.findAll({
-                    where: { lawyerId: req.user.userId },
-                })
+                where: { lawyerId: req.user.userId },
+            })
                 .then((foundLawyerCases) => {
                     let caseIds = foundLawyerCases.map((data) => data.caseId);
                     Case.findAll({
-                            include: [{
-                                model: User,
-                                as: "inmate",
-                                attributes: ["userId", "firstName", "lastName", "userName"],
-                            }, ],
-                            where: { caseId: caseIds },
-                        })
+                        include: [{
+                            model: User,
+                            as: "inmate",
+                            attributes: ["userId", "firstName", "lastName", "userName"],
+                        },],
+                        where: { caseId: caseIds },
+                    })
                         .then((data) => {
                             let count = 0;
                             foundLawyerCases.forEach((element, index, Array) => {
@@ -249,12 +256,12 @@ router.get("/lawyer/Cases", function(req, res, next) {
 
 // To set data after case Approved.
 
-router.post("/status-update", function(req, res, next) {
-    util.validate([3], req.user.roles, function(isAuthenticated) {
+router.post("/status-update", function (req, res, next) {
+    util.validate([3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Lawyer_case.update({ status: req.body.status }, {
-                    where: { caseId: req.body.caseId, lawyerId: req.user.userId },
-                })
+                where: { caseId: req.body.caseId, lawyerId: req.user.userId },
+            })
                 .then((data) => {
                     res.json({ success: true });
                 })
@@ -267,8 +274,8 @@ router.post("/status-update", function(req, res, next) {
 
 
 // find lawyer case count
-router.get("/dasboard/count", function(req, res, next) {
-    util.validate([3], req.user.roles, function(isAuthenticated) {
+router.get("/dasboard/count", function (req, res, next) {
+    util.validate([3], req.user.roles, function (isAuthenticated) {
         if (isAuthenticated) {
             Lawyer_case.findAndCountAll({
                 where: { lawyerId: req.user.userId }
