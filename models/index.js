@@ -39,6 +39,7 @@ db.StripeConnection = require('./stripe_connection')(sequelize, Sequelize);
 db.UserAdditionalInfo = require('./userAdditionalInfo')(sequelize, Sequelize);
 
 db.lawyer_facility = require('./lawyer_facility')(sequelize, Sequelize);
+db.inmate_defender = require('./inmate_defender')(sequelize, Sequelize);
 db.defender_facility = require('./defender_facility')(sequelize, Sequelize);
 
 /* Mapings */
