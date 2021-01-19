@@ -346,17 +346,14 @@ function setLawyerFacilityAddons(facilityList, callback) {
     let count = 0;
     facilityList.forEach((element, index, Array) => {
         if (element.defenderId) {
-            User.findOne({ where: { userId: element.defenderId } }).then((foundDefender) => {
-                Facility.findOne({ where: { facilityId: element.facilityId } }).then((foundFacility) => {
-                    Defender_Facility.create(element)
-                        .then((result) => {
-                            if (count === Array.length - 1) {
-                                callback(result);
-                            }
-                            count++;
-                        })
-                }).catch(next)
-            })
+
+            Defender_Facility.create(element)
+                .then((result) => {
+                    if (count === Array.length - 1) {
+                        callback(result);
+                    }
+                    count++;
+                })
         } else if (element.lawyerId) {
             Lawyer_Facility.create(element)
                 .then((result) => {
@@ -365,7 +362,6 @@ function setLawyerFacilityAddons(facilityList, callback) {
                     }
                     count++;
                 })
-                .catch(next);
         }
     });
 }

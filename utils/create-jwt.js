@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 
 module.exports = {
-    createJwt: function (userData, rememberMe, callback) {
+    createJwt: function(userData, rememberMe, callback) {
         let expiresIn = rememberMe ? '15d' : '2h';
         let token = jwt.sign({
             userId: userData.userId,
@@ -14,7 +14,8 @@ module.exports = {
             status: userData.status,
             roles: userData.roles,
             facilities: userData.facilities,
-            organizationId: userData.organizationId
+            organizationId: userData.organizationId,
+            isSelfPaid: userData.isSelfPaid
         }, config.jwt.secret, { expiresIn: expiresIn, algorithm: config.jwt.algorithm });
         callback(token);
     }
