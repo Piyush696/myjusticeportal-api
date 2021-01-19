@@ -51,7 +51,7 @@ router.post("/uploadProfile", upload.any(), function (req, res, next) {
     util.validate([3, 5], req.user.roles, function (isAuthenticated) {
         let itemsProcessed = 0
         if (isAuthenticated) {
-            req.files.forEach((file, array) => {
+            req.files.forEach((file, index, array) => {
                 utils.uploadFile(
                     file,
                     file.mimetype,
@@ -59,25 +59,20 @@ router.post("/uploadProfile", upload.any(), function (req, res, next) {
                     "mjp-public",
                     "public-read",
                     function (fileId) {
-                        console.log(fileId);
                         if (fileId) {
-                            if (itemsProcessed == array.length) {
-                                if (file.fieldname == 'logo') {
-                                    UserAdditionalInfo.update({ ProfileImgId: fileId, userId: req.user.userId }, { where: { userId: req.user.userId } }).then(() => {
-
-                                    });
-                                } else {
-                                    UserAdditionalInfo.update({ headerImgId: fileId, userId: req.user.userId }, { where: { userId: req.user.userId } }).then(() => {
-
-                                    });
-                                }
-                                itemsProcessed++;
+                            if (file.fieldname == 'logo') {
+                                UserAdditionalInfo.update({ ProfileImgId: fileId, userId: req.user.userId }, { where: { userId: req.user.userId } }).then(() => {
+                                });
                             } else {
-                                res.json({ success: true });
+                                UserAdditionalInfo.update({ headerImgId: fileId, userId: req.user.userId }, { where: { userId: req.user.userId } }).then(() => {
 
+                                });
                             }
+                            if (itemsProcessed == array.length - 1) {
+                                res.json({ success: true });
+                            }
+                            itemsProcessed += 1
                         }
-
                     }
                 );
             });
