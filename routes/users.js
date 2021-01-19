@@ -28,6 +28,9 @@ router.get('/', passport.authenticate('jwt', { session: false }), function (req,
                 },
             }
         ],
+        order: [
+            ['createdAt', 'DESC']
+        ]
     }).then((user) => {
         res.json({ success: true, data: user });
     }).catch(next)
@@ -46,9 +49,9 @@ router.get('/user', passport.authenticate('jwt', { session: false }), function (
             {
                 model: Facility,
                 through: {
-                  attributes: [],
+                    attributes: [],
                 },
-              },
+            },
             {
                 model: userMeta
             }
@@ -113,7 +116,7 @@ router.put('/', function (req, res, next) {
 // myacc User Update
 
 router.put('/updateUser', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-    if(req.body.userEmail){
+    if (req.body.userEmail) {
         req.body['email'] = req.body.userEmail
     }
     User.update(req.body, {
@@ -174,7 +177,7 @@ router.get('/singleUser/:userId', passport.authenticate('jwt', { session: false 
                 {
                     model: Facility, through: {
                         attributes: []
-                    } 
+                    }
                 }
             ], where: { userId: req.params.userId }
         }).then((userData) => {
