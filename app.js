@@ -22,6 +22,8 @@ const paralegalRegistrationRouter = require('./routes/registration/paralegal');
 const publicDefenderRegistrationRouter = require('./routes/registration/public-defender');
 const bondsmanRegistrationRouter = require('./routes/registration/bondsman');
 
+const invitedpublicDefenderRegistrationRouter = require('./routes/registration/invited-public-defender');
+
 const bondsmanUserRouter = require('./routes/bondsmanUser');
 const userAdditionalinfoRouter = require('./routes/userAdditionalInfo');
 
@@ -92,6 +94,8 @@ app.use('/api/lawyer-registration', lawyerRegistrationRouter);
 app.use('/api/paralegal-registration', paralegalRegistrationRouter);
 app.use('/api/public-defender-registration', publicDefenderRegistrationRouter);
 app.use('/api/bondsman-registration', bondsmanRegistrationRouter);
+
+app.use('/api/invited-public-defender-registration', invitedpublicDefenderRegistrationRouter);
 
 app.use('/api/login', allUsersLoginRoutes);
 // app.use('/api/message', socketRouter);

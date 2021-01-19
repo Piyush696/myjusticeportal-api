@@ -32,7 +32,6 @@ router.get('/', function(req, res, next) {
 })
 
 router.get('/allCases/:userId', function(req, res, next) {
-    console.log('ew')
     util.validate([5], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             Case.findAll({
@@ -65,7 +64,6 @@ router.get('/allInmateAssignedCases', function(req, res, next) {
                 where: { publicdefenderId: req.user.userId },
             }).then(user => {
                 let caseIds = user.map(data => data.caseId);
-                console.log(caseIds)
                 Case.findAll({
                     attributes: ['caseId', 'briefDescriptionOfChargeOrLegalMatter', 'legalMatter', 'otherInformation', 'updatedAt'],
                     where: { caseId: caseIds }
