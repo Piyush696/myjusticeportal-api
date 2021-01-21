@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         tagline: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
         description: {
             type: DataTypes.STRING(5000),
