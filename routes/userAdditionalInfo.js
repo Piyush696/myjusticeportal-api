@@ -49,37 +49,63 @@ router.get("/", function (req, res, next) {
 
 router.post("/uploadProfile", upload.any(), function (req, res, next) {
     util.validate([3, 5], req.user.roles, function (isAuthenticated) {
-        let itemsProcessed = 0
         if (isAuthenticated) {
-            req.files.forEach((file, index, array) => {
-                utils.uploadFile(
-                    file,
-                    file.mimetype,
-                    req.user.userId,
-                    "mjp-public",
-                    "public-read",
-                    function (fileId) {
-                        if (fileId) {
-                            if (file.fieldname == 'logo') {
-                                UserAdditionalInfo.update({ ProfileImgId: fileId, userId: req.user.userId }, { where: { userId: req.user.userId } }).then(() => {
-                                });
-                            } else {
-                                UserAdditionalInfo.update({ headerImgId: fileId, userId: req.user.userId }, { where: { userId: req.user.userId } }).then(() => {
+            UserAdditionalInfo.findOne({ where: { userId: req.user.userId } }).then(data => {
+                if (data) {
+                    req.files.forEach((file, index, array) => {
+                        utils.uploadFile(
+                            file,
+                            file.mimetype,
+                            req.user.userId,
+                            "mjp-public",
+                            "public-read",
+                            function (fileId) {
+                                if (fileId) {
+                                    if (file.fieldname == 'logo') {
+                                        UserAdditionalInfo.update({ ProfileImgId: fileId }, { where: { userId: data.userId } }).then(() => {
+                                            res.json({ success: true });
+                                        });
+                                    } else {
+                                        UserAdditionalInfo.update({ headerImgId: fileId }, { where: { userId: data.userId } }).then(() => {
+                                            res.json({ success: true });
+                                        });
+                                    }
+                                }
+                            }
+                        );
+                    });
+                } else {
+                    UserAdditionalInfo.create({ userId: req.user.userId }).then(user => {
+                        req.files.forEach((file, index, array) => {
+                            utils.uploadFile(
+                                file,
+                                file.mimetype,
+                                req.user.userId,
+                                "mjp-public",
+                                "public-read",
+                                function (fileId) {
+                                    if (fileId) {
+                                        if (file.fieldname == 'logo') {
+                                            UserAdditionalInfo.update({ ProfileImgId: fileId }, { where: { userId: user.userId } }).then(() => {
+                                                res.json({ success: true });
+                                            });
+                                        } else {
+                                            UserAdditionalInfo.update({ headerImgId: fileId }, { where: { userId: user.userId } }).then(() => {
+                                                res.json({ success: true });
+                                            });
+                                        }
+                                    }
+                                }
+                            );
+                        });
+                    })
 
-                                });
-                            }
-                            if (itemsProcessed == array.length - 1) {
-                                res.json({ success: true });
-                            }
-                            itemsProcessed += 1
-                        }
-                    }
-                );
-            });
+                }
+            })
         } else {
             res.status(401).json({ success: false, data: "User not authorized." });
         }
-    });
+    })
 });
 
 // To set data after case inmate approve.
