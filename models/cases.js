@@ -12,13 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         legalMatter: {
             type: DataTypes.STRING,
-            allowNull: false,
-            validate: {
-                len: {
-                    args: [1, 500],
-                    msg: "Legal matter must be between 1 and 500 characters in length"
-                }
-            }
+            allowNull: true,
         },
         countyOfArrest: {
             type: DataTypes.STRING,
@@ -40,13 +34,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         briefDescriptionOfChargeOrLegalMatter: {
             type: DataTypes.STRING,
-            allowNull: false,
-            validate: {
-                len: {
-                    args: [3, 500],
-                    msg: "Brief Description Of Charge Or Legal Matter must be between 3 and 500 characters in length"
-                }
-            }
+            allowNull: true,
 
         },
         attorneyName: {
