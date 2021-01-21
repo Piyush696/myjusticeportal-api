@@ -65,6 +65,11 @@ router.get('/allInmateAssignedCases', function(req, res, next) {
             }).then(user => {
                 let caseIds = user.map(data => data.caseId);
                 Case.findAll({
+                    include: [{
+                        model: User,
+                        as: 'inmate',
+                        attributes: ['userId', 'firstName', 'middleName', 'lastName'],
+                    }],
                     attributes: ['caseId', 'briefDescriptionOfChargeOrLegalMatter', 'legalMatter', 'otherInformation', 'updatedAt'],
                     where: { caseId: caseIds }
                 }).then(cases => {
