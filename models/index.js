@@ -103,7 +103,7 @@ db.Facility.belongsToMany(db.User, { as: 'defender', through: 'defender_facility
 
 
 db.User.belongsToMany(db.Case, { as: 'lawyer', through: 'lawyer_case', foreignKey: 'lawyerId' });
-db.Case.belongsToMany(db.User, { through: 'lawyer_case', foreignKey: 'caseId' });
+db.Case.belongsToMany(db.User, { as: 'lawyer', through: 'lawyer_case', foreignKey: 'caseId' });
 
 db.User.belongsToMany(db.Case, { as: 'publicdefender', through: 'defender_case', foreignKey: 'publicdefenderId' });
 db.Case.belongsToMany(db.User, { as: 'publicdefender', through: 'defender_case', foreignKey: 'caseId' });

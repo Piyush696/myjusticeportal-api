@@ -17,10 +17,8 @@ router.post('/registration', async function(req, res, next) {
     req.body.user.password = User.generateHash(req.body.user.password);
     User.update(req.body.user, {
         where: { userName: req.body.user.userName },
-        returning: true,
     }).then(() => {
         User.findOne({ where: { userName: req.body.user.userName } }).then((user) => {
-            console.log(user)
             req.body.userMeta.map((element) => {
                 element['userId'] = user.dataValues.userId
                 element['createdBy'] = user.dataValues.userId

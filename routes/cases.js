@@ -97,6 +97,44 @@ router.get('/getPendingCaseInfo', function(req, res, next) {
     })
 })
 
+//requested case with caseId
+router.get('/assignedCase/:caseId', function(req, res, next) {
+    util.validate([1, 3, 5], req.user.roles, function(isAuthenticated) {
+        if (isAuthenticated) {
+            Case.findOne({
+                include: [{
+                        model: User,
+                        as: 'lawyer',
+                        attributes: ['userId', 'firstName', 'lastName', 'userName']
+                    },
+                    {
+                        model: User,
+                        as: 'inmate',
+                        attributes: ['userId', 'firstName', 'lastName', 'userName']
+                    },
+                    {
+                        model: Files,
+                        as: 'caseFile',
+                        attributes: ['fileId', 'fileName', 'fileType', 'createdAt', 'updatedAt', 'createdByUserId'],
+                        include: [{
+                            model: User,
+                            as: 'createdBy',
+                            attributes: ['userId', 'firstName', 'lastName', 'userName']
+                        }]
+                    },
+                ],
+                where: { caseId: req.params.caseId },
+                attributes: ['caseId', 'legalMatter', 'countyOfArrest', 'stateOfArrest', 'dateOfArrest', 'nextCourtDate', 'briefDescriptionOfChargeOrLegalMatter']
+            }).then(data => {
+                res.json({ success: true, data: data });
+            }).catch((next) => {
+                console.log(next)
+            })
+        } else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    })
+})
 
 // find case with caseId.
 

@@ -20,19 +20,17 @@ const upload = multer({ dest: 'uploads/' });
 
 // To invite a user by mail.
 
-router.post('/invite-user', function (req, res, next) {
-    util.validate([3, 4, 5, 6], req.user.roles, function (isAuthenticated) {
+router.post('/invite-user', function(req, res, next) {
+    util.validate([3, 4, 5, 6], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             User.findOne({ where: { userName: req.body.userName } }).then(singleUserData => {
                 if (singleUserData) {
                     res.json({ success: false, data: 'Email exist' });
                 } else {
                     User.findOne({
-                        include: [
-                            {
-                                model: Organization
-                            }
-                        ],
+                        include: [{
+                            model: Organization
+                        }],
                         where: { userId: req.user.userId },
                         attributes: ['userId', 'userName', 'firstName', 'middleName', 'lastName']
                     }).then(foundUserData => {
@@ -66,7 +64,7 @@ router.post('/invite-user', function (req, res, next) {
                                                         }
                                                     }
                                                 }
-                                            }, function (error, response) {
+                                            }, function(error, response) {
                                                 if ((response.body.response.status !== 'unauthorized') && (response.body.response.status != 'bad_request')) {
                                                     if (response.body.data.message.status == 'queued') {
                                                         res.json({ success: true, data: 'Invitation sent' });
@@ -87,8 +85,7 @@ router.post('/invite-user', function (req, res, next) {
                     }).catch(next);
                 }
             });
-        }
-        else {
+        } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     })
@@ -96,30 +93,28 @@ router.post('/invite-user', function (req, res, next) {
 
 // get Organisation and Address.
 
-router.get('/', function (req, res, next) {
-    util.validate([3, 4, 5, 6], req.user.roles, function (isAuthenticated) {
+router.get('/', function(req, res, next) {
+    util.validate([3, 4, 5, 6], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             User.findOne({
-                include: [
-                    {
-                        model: Organization, attributes: ['organizationId', 'name', 'tagline', 'description', 'specialty','colorPiker'],
-                        include: [
-                            {
-                                model: Address
-                            },
-                            {
-                                model: Files, as: 'logo'
-                            }
-                        ]
-                    }
-                ],
+                include: [{
+                    model: Organization,
+                    attributes: ['organizationId', 'name', 'tagline', 'description', 'specialty', 'colorPiker'],
+                    include: [{
+                            model: Address
+                        },
+                        {
+                            model: Files,
+                            as: 'logo'
+                        }
+                    ]
+                }],
                 where: { userId: req.user.userId },
                 attributes: ['userId', 'firstName', 'lastName', 'userName', 'createdAt']
             }).then(data => {
                 res.json({ success: true, data: data });
             }).catch(next)
-        }
-        else {
+        } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     })
@@ -129,11 +124,11 @@ router.get('/', function (req, res, next) {
 
 //uploadLogo
 
-router.post('/uploadLogo', upload.any(), function (req, res, next) {
-    util.validate([3,4,5,6], req.user.roles, function (isAuthenticated) {
+router.post('/uploadLogo', upload.any(), function(req, res, next) {
+    util.validate([3, 4, 5, 6], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             req.files.forEach((file) => {
-                utils.uploadFile(file, file.mimetype, req.user.userId, 'mjp-public', 'public-read', function (fileId) {
+                utils.uploadFile(file, file.mimetype, req.user.userId, 'mjp-public', 'public-read', function(fileId) {
                     if (fileId) {
                         Organization.update({ logoFileId: fileId }, { where: { organizationId: req.user.organizationId } }).then(() => {
                             res.json({ success: true });
@@ -141,37 +136,33 @@ router.post('/uploadLogo', upload.any(), function (req, res, next) {
                     }
                 });
             });
-        }
-        else {
+        } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     })
 });
 
 
-router.get('/all-user', function (req, res, next) {
-    util.validate([3, 4, 5, 6], req.user.roles, function (isAuthenticated) {
+router.get('/all-user', function(req, res, next) {
+    util.validate([3, 4, 5, 6], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             Organization.findOne({
-                include: [
-                    {
-                        model: User, attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName','mobile', 'createdAt'],
-                        include: [
-                            {
-                                model: Role, through: {
-                                    attributes: []
-                                }
-                            }
-                        ]
-                    }
-                ],
+                include: [{
+                    model: User,
+                    attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'mobile', 'createdAt'],
+                    include: [{
+                        model: Role,
+                        through: {
+                            attributes: []
+                        }
+                    }]
+                }],
                 where: { organizationId: req.user.organizationId },
                 attributes: ['organizationId']
             }).then(data => {
                 res.json({ success: true, data: data });
             }).catch(next)
-        }
-        else {
+        } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     })
@@ -179,24 +170,22 @@ router.get('/all-user', function (req, res, next) {
 
 // get facilities of organisation.
 
-router.get('/all-facilities', function (req, res, next) {
-    util.validate([3, 4, 5, 6], req.user.roles, function (isAuthenticated) {
+router.get('/all-facilities', function(req, res, next) {
+    util.validate([3, 4, 5, 6], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             Organization.findOne({
-                include: [
-                    {
-                        model: Facility, through: {
-                            attributes: []
-                        }
-                    },
-                ],
+                include: [{
+                    model: Facility,
+                    through: {
+                        attributes: []
+                    }
+                }, ],
                 where: { organizationId: req.user.organizationId },
                 attributes: ['organizationId']
             }).then(data => {
                 res.json({ success: true, data: data });
             }).catch(next)
-        }
-        else {
+        } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     })
@@ -204,20 +193,17 @@ router.get('/all-facilities', function (req, res, next) {
 
 // Add facilities to Organisation.
 
-router.post('/add-facility', function (req, res, next) {
-    util.validate([3, 4, 5, 6], req.user.roles, function (isAuthenticated) {
+router.post('/add-facility', function(req, res, next) {
+    util.validate([3, 4, 5, 6], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
-            Organization.findOne(
-                { where: { organizationId: req.user.organizationId } }
-            ).then((org) => {
+            Organization.findOne({ where: { organizationId: req.user.organizationId } }).then((org) => {
                 Facility.findAll({ where: { facilityId: req.body.facilityIds } }).then((foundFacility) => {
                     Promise.resolve(org.addFacility(foundFacility)).then((userFacility) => {
                         res.json({ success: true, data: userFacility });
                     }).catch(next);
                 }).catch(next);
             }).catch(next);
-        }
-        else {
+        } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     })
@@ -225,20 +211,17 @@ router.post('/add-facility', function (req, res, next) {
 
 // Remove facility to Organisation.
 
-router.post('/remove-facility', function (req, res, next) {
-    util.validate([3, 4, 5, 6], req.user.roles, function (isAuthenticated) {
+router.post('/remove-facility', function(req, res, next) {
+    util.validate([3, 4, 5, 6], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
-            Organization.findOne(
-                { where: { organizationId: req.user.organizationId } }
-            ).then((org) => {
+            Organization.findOne({ where: { organizationId: req.user.organizationId } }).then((org) => {
                 Facility.findOne({ where: { facilityId: req.body.facilityId } }).then((foundFacility) => {
                     Promise.resolve(org.removeFacility(foundFacility)).then((userFacility) => {
                         res.json({ success: true, data: userFacility });
                     }).catch(next);
                 }).catch(next);
             }).catch(next);
-        }
-        else {
+        } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     })
@@ -246,35 +229,45 @@ router.post('/remove-facility', function (req, res, next) {
 
 // update organization.
 
-router.put('/:addressId', function (req, res, next) {
-    util.validate([3, 4, 5, 6], req.user.roles, function (isAuthenticated) {
+router.put('/:addressId', function(req, res, next) {
+    util.validate([3, 4, 5, 6], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             Organization.update(req.body.organization, { where: { organizationId: req.user.organizationId } }).then(() => {
                 Address.update(req.body.address, { where: { addressId: req.params.addressId } }).then((data) => {
                     res.json({ success: true, data: data });
                 })
-            }).catch((err)=>{
+            }).catch((err) => {
                 res.json({ success: false, data: err });
             })
-        }
-        else {
+        } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     })
 })
 
-router.delete('/deletedInvitedUser/:userId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-    util.validate([3], req.user.roles, function (isAuthenticated) {
-        if(isAuthenticated){
+router.delete('/deletedInvitedUser/:userId', passport.authenticate('jwt', { session: false }), function(req, res, next) {
+    util.validate([3], req.user.roles, function(isAuthenticated) {
+        if (isAuthenticated) {
             User.destroy({
                 where: { userId: req.params.userId }
             }).then(() => {
                 res.json({ success: true });
             }).catch(next);
         } else {
-            res.status(401).json({ success: false, data: 'User not authorized.' }); 
+            res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     })
 });
+
+
+router.put('/updateOrgUserDetails', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    req.body['userName'] = req.body.email
+    console.log('ytftyfy', req.body)
+    User.update(req.body, {
+        where: { userId: req.body.userId }
+    }).then(result => {
+        res.json({ success: true, data: result });
+    }).catch(next);
+})
 
 module.exports = router;
