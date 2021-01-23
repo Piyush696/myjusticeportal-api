@@ -65,6 +65,11 @@ router.get('/allInmateAssignedCases', function(req, res, next) {
             }).then(user => {
                 let caseIds = user.map(data => data.caseId);
                 Case.findAll({
+                    include: [{
+                        model: User,
+                        as: 'inmate',
+                        attributes: ['userId', 'firstName', 'middleName', 'lastName'],
+                    }],
                     attributes: ['caseId', 'briefDescriptionOfChargeOrLegalMatter', 'legalMatter', 'otherInformation', 'updatedAt'],
                     where: { caseId: caseIds }
                 }).then(cases => {
@@ -107,6 +112,35 @@ router.post('/', function(req, res, next) {
                     res.status(400).json(err)
                 })
             })
+        } else {
+            res.status(401).json({ success: false, data: "User not authorized." });
+        }
+    })
+})
+
+//get user for lawyer
+router.get('/allUser', function(req, res, next) {
+    util.validate([5], req.user.roles, function(isAuthenticated) {
+        if (isAuthenticated) {
+            defender_case.findAll({
+                where: { publicdefenderId: req.user.userId },
+            }).then(user => {
+                let caseIds = user.map(data => data.caseId);
+                Case.findAll({
+                    include: [{
+                        model: User,
+                        as: 'inmate',
+                        attributes: ['userId', 'firstName', 'middleName', 'lastName'],
+                    }],
+                    attributes: ['caseId'],
+                    where: { caseId: caseIds }
+                }).then(cases => {
+                    let connectedInmates = [];
+                    let filteredInmates = cases.map(x => x.inmate)
+                    connectedInmates = filteredInmates.filter((v, i, a) => a.findIndex(t => (t.userId === v.userId)) === i)
+                    res.json({ success: true, data: connectedInmates });
+                }).catch(next)
+            }).catch(next)
         } else {
             res.status(401).json({ success: false, data: "User not authorized." });
         }

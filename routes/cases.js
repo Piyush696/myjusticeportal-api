@@ -124,7 +124,7 @@ router.get('/assignedCase/:caseId', function(req, res, next) {
                     },
                 ],
                 where: { caseId: req.params.caseId },
-                attributes: ['caseId', 'legalMatter', 'countyOfArrest', 'stateOfArrest', 'dateOfArrest', 'nextCourtDate', 'briefDescriptionOfChargeOrLegalMatter']
+                attributes: ['caseId', 'legalMatter', 'countyOfArrest', 'stateOfArrest', 'dateOfArrest', 'otherInformation', 'nextCourtDate', 'briefDescriptionOfChargeOrLegalMatter']
             }).then(data => {
                 res.json({ success: true, data: data });
             }).catch((next) => {
