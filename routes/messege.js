@@ -99,28 +99,53 @@ router.get('/users', function(req, res, next) {
 
 
 // get old messsged user.
-router.get('/oldUser', function(req, res, next) {
+router.get('/connectedLawyers', function(req, res, next) {
     util.validate([1], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
-            User.findOne({
+            Case.findAll({
                 include: [{
-                    model: Case,
-                }],
+                        model: User,
+                        as: 'lawyer',
+                        attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName'],
+                        include: [{
+                            model: Organization,
+                            attributes: ['name']
+                        }],
+                    },
+                    {
+                        model: User,
+                        as: 'publicdefender',
+                        attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName'],
+                    }
+                ],
+                attributes: ['caseId'],
                 where: { userId: req.user.userId }
-            }).then((user) => {
-                let caseIds = user.cases.map((x) => x.caseId)
-                Lawyer_case.findAll({
-                    where: { caseId: caseIds, status: 'Connected' }
-                }).then((lawyer) => {
-                    let userIds = lawyer.map((x) => x.lawyerId)
-                    User.findAll({
-                        where: { userId: userIds, status: true },
-                        attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName'],
-                    }).then((connectedLawyers) => {
-                        res.json({ success: true, data: connectedLawyers });
-                    })
-                })
-            })
+            }).then(data => {
+                let allLawyers = [];
+                data.forEach((element) => {
+                    let x = {};
+                    if (element.lawyer && element.lawyer.length > 0 && element.lawyer[0].lawyer_case.status === 'Connected') {
+                        x['userId'] = element.lawyer[0].userId;
+                        x['firstName'] = element.lawyer[0].firstName;
+                        x['middleName'] = element.lawyer[0].middleName;
+                        x['lastName'] = element.lawyer[0].lastName;
+                        x['userName'] = element.lawyer[0].userName;
+                        x['role'] = 'Lawyer';
+                        allLawyers.push(x)
+                    }
+                    if (element.publicdefender && element.publicdefender.length > 0) {
+                        x['userId'] = element.publicdefender[0].userId;
+                        x['firstName'] = element.publicdefender[0].firstName;
+                        x['middleName'] = element.publicdefender[0].middleName;
+                        x['lastName'] = element.publicdefender[0].lastName;
+                        x['userName'] = element.publicdefender[0].userName;
+                        x['role'] = 'Defender';
+                        allLawyers.push(x)
+                    }
+                });
+                lawyers = allLawyers.filter((v, i, a) => a.findIndex(t => (t.userId === v.userId)) === i)
+                res.json({ success: true, data: lawyers });
+            }).catch(next)
         } else {
             res.json({ success: true, data: 'Unauthorized user.' });
         }
