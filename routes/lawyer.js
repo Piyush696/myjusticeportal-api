@@ -11,8 +11,8 @@ const Lawyer_case = require('../models').lawyer_case;
 
 // To get all approved cases user.
 
-router.get('/users', function (req, res, next) {
-    util.validate([3], req.user.roles, function (isAuthenticated) {
+router.get('/users', function(req, res, next) {
+    util.validate([3], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             console.log('foundLawyerCases')
             console.log(req.user.userId)
@@ -21,23 +21,22 @@ router.get('/users', function (req, res, next) {
             }).then((foundLawyerCases) => {
                 let caseIds = foundLawyerCases.map(data => data.caseId);
                 User.findOne({
-                    include: [
-                        {
-                            model: Case, as: 'lawyer', attributes: ['caseId'],
-                            where: { caseId: caseIds },
-                            include: [
-                                {
-                                    model: User, as: 'inmate',
-                                    attributes: ['userId', 'firstName', 'middleName', 'lastName'],
-                                    include: [
-                                        {
-                                            model: Facility, through: { attributes: [] }, attributes: ['facilityId', 'facilityName'],
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    ],
+                    include: [{
+                        model: Case,
+                        as: 'lawyer',
+                        attributes: ['caseId'],
+                        where: { caseId: caseIds },
+                        include: [{
+                            model: User,
+                            as: 'inmate',
+                            attributes: ['userId', 'firstName', 'middleName', 'lastName'],
+                            include: [{
+                                model: Facility,
+                                through: { attributes: [] },
+                                attributes: ['facilityId', 'facilityName'],
+                            }]
+                        }]
+                    }],
                     where: { userId: req.user.userId },
                     attributes: ['userId']
                 }).then((caseData) => {
@@ -46,25 +45,24 @@ router.get('/users', function (req, res, next) {
                     res.json({ success: true, data: inmates });
                 }).catch(next);
             }).catch(next);
-        }
-        else {
+        } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     });
 })
 
-router.post('/:caseId', function (req, res, next) {
-    util.validate([1], req.user.roles, function (isAuthenticated) {
+router.put('/:caseId', function(req, res, next) {
+    console.log(req.body, req.params)
+    util.validate([1], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
-            Lawyer_case.destroy({ where: { lawyerId: req.body.lawyerId, caseId: req.params.caseId } }).then((data) => {
+            Lawyer_case.update({ status: 'Disconnected' }, { where: { lawyerId: req.body.lawyerId, caseId: parseInt(req.params.caseId) } }).then((data) => {
                 res.json({ success: true, data: data });
             }).catch((next) => {
                 console.log(next)
             })
-        }
-        else {
+        } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     })
 })
-module.exports = router; 
+module.exports = router;

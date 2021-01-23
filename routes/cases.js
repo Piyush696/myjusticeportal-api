@@ -36,10 +36,17 @@ router.get('/', function(req, res, next) {
         if (isAuthenticated) {
             Case.findAll({
                 include: [{
-                    model: User,
-                    as: 'inmate',
-                    attributes: ['userId', 'firstName', 'lastName', 'userName']
-                }],
+                        model: User,
+                        as: 'inmate',
+                        attributes: ['userId', 'firstName', 'lastName', 'userName']
+                    },
+                    {
+                        model: User,
+                        as: 'lawyer',
+                        attributes: ['userId'],
+                        through: { attributes: [] }
+                    }
+                ],
                 where: { userId: req.user.userId }
             }).then(data => {
                 res.json({ success: true, data: data });
@@ -233,7 +240,11 @@ router.get('/lawyer/allCases', function(req, res, next) {
     util.validate([3], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             Lawyer_case.findAll({
-                where: { lawyerId: req.user.userId }
+                where: {
+                    $or: [{ status: 'Connected' }, { status: 'Disconnected' }],
+                    lawyerId: req.user.userId
+                },
+                // where: { lawyerId: req.user.userId,status: }
             }).then((foundLawyerCases) => {
                 let caseIds = foundLawyerCases.map(data => data.caseId);
                 User.findOne({
