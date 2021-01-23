@@ -57,40 +57,19 @@ router.get('/getPendingCaseInfo', function(req, res, next) {
             Case.findAll({
                 include: [{
                     model: User,
-                    as: 'inmate',
-                    attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName']
+                    as: 'lawyer',
+                    attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName'],
+                    include: [{
+                        model: Organization,
+                        attributes: ['name']
+                    }],
                 }],
+                attributes: ['caseId', 'legalMatter', 'briefDescriptionOfChargeOrLegalMatter'],
                 where: { userId: req.user.userId }
             }).then(data => {
-                let caseIds = data.map(data => data.caseId);
-                Lawyer_case.findAll({ where: { caseId: caseIds } }).then((lawyers) => {
-                    let lawyerIds = lawyers.map(data => data.lawyerId);
-                    User.findAll({
-                        include: [{
-                            model: Organization,
-                            attributes: ['name']
-                        }],
-                        attributes: ['userId', 'firstName', 'lastName', 'userName'],
-                        where: { userId: lawyerIds }
-                    }).then((users) => {
-                        let count = 0;
-                        lawyers.forEach((element, index, Array) => {
-                            users.map((data) => {
-                                if (data.dataValues.userId === element.dataValues.lawyerId) {
-                                    data.dataValues['sent'] = element.dataValues.updatedAt
-                                    data.dataValues['status'] = element.dataValues.status
-                                    data.dataValues['caseId'] = element.dataValues.caseId
-                                    if (count === Array.length - 1) {
-                                        let x = users
-                                        res.json({ success: true, data: x });
-                                    }
-                                    count++
-                                }
-                            })
-                        })
-                    })
-                })
-            })
+                let userAssignedLawyerCase = data.filter(x => x.lawyer.length > 0)
+                res.json({ success: true, data: userAssignedLawyerCase });
+            }).catch(next)
         } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
