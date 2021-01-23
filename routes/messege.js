@@ -44,7 +44,7 @@ router.get('/', function(req, res, next) {
 
 // get history messages of user.
 router.get('/allMessages/:receiverId', function(req, res, next) {
-    util.validate([1, 3], req.user.roles, function(isAuthenticated) {
+    util.validate([1, 3, 5], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             Message.findAll({
                 where: {
@@ -69,28 +69,27 @@ router.get('/users', function(req, res, next) {
             Lawyer_case.findAll({
                 where: { lawyerId: req.user.userId, status: 'Connected' },
             }).then((data) => {
-                let caseIds = data.map(x => x.caseId)
-                Case.findAll({
-                    include: [{
-                        model: User,
-                        where: { status: true },
-                        as: 'inmate',
-                        attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName']
-                    }],
-                    where: { caseId: caseIds },
-                    attributes: ['caseId']
-                }).then((users) => {
-                    let connectedInmates = [];
-                    let count = 0;
-                    users.forEach((element, index, Array) => {
-                        connectedInmates.push(element.inmate)
-                        if (count === Array.length - 1) {
-                            connectedInmates = connectedInmates.filter((v, i, a) => a.findIndex(t => (t.userId === v.userId)) === i)
-                            res.json({ success: true, data: connectedInmates })
-                        }
-                        count++
-                    });
-                }).catch(next)
+                if (data) {
+                    let caseIds = data.map(x => x.caseId)
+                    Case.findAll({
+                        include: [{
+                            model: User,
+                            where: { status: true },
+                            as: 'inmate',
+                            attributes: ['userId', 'firstName', 'lastName', 'middleName', 'userName']
+                        }],
+                        where: { caseId: caseIds },
+                        attributes: ['caseId']
+                    }).then((users) => {
+                        let connectedInmates = [];
+                        let filteredInmates = users.map(x => x.inmate)
+                        connectedInmates = filteredInmates.filter((v, i, a) => a.findIndex(t => (t.userId === v.userId)) === i)
+                        res.json({ success: true, data: connectedInmates })
+                    }).catch(next)
+                } else {
+                    res.json({ success: false, data: 'No data found.' });
+                }
+
             }).catch(next)
         } else {
             res.json({ success: true, data: 'Unauthorized user.' });
