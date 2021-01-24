@@ -3,7 +3,6 @@ const router = express.Router();
 
 const User = require("../models").User;
 const Organization = require("../models").Organization;
-const Address = require("../models").Address;
 const Case = require("../models").Case;
 const UserAdditionalInfo = require("../models").UserAdditionalInfo;
 const Files = require("../models").Files;
@@ -15,6 +14,7 @@ const multer = require("multer");
 const { Role } = require("../models");
 const Message = require('../models').Messages;
 const upload = multer({ dest: "uploads/" });
+const { Op } = require("sequelize");
 // To get all requested cases.
 
 router.get("/", function(req, res, next) {
@@ -238,9 +238,14 @@ router.get("/lawyer/Cases", function(req, res, next) {
     util.validate([3], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             Lawyer_case.findAll({
-                    where: { lawyerId: req.user.userId },
-                })
-                .then((foundLawyerCases) => {
+                    // where: { lawyerId: req.user.userId },
+                    where: {
+                        lawyerId: req.user.userId,
+                        [Op.not]: [
+                            { status: ['Connected'] }
+                        ]
+                    },
+                }).then((foundLawyerCases) => {
                     let caseIds = foundLawyerCases.map((data) => data.caseId);
                     Case.findAll({
                             include: [{
