@@ -18,6 +18,19 @@ const utils = require('../utils/file');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 
+
+router.post('/lawyer/updateOrgUserDetails', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    req.body['userName'] = req.body.email
+    console.log('ytftyfy', req.body)
+    User.update(req.body, {
+        where: { userId: req.body.userId }
+    }).then(result => {
+        res.json({ success: true, data: result });
+    }).catch((next) => {
+        console.log(next)
+    });
+})
+
 // To invite a user by mail.
 
 router.post('/invite-user', function(req, res, next) {
@@ -260,14 +273,6 @@ router.delete('/deletedInvitedUser/:userId', passport.authenticate('jwt', { sess
 });
 
 
-router.put('/updateOrgUserDetails', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-    req.body['userName'] = req.body.email
-    console.log('ytftyfy', req.body)
-    User.update(req.body, {
-        where: { userId: req.body.userId }
-    }).then(result => {
-        res.json({ success: true, data: result });
-    }).catch(next);
-})
+
 
 module.exports = router;
