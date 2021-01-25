@@ -15,7 +15,7 @@ const UserMeta = require('../../models').UserMeta;
 
 // To create a admin lawyer.
 
-router.post('/registration', function (req, res, next) {
+router.post('/registration', function(req, res, next) {
     req.body.user.password = User.generateHash(req.body.user.password);
     req.body.user.isAdmin = true;
     User.create(req.body.user).then((createdUser) => {
@@ -28,10 +28,9 @@ router.post('/registration', function (req, res, next) {
                 req.body.organization.orgCode = uuidv1();
                 req.body.organization.type = 'lawyer';
                 req.body.organization.addressId = createdAddress.addressId;
+                req.body.organization.name = (req.body.organization.name).trim();
                 Organization.create(req.body.organization).then((createdOrg) => {
-                    User.update({ organizationId: createdOrg.organizationId },
-                        { where: { userId: createdUser.userId } }
-                    ).then(() => {
+                    User.update({ organizationId: createdOrg.organizationId }, { where: { userId: createdUser.userId } }).then(() => {
                         Facility.findAll({ where: { facilityId: req.body.facilityIds } }).then((foundFacility) => {
                             return Role.findOne({ where: { roleId: 3 } }).then((roles) => {
                                 Promise.resolve(createdUser.addRole(roles)).then(() => {
@@ -64,42 +63,45 @@ router.post('/registration', function (req, res, next) {
     });
 });
 
-router.post('/authenticate/registration', async function (req, res, next) {
+router.post('/authenticate/registration', async function(req, res, next) {
     let code = generateCode();
     Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
         var client = new twilio(twilioCredentials.accountSid, twilioCredentials.authToken);
         client.messages.create({
             body: 'My Justice Portal' + ': ' + code + ' - This is your verification code.',
-            to: '+' + req.body.countryCode + req.body.mobile,  // Text this number
+            to: '+' + req.body.countryCode + req.body.mobile, // Text this number
             from: twilioCredentials.from // From a valid Twilio number
         }).then((message) => {
-            User.update({ authCode: code, mobile: req.body.mobile, countryCode: req.body.countryCode },
-                {
-                    where: { userName: req.body.userName }
-                }).then((user) => {
-                    res.json({ success: true });
-                }).catch(next)
+            User.update({ authCode: code, mobile: req.body.mobile, countryCode: req.body.countryCode }, {
+                where: { userName: req.body.userName }
+            }).then((user) => {
+                res.json({ success: true });
+            }).catch(next)
         }).catch((err) => {
             res.json({ success: false });
         })
     })
 });
 
-router.post('/verify-sms/registration', async function (req, res, next) {
+router.post('/verify-sms/registration', async function(req, res, next) {
     User.findOne({
-        include: [
-            {
-                model: Role, through: {
-                    attributes: [],attributes: ['roleId','name'],
+        include: [{
+                model: Role,
+                through: {
+                    attributes: [],
+                    attributes: ['roleId', 'name'],
                 }
             },
             {
-                model: Facility, through: {
-                    attributes: [],attributes: ['facilityId'],
+                model: Facility,
+                through: {
+                    attributes: [],
+                    attributes: ['facilityId'],
                 }
             },
             {
-                model: Organization,attributes: ['organizationId'],
+                model: Organization,
+                attributes: ['organizationId'],
             }
         ],
         where: { userName: req.body.userName }
@@ -108,7 +110,7 @@ router.post('/verify-sms/registration', async function (req, res, next) {
         let x = date - data.dataValues.updatedAt;
         x = Math.round((x / 1000) / 60);
         if (x <= 5 && data.dataValues.authCode == req.body.otp) {
-            jwtUtils.createJwt(data.dataValues, req.body.rememberMe, function (token) {
+            jwtUtils.createJwt(data.dataValues, req.body.rememberMe, function(token) {
                 if (token) {
                     res.json({ success: true, token: token });
                 } else {
@@ -124,7 +126,7 @@ router.post('/verify-sms/registration', async function (req, res, next) {
 
 // To update invited user data.
 
-router.post('/invitedUserUpdate', async function (req, res, next) {
+router.post('/invitedUserUpdate', async function(req, res, next) {
     req.body.password = User.generateHash(req.body.password);
     User.update(req.body, {
         where: { userName: req.body.userName }
