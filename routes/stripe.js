@@ -321,7 +321,6 @@ router.post("/update_plan", passport.authenticate("jwt", { session: false }),
 );
 
 function deleteLawyerFacilityAddons(userId, type, callback) {
-    console.log(userId)
     if (type == 'lawyer') {
         Lawyer_Facility.findAll({ where: { lawyerId: userId } }).then(
             (lawyerFacility) => {
@@ -388,7 +387,7 @@ function setLawyerFacilityAddons(facilityList, callback) {
                         callback(result);
                     }
                     count++;
-                }).catch(next)
+                })
         }
     });
 }
