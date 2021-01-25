@@ -44,7 +44,7 @@ router.get('/', function(req, res, next) {
                         model: User,
                         as: 'lawyer',
                         attributes: ['userId'],
-                        through: { attributes: [] }
+                        through: { attributes: ['status'] }
                     }
                 ],
                 where: { userId: req.user.userId }

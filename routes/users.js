@@ -19,15 +19,14 @@ const jwtUtils = require('../utils/create-jwt');
 
 /*findAll user include role */
 
-router.get('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+router.get('/', passport.authenticate('jwt', { session: false }), function(req, res, next) {
     User.findAll({
-        include: [
-            {
-                model: Role, through: {
-                    attributes: []
-                },
-            }
-        ],
+        include: [{
+            model: Role,
+            through: {
+                attributes: []
+            },
+        }],
         order: [
             ['createdAt', 'DESC']
         ]
@@ -38,11 +37,11 @@ router.get('/', passport.authenticate('jwt', { session: false }), function (req,
 
 // single user.
 
-router.get('/user', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+router.get('/user', passport.authenticate('jwt', { session: false }), function(req, res, next) {
     User.findOne({
-        include: [
-            {
-                model: Role, through: {
+        include: [{
+                model: Role,
+                through: {
                     attributes: []
                 }
             },
@@ -55,7 +54,8 @@ router.get('/user', passport.authenticate('jwt', { session: false }), function (
             {
                 model: userMeta
             }
-        ], where: { userId: req.user.userId }
+        ],
+        where: { userId: req.user.userId }
     }).then((user) => {
         res.json({ success: true, data: user });
     }).catch(next);
@@ -63,7 +63,7 @@ router.get('/user', passport.authenticate('jwt', { session: false }), function (
 
 /*update Password */
 
-router.put('/password', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+router.put('/password', passport.authenticate('jwt', { session: false }), function(req, res, next) {
     let newData = {}
     let query = {};
     User.findOne({ where: { userId: req.user.userId } }).then(curUser => {
@@ -83,26 +83,27 @@ router.put('/password', passport.authenticate('jwt', { session: false }), functi
 });
 
 /*update user */
-router.put('/', function (req, res, next) {
+router.put('/', function(req, res, next) {
     User.update({ status: req.body.value.status }, {
         where: { userName: req.body.value.userName }
     }).then((user) => {
         User.findOne({
-            include: [
-                {
-                    model: Role, through: {
+            include: [{
+                    model: Role,
+                    through: {
                         attributes: []
                     },
                 },
                 {
-                    model: Facility, through: {
+                    model: Facility,
+                    through: {
                         attributes: []
                     },
                 }
             ],
             where: { userName: req.body.value.userName }
         }).then((user) => {
-            jwtUtils.createJwt(user, req.body.rememberMe, function (token) {
+            jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
                 if (token) {
                     res.json({ success: true, token: token });
                 } else {
@@ -126,9 +127,18 @@ router.put('/updateUser', passport.authenticate('jwt', { session: false }), (req
     }).catch(next);
 })
 
+router.put('/update/admin', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    console.log(req.body)
+    User.update({ isAdmin: req.body.isAdmin }, {
+        where: { userId: req.body.userId }
+    }).then(result => {
+        res.json({ success: true, data: result });
+    }).catch(next);
+})
+
 /*update Password */
 
-router.put('/reset-pass', function (req, res, next) {
+router.put('/reset-pass', function(req, res, next) {
     let newData = {};
     let query = {};
     User.findOne({
@@ -143,15 +153,15 @@ router.put('/reset-pass', function (req, res, next) {
             return next(newData.errors[0]);
         query.where = { userName: req.body.userName }
         User.update(newData, query).then(() => {
-            res.json({ success: true, newData });
-        }).catch(next)
-        // }
+                res.json({ success: true, newData });
+            }).catch(next)
+            // }
     }).catch(next)
 });
 
 // delete user.
 
-router.delete('/:userId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+router.delete('/:userId', passport.authenticate('jwt', { session: false }), function(req, res, next) {
     if (req.user.roles[0].roleId === 7 && req.user.userId !== req.params.userId) {
         User.destroy({
             where: { userId: req.params.userId }
@@ -165,21 +175,23 @@ router.delete('/:userId', passport.authenticate('jwt', { session: false }), func
 
 // single user.
 
-router.get('/singleUser/:userId', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+router.get('/singleUser/:userId', passport.authenticate('jwt', { session: false }), function(req, res, next) {
     if (req.user.roles[0].roleId === 7 || req.user.roles[0].roleId === 1 || req.user.roles[0].roleId === 3) {
         User.findOne({
-            include: [
-                {
-                    model: Role, through: {
+            include: [{
+                    model: Role,
+                    through: {
                         attributes: []
                     }
                 },
                 {
-                    model: Facility, through: {
+                    model: Facility,
+                    through: {
                         attributes: []
                     }
                 }
-            ], where: { userId: req.params.userId }
+            ],
+            where: { userId: req.params.userId }
         }).then((userData) => {
             res.json({ success: true, data: userData });
         }).catch(next);
@@ -213,8 +225,7 @@ router.put('/updateStatus', passport.authenticate('jwt', { session: false }), (r
                 let message;
                 if (req.body.status) {
                     message = 'Your account has been approved and is now active please login.'
-                }
-                else {
+                } else {
                     message = 'Your account has been deactivated.'
                 }
                 Postage.findOne({ where: { postageAppId: 1 } }).then((postageDetails) => {
@@ -236,7 +247,7 @@ router.put('/updateStatus', passport.authenticate('jwt', { session: false }), (r
                                 }
                             }
                         }
-                    }, function (error, response) {
+                    }, function(error, response) {
                         if ((response.body.response.status !== 'unauthorized') && (response.body.response.status != 'bad_request')) {
                             if (response.body.data.message.status == 'queued') {
                                 res.json({ success: true, data: 'Invitation sent' });
@@ -260,13 +271,13 @@ router.put('/updateStatus', passport.authenticate('jwt', { session: false }), (r
 router.put('/changeRole', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     if (req.user.roles[0].roleId === 7) {
         User.findOne({
-            include: [
-                {
-                    model: Role, through: {
-                        attributes: []
-                    }
+            include: [{
+                model: Role,
+                through: {
+                    attributes: []
                 }
-            ], where: { userId: req.body.userId }
+            }],
+            where: { userId: req.body.userId }
         }).then((userData) => {
             Promise.resolve(userData.setRoles(req.body.roleId)).then((userRole) => {
                 res.json({ success: true, data: userData });
@@ -281,13 +292,13 @@ router.put('/changeRole', passport.authenticate('jwt', { session: false }), (req
 router.put('/changeFacility', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     if (req.user.roles[0].roleId === 7) {
         User.findOne({
-            include: [
-                {
-                    model: Facility, through: {
-                        attributes: []
-                    }
+            include: [{
+                model: Facility,
+                through: {
+                    attributes: []
                 }
-            ], where: { userId: parseInt(req.body.userId) }
+            }],
+            where: { userId: parseInt(req.body.userId) }
         }).then((userData) => {
             Promise.resolve(userData.setFacilities(req.body.facilityId)).then((userFacility) => {
                 res.json({ success: true, data: userFacility });
@@ -300,21 +311,20 @@ router.put('/changeFacility', passport.authenticate('jwt', { session: false }), 
 
 /**generate otp during registration*/
 
-router.post('/auth/register', async function (req, res, next) {
+router.post('/auth/register', async function(req, res, next) {
     let code = generateCode();
     Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
         var client = new twilio(twilioCredentials.accountSid, twilioCredentials.authToken);
         client.messages.create({
             body: 'My Justice Portal' + ': ' + code + ' - This is your verification code.',
-            to: '+' + req.body.countryCode + req.body.mobile,  // Text this number
+            to: '+' + req.body.countryCode + req.body.mobile, // Text this number
             from: twilioCredentials.from // From a valid Twilio number
         }).then((message) => {
-            User.update({ authCode: code, mobile: req.body.mobile, countryCode: req.body.countryCode },
-                {
-                    where: { userName: req.body.userName }
-                }).then(() => {
-                    res.json({ success: true })
-                }).catch(next)
+            User.update({ authCode: code, mobile: req.body.mobile, countryCode: req.body.countryCode }, {
+                where: { userName: req.body.userName }
+            }).then(() => {
+                res.json({ success: true })
+            }).catch(next)
         }).catch((err) => {
             res.json({ success: false })
         })
@@ -323,22 +333,21 @@ router.post('/auth/register', async function (req, res, next) {
 
 /**verify otp */
 
-router.post('/register/verify-sms', async function (req, res, next) {
+router.post('/register/verify-sms', async function(req, res, next) {
     User.findOne({
-        include: [
-            {
-                model: Role, through: {
-                    attributes: []
-                }
+        include: [{
+            model: Role,
+            through: {
+                attributes: []
             }
-        ],
+        }],
         where: { userName: req.body.userName }
     }).then((data) => {
         let date = new Date();
         let x = date - data.dataValues.updatedAt;
         x = Math.round((x / 1000) / 60);
         if (x <= 5 && data.dataValues.authCode == req.body.otp) {
-            jwtUtils.createJwt(data.dataValues, req.body.rememberMe, function (token) {
+            jwtUtils.createJwt(data.dataValues, req.body.rememberMe, function(token) {
                 if (token) {
                     res.json({ success: true, token: token });
                 } else {
@@ -364,21 +373,24 @@ function generateCode() {
 
 // get all Facility
 
-router.get('/roleFacility', function (req, res, next) {
+router.get('/roleFacility', function(req, res, next) {
     Facility.findAll().then(data => {
         res.json({ success: true, data: data });
     })
 })
 
 //create user by superadmin
-router.post('/createUser', passport.authenticate('jwt', { session: false }), function (req, res, next) {
-    util.validate([7], req.user.roles, function (isAuthenticated) {
+router.post('/createUser', passport.authenticate('jwt', { session: false }), function(req, res, next) {
+    util.validate([7], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             User.create({
                 password: User.generateHash(req.body.password),
-                firstName: req.body.firstName, lastName: req.body.lastName,
-                userName: req.body.userName, middleName: req.body.middleName,
-                isMFA: false, status: true
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                userName: req.body.userName,
+                middleName: req.body.middleName,
+                isMFA: false,
+                status: true
             }).then((user) => {
                 Role.findAll({ where: { roleId: 7 } }).then((roles) => {
                     Promise.resolve(user.setRoles(roles)).then((userRole) => {
@@ -386,8 +398,7 @@ router.post('/createUser', passport.authenticate('jwt', { session: false }), fun
                     })
                 }).catch(next);
             }).catch(next);
-        }
-        else {
+        } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
     })

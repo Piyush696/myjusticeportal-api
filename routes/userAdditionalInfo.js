@@ -254,6 +254,7 @@ router.get("/lawyer/Cases", function(req, res, next) {
                                 attributes: ["userId", "firstName", "lastName", "userName"],
                             }, ],
                             where: { caseId: caseIds },
+                            attributes: ['caseId', 'legalMatter', 'briefDescriptionOfChargeOrLegalMatter'],
                         })
                         .then((data) => {
                             let count = 0;
@@ -262,6 +263,7 @@ router.get("/lawyer/Cases", function(req, res, next) {
                                     if (x.dataValues.caseId === element.dataValues.caseId) {
                                         x.dataValues["status"] = element.dataValues.status;
                                         x.dataValues["sentAt"] = element.dataValues.updatedAt;
+                                        x.dataValues["notes"] = element.dataValues.notes;
                                         if (count === Array.length - 1) {
                                             let x = data;
                                             res.json({ success: true, data: x });
