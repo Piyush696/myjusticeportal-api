@@ -98,10 +98,10 @@ router.post("/subscribe_plan", async function (req, res, next) {
                         UserMeta.bulkCreate(userMetaList)
                             .then((result) => {
                                 if (result) {
-                                    deleteLawyerFacilityAddons(req.body.userId, req.body.type, function (deleteLawyerFacility) {
+                                    deleteLawyerFacilityAddons(req.body.userId, req.body.type, next, function (deleteLawyerFacility) {
                                         if (deleteLawyerFacility) {
                                             setLawyerFacilityAddons(
-                                                req.body.facilityList,
+                                                req.body.facilityList, next,
                                                 function (setFacilityLawyer) {
                                                     if (setFacilityLawyer) {
                                                         res.json({ success: true, data: subscribePlan });
@@ -113,8 +113,7 @@ router.post("/subscribe_plan", async function (req, res, next) {
                                 }
                             }).catch(next);
                     }).catch(next);
-            })
-            .catch(next);
+            }).catch(next);
     })
 });
 
@@ -279,11 +278,11 @@ router.post("/update_plan", passport.authenticate("jwt", { session: false }),
                                             })
                                             .then((subscribePlan) => {
                                                 deleteLawyerFacilityAddons(
-                                                    req.body.userId, req.body.type,
+                                                    req.body.userId, req.body.type, next,
                                                     function (deleteFacilityLawyer) {
                                                         if (deleteFacilityLawyer) {
                                                             setLawyerFacilityAddons(
-                                                                req.body.facilityList,
+                                                                req.body.facilityList, next,
                                                                 function (setFacilityLawyer) {
                                                                     if (setFacilityLawyer) {
                                                                         UserMeta.update({
@@ -320,7 +319,7 @@ router.post("/update_plan", passport.authenticate("jwt", { session: false }),
     }
 );
 
-function deleteLawyerFacilityAddons(userId, type, callback) {
+function deleteLawyerFacilityAddons(userId, type, next, callback) {
     if (type == 'lawyer') {
         Lawyer_Facility.findAll({ where: { lawyerId: userId } }).then(
             (lawyerFacility) => {
@@ -368,26 +367,28 @@ function deleteLawyerFacilityAddons(userId, type, callback) {
 
 }
 
-function setLawyerFacilityAddons(facilityList, callback) {
+function setLawyerFacilityAddons(facilityList, next, callback) {
     let count = 0;
+    let count1 = 0;
     facilityList.forEach((element, index, Array) => {
-        if (element.defenderId) {
 
+        if (element.defenderId) {
             Defender_Facility.create(element)
                 .then((result) => {
-                    if (count === Array.length - 1) {
+                    if (count1 === Array.length - 1) {
                         callback(result);
                     }
-                    count++;
-                })
-        } else if (element.lawyerId) {
+                    count1++;
+                }).catch(next)
+        }
+        else if (element.lawyerId) {
             Lawyer_Facility.create(element)
                 .then((result) => {
                     if (count === Array.length - 1) {
                         callback(result);
                     }
                     count++;
-                })
+                }).catch(next)
         }
     });
 }
