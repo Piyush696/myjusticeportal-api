@@ -98,10 +98,10 @@ router.post("/subscribe_plan", async function(req, res, next) {
                         UserMeta.bulkCreate(userMetaList)
                             .then((result) => {
                                 if (result) {
-                                    deleteLawyerFacilityAddons(req.body.userId, function(deleteLawyerFacility) {
+                                    deleteLawyerFacilityAddons(req.body.userId, req.body.type, next, function(deleteLawyerFacility) {
                                         if (deleteLawyerFacility) {
                                             setLawyerFacilityAddons(
-                                                req.body.facilityList,
+                                                req.body.facilityList, next,
                                                 function(setFacilityLawyer) {
                                                     if (setFacilityLawyer) {
                                                         res.json({ success: true, data: subscribePlan });
@@ -113,8 +113,7 @@ router.post("/subscribe_plan", async function(req, res, next) {
                                 }
                             }).catch(next);
                     }).catch(next);
-            })
-            .catch(next);
+            }).catch(next);
     })
 });
 
@@ -279,11 +278,11 @@ router.post("/update_plan", passport.authenticate("jwt", { session: false }),
                                             })
                                             .then((subscribePlan) => {
                                                 deleteLawyerFacilityAddons(
-                                                    req.body.userId,
+                                                    req.body.userId, req.body.type, next,
                                                     function(deleteFacilityLawyer) {
                                                         if (deleteFacilityLawyer) {
                                                             setLawyerFacilityAddons(
-                                                                req.body.facilityList,
+                                                                req.body.facilityList, next,
                                                                 function(setFacilityLawyer) {
                                                                     if (setFacilityLawyer) {
                                                                         UserMeta.update({
@@ -314,62 +313,71 @@ router.post("/update_plan", passport.authenticate("jwt", { session: false }),
                             })
                             .catch(next);
                     })
-                    .catch(next => console.log(next));
+                    .catch(next);
             })
         });
     }
 );
 
-function deleteLawyerFacilityAddons(userId, callback) {
-    Lawyer_Facility.findAll({ where: { lawyerId: userId } }).then(
-        (lawyerFacility) => {
-            if (lawyerFacility && lawyerFacility.length > 0) {
-                let count = 0;
-                lawyerFacility.forEach((element, index, Array) => {
-                    Lawyer_Facility.destroy({
-                        where: { lawyer_facilityId: element.lawyer_facilityId },
-                    }).then((data) => {
-                        if (count === Array.length - 1) {
-                            callback(data);
-                        }
-                        count++;
+function deleteLawyerFacilityAddons(userId, type, next, callback) {
+    if (type == 'lawyer') {
+        Lawyer_Facility.findAll({ where: { lawyerId: userId } }).then(
+            (lawyerFacility) => {
+
+                if (lawyerFacility && lawyerFacility.length > 0) {
+                    let count = 0;
+                    lawyerFacility.forEach((element, index, Array) => {
+                        Lawyer_Facility.destroy({
+                            where: { lawyer_facilityId: element.lawyer_facilityId },
+                        }).then((data) => {
+                            if (count === Array.length - 1) {
+                                callback(data);
+                            }
+                            count++;
+                        });
                     });
-                });
-            } else {
-                Defender_Facility.findAll({ where: { defenderId: userId } }).then(
-                    (defenderFacility) => {
-                        if (defenderFacility && defenderFacility.length > 0) {
-                            let count = 0;
-                            defenderFacility.forEach((element, index, Array) => {
-                                Defender_Facility.destroy({
-                                    where: { defender_facilityId: element.defender_facilityId },
-                                }).then((data) => {
-                                    if (count === Array.length - 1) {
-                                        callback(data);
-                                    }
-                                    count++;
-                                });
-                            });
-                        } else {
-                            callback(true);
-                        }
+                } else {
+                    callback(true);
+                }
+
+            }).catch(next)
+    }
+    if (type == 'defender') {
+        Defender_Facility.findAll({ where: { defenderId: userId } }).then(
+            (defenderFacility) => {
+                if (defenderFacility && defenderFacility.length > 0) {
+                    let count = 0;
+                    defenderFacility.forEach((element, index, Array) => {
+                        Defender_Facility.destroy({
+                            where: { defender_facilityId: element.defender_facilityId },
+                        }).then((data) => {
+                            if (count === Array.length - 1) {
+                                callback(data);
+                            }
+                            count++;
+                        });
                     });
-            }
-        })
+                } else {
+                    callback(true);
+                }
+            });
+    }
+
 }
 
-function setLawyerFacilityAddons(facilityList, callback) {
+function setLawyerFacilityAddons(facilityList, next, callback) {
     let count = 0;
+    let count1 = 0;
     facilityList.forEach((element, index, Array) => {
-        if (element.defenderId) {
 
+        if (element.defenderId) {
             Defender_Facility.create(element)
                 .then((result) => {
-                    if (count === Array.length - 1) {
+                    if (count1 === Array.length - 1) {
                         callback(result);
                     }
-                    count++;
-                })
+                    count1++;
+                }).catch(next)
         } else if (element.lawyerId) {
             Lawyer_Facility.create(element)
                 .then((result) => {
@@ -377,7 +385,7 @@ function setLawyerFacilityAddons(facilityList, callback) {
                         callback(result);
                     }
                     count++;
-                })
+                }).catch(next)
         }
     });
 }
