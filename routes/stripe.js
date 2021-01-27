@@ -158,6 +158,24 @@ router.post("/validate_coupan", async function (req, res, next) {
     })
 });
 
+
+router.post('/subcription_details', async function (req, res, next) {
+    StripeConnection.findOne({
+        attributes: ['authKey'],
+        where: { stripeId: 1 }
+    }).then((key) => {
+        let stripe = Stripe(key.authKey);
+        stripe.customers.retrieve(req.body.strip_custId).then((customer) => {
+            stripe.customers.retrieveSource(
+                customer.id,
+                customer.default_source
+            ).then((cardDetails) => {
+                res.json({ success: true, data: cardDetails })
+            })
+        }).catch(next);
+    })
+})
+
 router.post(
     "/list-transaction",
     passport.authenticate("jwt", { session: false }),
