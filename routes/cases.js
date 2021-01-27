@@ -74,7 +74,7 @@ router.get('/getPendingCaseInfo', function(req, res, next) {
                 attributes: ['caseId', 'legalMatter', 'briefDescriptionOfChargeOrLegalMatter'],
                 where: { userId: req.user.userId }
             }).then(data => {
-                let userAssignedLawyerCase = data.filter(x => x.lawyer.length > 0 && x.lawyer[0].lawyer_case.status != 'Connected')
+                let userAssignedLawyerCase = data.filter(x => x.lawyer.length > 0)
                 res.json({ success: true, data: userAssignedLawyerCase });
             }).catch(next)
         } else {
