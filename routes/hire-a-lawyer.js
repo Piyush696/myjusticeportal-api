@@ -62,7 +62,8 @@ router.get("/organizations", function(req, res, next) {
                                 model: Address
                             }],
                             attributes: [
-                                "organizationId"
+                                "organizationId",
+                                "name"
                             ],
                         },
                         {
