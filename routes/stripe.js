@@ -30,7 +30,7 @@ router.post("/", async function (req, res, next) {
                         postal_code: "560029",
                         city: "San Francisco",
                         state: "BL",
-                        country: "IN",
+                        country: "US",
                     },
                 })
                 .then((customer) => {
@@ -57,6 +57,41 @@ router.post("/", async function (req, res, next) {
         }
     })
 });
+
+// charge api
+router.post('/charge', async function (req, res, next) {
+    StripeConnection.findOne({
+        attributes: ['authKey', 'productId'],
+        where: { stripeId: 1 }
+    }).then((key) => {
+        let stripe = Stripe(key.dataValues.authKey);
+        stripe.charges.create({
+            amount: req.body.amount,
+            currency: 'usd',
+            // description: 'Software development services',
+            // interval: 'month',
+            customer: req.body.strip_custId,
+        }).then((charge) => {
+            deleteLawyerFacilityAddons(
+                req.body.userId, req.body.type, next,
+                function (deleteFacilityLawyer) {
+                    if (deleteFacilityLawyer) {
+                        setLawyerFacilityAddons(
+                            req.body.facilityList, next,
+                            function (setFacilityLawyer) {
+                                if (setFacilityLawyer) {
+                                    res.json({ success: true, data: charge })
+                                }
+                            }
+                        );
+                    }
+                }
+            );
+
+        })
+    }).catch(next)
+})
+
 
 // plan subscribe
 
@@ -410,6 +445,8 @@ function setLawyerFacilityAddons(facilityList, next, callback) {
         }
     });
 }
+
+
 
 
 module.exports = router;
