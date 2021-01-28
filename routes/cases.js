@@ -136,7 +136,7 @@ router.get('/:caseId', function(req, res, next) {
                     {
                         model: Files,
                         as: 'caseFile',
-                        attributes: ['fileId', 'fileName', 'fileType', 'createdAt', 'updatedAt', 'createdByUserId'],
+                        attributes: ['fileId', 'fileName', 'fileType', 'createdAt', 'downloadLink', 'updatedAt', 'createdByUserId'],
                         include: [{
                             model: User,
                             as: 'createdBy',

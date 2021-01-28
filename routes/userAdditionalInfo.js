@@ -8,6 +8,7 @@ const UserAdditionalInfo = require("../models").UserAdditionalInfo;
 const Files = require("../models").Files;
 const Facility = require("../models").Facility;
 const Lawyer_case = require("../models").lawyer_case;
+const Lawyer_facility = require("../models").lawyer_facility;
 const utils = require("../utils/file");
 const util = require("../utils/validateUser");
 const multer = require("multer");
@@ -15,6 +16,7 @@ const { Role } = require("../models");
 const Message = require('../models').Messages;
 const upload = multer({ dest: "uploads/" });
 const { Op } = require("sequelize");
+
 // To get all requested cases.
 
 router.get("/", function(req, res, next) {
@@ -282,24 +284,6 @@ router.get("/lawyer/Cases", function(req, res, next) {
     });
 });
 
-// To set data after case Approved.
-
-router.post("/status-update", function(req, res, next) {
-    util.validate([3], req.user.roles, function(isAuthenticated) {
-        if (isAuthenticated) {
-            Lawyer_case.update({ status: req.body.status }, {
-                    where: { caseId: req.body.caseId, lawyerId: req.user.userId },
-                })
-                .then((data) => {
-                    res.json({ success: true });
-                })
-                .catch(next);
-        } else {
-            res.status(401).json({ success: false, data: "User not authorized." });
-        }
-    });
-});
-
 
 // find lawyer case count
 router.get("/dasboard/count", function(req, res, next) {
@@ -332,6 +316,77 @@ router.get("/dasboard/count", function(req, res, next) {
 
     })
 })
+
+// To set data after case Approved.
+
+router.post("/status-update", function(req, res, next) {
+    console.log(req.body)
+    util.validate([3], req.user.roles, function(isAuthenticated) {
+        if (isAuthenticated) {
+            console.log('1')
+            if (req.body.status === 'Lawyer Approved') {
+                console.log('2')
+                connectionLimit(req, next, function(isLimitReached) {
+                    console.log('=======limit reached', isLimitReached)
+                    if (isLimitReached) {
+                        Lawyer_case.update({ status: req.body.status }, {
+                            where: { caseId: req.body.caseId, lawyerId: req.user.userId },
+                        }).then((data) => {
+                            res.json({ success: true });
+                        }).catch(next);
+                    } else {
+                        res.json({ success: false, data: 'Connection limit reached.' });
+                    }
+                })
+            } else {
+                console.log('================')
+                Lawyer_case.update({ status: req.body.status }, {
+                    where: { caseId: req.body.caseId, lawyerId: req.user.userId },
+                }).then((data) => {
+                    res.json({ success: true });
+                }).catch((next) => {
+                    console.log(next)
+                });
+            }
+
+        } else {
+            res.status(401).json({ success: false, data: "User not authorized." });
+        }
+    });
+});
+
+function connectionLimit(req, next, callback) {
+    console.log('3')
+    Lawyer_case.findAndCountAll({
+        where: { lawyerId: req.user.userId, status: 'Connected' }
+    }).then((cases) => {
+        console.log('========4', cases)
+        Lawyer_facility.findOne({
+            where: { lawyerId: req.user.userId },
+            attributes: ["planSelected"]
+        }).then((plan) => {
+            console.log('========5', plan)
+            let planCount = 0;
+            if (plan.planSelected === 'Up to 5 Connections') {
+                planCount = 5;
+                if (planCount > cases.count) {
+                    callback(true);
+                } else {
+                    callback(false);
+                }
+            } else if (plan.planSelected === 'Up to 25 Connections') {
+                planCount = 25;
+                if (planCount > cases.count) {
+                    callback(true);
+                } else {
+                    callback(false);
+                }
+            } else {
+                callback(true);
+            }
+        })
+    }).catch()
+}
 
 
 module.exports = router;

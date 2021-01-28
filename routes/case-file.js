@@ -17,7 +17,7 @@ router.post('/uploadFile', upload.any(), function(req, res, next) {
         if (isAuthenticated) {
             let itemsProcessed = 1;
             req.files.forEach((file, index, array) => {
-                utils.uploadFile(file, file.mimetype, req.user.userId, 'mjp-private', 'private', function(fileId) {
+                utils.uploadFile(file, file.mimetype, req.user.userId, 'mjp-public', 'public-read', function(fileId) {
                     if (fileId) {
                         console.log(fileId)
                         req.body.fileId = fileId;
