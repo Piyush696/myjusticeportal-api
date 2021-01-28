@@ -25,13 +25,13 @@ router.post("/", async function(req, res, next) {
                 .create({
                     email: req.body.email,
                     name: "Piyush",
-                    // address: {
-                    //     line1: "510 Townsend St",
-                    //     postal_code: "560029",
-                    //     city: "San Francisco",
-                    //     state: "BL",
-                    //     country: "US",
-                    // },
+                    address: {
+                        line1: "510 Townsend St",
+                        postal_code: "560029",
+                        city: "San Francisco",
+                        state: "BL",
+                        country: "US",
+                    },
                 })
                 .then((customer) => {
                     stripe.customers
@@ -146,9 +146,15 @@ router.post("/subscribe_plan", async function(req, res, next) {
                                         }
                                     })
                                 }
-                            }).catch(next);
-                    }).catch(next);
-            }).catch(next);
+                            }).catch((next) => {
+                                console.log(next)
+                            });
+                    }).catch((next) => {
+                        console.log(next)
+                    });
+            }).catch((next) => {
+                console.log(next)
+            });
     })
 });
 
