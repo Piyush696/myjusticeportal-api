@@ -25,13 +25,13 @@ router.post("/", async function(req, res, next) {
                 .create({
                     email: req.body.email,
                     name: "Piyush",
-                    address: {
-                        line1: "510 Townsend St",
-                        postal_code: "560029",
-                        city: "San Francisco",
-                        state: "BL",
-                        country: "US",
-                    },
+                    // address: {
+                    //     line1: "510 Townsend St",
+                    //     postal_code: "560029",
+                    //     city: "San Francisco",
+                    //     state: "BL",
+                    //     country: "US",
+                    // },
                 })
                 .then((customer) => {
                     stripe.customers
@@ -59,7 +59,7 @@ router.post("/", async function(req, res, next) {
 });
 
 // charge api
-router.post('/charge', async function (req, res, next) {
+router.post('/charge', async function(req, res, next) {
     StripeConnection.findOne({
         attributes: ['authKey', 'productId'],
         where: { stripeId: 1 }
@@ -68,17 +68,17 @@ router.post('/charge', async function (req, res, next) {
         stripe.charges.create({
             amount: req.body.amount,
             currency: 'usd',
-            // description: 'Software development services',
+            description: 'lawyer Payment',
             // interval: 'month',
             customer: req.body.strip_custId,
         }).then((charge) => {
             deleteLawyerFacilityAddons(
                 req.body.userId, req.body.type, next,
-                function (deleteFacilityLawyer) {
+                function(deleteFacilityLawyer) {
                     if (deleteFacilityLawyer) {
                         setLawyerFacilityAddons(
                             req.body.facilityList, next,
-                            function (setFacilityLawyer) {
+                            function(setFacilityLawyer) {
                                 if (setFacilityLawyer) {
                                     res.json({ success: true, data: charge })
                                 }
@@ -194,7 +194,7 @@ router.post("/validate_coupan", async function(req, res, next) {
 });
 
 
-router.post('/subcription_details', async function (req, res, next) {
+router.post('/subcription_details', async function(req, res, next) {
     StripeConnection.findOne({
         attributes: ['authKey'],
         where: { stripeId: 1 }
