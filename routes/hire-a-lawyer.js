@@ -215,6 +215,7 @@ router.get("/requested-case/:caseId", function(req, res, next) {
                             attributes: [
                                 "fileId",
                                 "fileName",
+                                "filetype",
                                 "createdAt",
                                 "updatedAt",
                                 "createdByUserId",

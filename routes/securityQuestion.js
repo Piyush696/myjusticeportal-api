@@ -14,7 +14,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 const request = require('request');
 
-router.post('/', function (req, res, next) {
+router.post('/', function(req, res, next) {
     User.findOne({ where: { userName: req.body.userName } }).then((user) => {
         User_SecurityQuestion_Answers.findOne({
             where: { userId: user.dataValues.userId, securityQuestionId: req.body.securityQuestionId }
@@ -25,11 +25,11 @@ router.post('/', function (req, res, next) {
                 }).then((data) => {
                     res.json({ success: true, data: data });
                 })
-            }
-            else {
+            } else {
                 User_SecurityQuestion_Answers.create({
                     securityQuestionId: req.body.securityQuestionId,
-                    answer: req.body.answer, userId: user.userId
+                    answer: req.body.answer,
+                    userId: user.userId
                 }).then(data => {
                     res.json({ success: true, data: data });
                 })
@@ -38,23 +38,24 @@ router.post('/', function (req, res, next) {
     })
 })
 
-router.get('/:roleId', function (req, res, next) {
+router.get('/:roleId', function(req, res, next) {
     SecurityQuestion.findAll({ where: { roleId: req.params.roleId } }).then(securityQuestion => {
         res.json({ success: true, data: securityQuestion });
     })
 })
 
-router.post('/forgot-password', function (req, res, next) {
+router.post('/forgot-password', function(req, res, next) {
     User.findOne({
-        include: [
-            {
-                model: SecurityQuestion, through: { attributes: [] }
+        include: [{
+                model: SecurityQuestion,
+                through: { attributes: [] }
             },
             {
-                model: Role, through: { attributes: [] }
+                model: Role,
+                through: { attributes: [] }
             }
         ],
-        where: { userName: req.body.userName }
+        where: { $or: [{ userName: req.body.userName }, { email: req.body.userName }], }
     }).then(userDetails => {
         if (userDetails) {
             if (userDetails.dataValues.roles[0].roleId == 1) {
@@ -73,7 +74,7 @@ router.post('/forgot-password', function (req, res, next) {
                             "api_key": `${passwordResetDetails.dataValues.apiKey}`,
                             "uid": `${uuid}`,
                             "arguments": {
-                                "recipients": [`${userDetails.dataValues.userName}`],
+                                "recipients": [`${userDetails.dataValues.email}`],
                                 "headers": {
                                     "subject": `${passwordResetDetails.dataValues.project}` + ": Password Reset Request"
                                 },
@@ -84,9 +85,10 @@ router.post('/forgot-password', function (req, res, next) {
                                 }
                             }
                         }
-                    }, function (error, response) {
-                        if ((response.body.response.status !== 'unauthorized') && (response.body.response.status != 'bad_request')) {
-                            if (response.body.data.message.status == 'queued') {
+                    }, function(error, response) {
+                        console.log(response.body)
+                        if ((response.body.response.status !== 'unauthorized') && (response.body.response.status != 'bad_request') && (response.body.response.status !== 'precondition_failed')) {
+                            if (response.body.data && response.body.data.message.status == 'queued') {
                                 res.json({ success: true, data: 'Mail sent' });
                             } else {
                                 res.json({ success: false, data: 'Mail not sent' });
@@ -105,7 +107,7 @@ router.post('/forgot-password', function (req, res, next) {
 
 // reset password.
 
-router.patch('/', function (req, res, next) {
+router.patch('/', function(req, res, next) {
     var decoded = jwt.verify(req.body.token, config.jwt.secret);
     let newData = {};
     let query = {};
@@ -121,7 +123,7 @@ router.patch('/', function (req, res, next) {
     }).catch(next)
 });
 
-router.post('/check-answer', async function (req, res, next) {
+router.post('/check-answer', async function(req, res, next) {
     User.findOne({
         where: { userName: req.body.userName }
     }).then((user) => {
@@ -137,8 +139,7 @@ router.post('/check-answer', async function (req, res, next) {
                 }).then((data) => {
                     return res.json({ match: true });
                 })
-            }
-            else {
+            } else {
                 return res.json({ match: false });
             }
         }).catch(next)
@@ -146,7 +147,7 @@ router.post('/check-answer', async function (req, res, next) {
 });
 
 /*update postage Credencials */
-router.put('/', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+router.put('/', passport.authenticate('jwt', { session: false }), function(req, res, next) {
     SecurityQuestion.update(req.body, {
         where: { postageAppId: 1 }
     }).then((user) => {
@@ -155,7 +156,7 @@ router.put('/', passport.authenticate('jwt', { session: false }), function (req,
 })
 
 /**get All security Questions */
-router.get('/user/securityQuestions', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+router.get('/user/securityQuestions', passport.authenticate('jwt', { session: false }), function(req, res, next) {
     User_SecurityQuestion_Answers.findAll({
         where: { userId: req.user.userId }
     }).then((data) => {
@@ -177,7 +178,7 @@ router.get('/user/securityQuestions', passport.authenticate('jwt', { session: fa
 
 /*update securityQuestions Answers */
 
-router.post('/user/update/securityQuestion', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+router.post('/user/update/securityQuestion', passport.authenticate('jwt', { session: false }), function(req, res, next) {
     User_SecurityQuestion_Answers.findAll({
         where: { userId: req.user.userId }
     }).then((userQuestions) => {
@@ -198,25 +199,23 @@ router.post('/user/update/securityQuestion', passport.authenticate('jwt', { sess
     }).catch(next);
 })
 
-router.get('/user/userSecurityQuestions', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+router.get('/user/userSecurityQuestions', passport.authenticate('jwt', { session: false }), function(req, res, next) {
     User.findOne({
-        include: [
-            {
-                model: SecurityQuestion, through: { attributes: [] }
-            },
-        ],
+        include: [{
+            model: SecurityQuestion,
+            through: { attributes: [] }
+        }, ],
         where: { userId: req.user.userId }
     }).then(userDetails => {
         res.json({ success: true, data: userDetails });
     })
 })
 
-router.post('/update/SecurityQuestion', passport.authenticate('jwt', { session: false }), function (req, res, next) {
+router.post('/update/SecurityQuestion', passport.authenticate('jwt', { session: false }), function(req, res, next) {
     console.log(req.body)
-    User_SecurityQuestion_Answers.update({ securityQuestionId: req.body.securityQuestionId, answer: req.body.answer },
-        { where: { securityQuestionId: req.body.previousSecurityId, userId: req.user.userId } }).then((question) => {
-            res.json({ success: true, data: question });
-        }).catch(next)
+    User_SecurityQuestion_Answers.update({ securityQuestionId: req.body.securityQuestionId, answer: req.body.answer }, { where: { securityQuestionId: req.body.previousSecurityId, userId: req.user.userId } }).then((question) => {
+        res.json({ success: true, data: question });
+    }).catch(next)
 })
 
 //update security Question
