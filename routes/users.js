@@ -404,4 +404,19 @@ router.post('/createUser', passport.authenticate('jwt', { session: false }), fun
     })
 })
 
+//bulk delete by superadmin
+router.post('/deleteUsers', passport.authenticate('jwt', { session: false }), function(req, res, next) {
+    console.log(req.body)
+    util.validate([7], req.user.roles, function(isAuthenticated) {
+        if (isAuthenticated) {
+            req.body.forEach(element => {
+                User.destroy({ where: { userId: element } }).then(() => {})
+            });
+            res.json({ success: true, data: 'Users deleted.' });
+        } else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    })
+})
+
 module.exports = router;

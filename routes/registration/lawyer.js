@@ -18,6 +18,7 @@ const UserMeta = require('../../models').UserMeta;
 router.post('/registration', function(req, res, next) {
     req.body.user.password = User.generateHash(req.body.user.password);
     req.body.user.isAdmin = true;
+    req.body.user.email = req.body.user.userName;
     User.create(req.body.user).then((createdUser) => {
         req.body.userMeta.map((element) => {
             element['userId'] = createdUser.userId
@@ -36,31 +37,15 @@ router.post('/registration', function(req, res, next) {
                                 Promise.resolve(createdUser.addRole(roles)).then(() => {
                                     Promise.resolve(createdOrg.addFacility(foundFacility)).then(() => {
                                         return res.json({ success: true, data: createdUser });
-                                    }).catch((next) => {
-                                        console.log(next)
-                                    });
-                                }).catch((next) => {
-                                    console.log(next)
-                                });
-                            }).catch((next) => {
-                                console.log(next)
-                            });
-                        }).catch((next) => {
-                            console.log(next)
-                        });
-                    }).catch((next) => {
-                        console.log(next)
-                    });
-                }).catch((next) => {
-                    console.log(next)
-                });
-            }).catch((next) => {
-                console.log(next)
-            });
+                                    }).catch(next);
+                                }).catch(next);
+                            }).catch(next);
+                        }).catch(next);
+                    }).catch(next);
+                }).catch(next);
+            }).catch(next);
         })
-    }).catch((next) => {
-        console.log(next)
-    });
+    }).catch(next);
 });
 
 router.post('/authenticate/registration', async function(req, res, next) {
