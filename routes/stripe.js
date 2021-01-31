@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const request = require("request");
-const { User } = require("../models");
+const User = require("../models").User;
 const UserMeta = require("../models").UserMeta;
 const Facility = require("../models").Facility;
 const Lawyer_Facility = require("../models").lawyer_facility;
@@ -9,8 +9,10 @@ const Defender_Facility = require("../models").defender_facility;
 var passport = require("passport");
 const { Op } = require("sequelize");
 var StripeConnection = require("../models").StripeConnection
+var user_plan = require("../models").user_plan
 var Stripe = require('stripe');
-
+const Address = require('../models').Address;
+const Organization = require('../models').Organization;
 
 // create customer   **Step-1
 
@@ -19,42 +21,55 @@ router.post("/", async function(req, res, next) {
         attributes: ['authKey'],
         where: { stripeId: 1 }
     }).then((key) => {
-        let stripe = Stripe(key.dataValues.authKey);
-        if (req.body.cus_id == undefined) {
-            stripe.customers
-                .create({
-                    email: req.body.email,
-                    name: "Piyush",
-                    address: {
-                        line1: "510 Townsend St",
-                        postal_code: "560029",
-                        city: "San Francisco",
-                        state: "BL",
-                        country: "US",
-                    },
-                })
-                .then((customer) => {
-                    stripe.customers
-                        .createSource(customer.id, {
-                            source: req.body.token,
-                        })
-                        .then((addCard) => {
-                            res.json({ success: true, data: addCard });
-                        })
-                        .catch(() => {
-                            res.json({ success: false, data: customer.id });
-                        });
-                })
-                .catch(next);
-        } else {
-            stripe.customers
-                .createSource(req.body.cus_id, {
-                    source: req.body.token,
-                })
-                .then((addCard) => {
-                    res.json({ success: true, data: addCard });
-                }).catch(next);
-        }
+        User.findOne({
+            include: [{
+                model: Organization,
+                attributes: ['organizationId'],
+                include: [{
+                    model: Address
+                }]
+            }],
+            attributes: ["userId", "firstName", "middleName", "lastName"],
+            where: { userName: req.body.email }
+        }).then((user) => {
+            let stripe = Stripe(key.dataValues.authKey);
+            let name = user.firstName + ' ' + user.middleName + ' ' + user.lastName
+            if (req.body.cus_id == undefined) {
+                stripe.customers
+                    .create({
+                        email: req.body.email,
+                        name: name,
+                        address: {
+                            line1: user.Organization.Address.street1,
+                            postal_code: user.Organization.Address.zip,
+                            city: user.Organization.Address.city,
+                            state: user.Organization.Address.state,
+                            country: user.Organization.Address.country,
+                        },
+                    })
+                    .then((customer) => {
+                        stripe.customers
+                            .createSource(customer.id, {
+                                source: req.body.token,
+                            })
+                            .then((addCard) => {
+                                res.json({ success: true, data: addCard });
+                            })
+                            .catch(() => {
+                                res.json({ success: false, data: customer.id });
+                            });
+                    })
+                    .catch(next);
+            } else {
+                stripe.customers
+                    .createSource(req.body.cus_id, {
+                        source: req.body.token,
+                    })
+                    .then((addCard) => {
+                        res.json({ success: true, data: addCard });
+                    }).catch(next);
+            }
+        })
     })
 });
 
@@ -101,20 +116,22 @@ router.post("/subscribe_plan", async function(req, res, next) {
         where: { stripeId: 1 }
     }).then((key) => {
         let stripe = Stripe(key.dataValues.authKey);
-        stripe.plans
+        stripe.prices
             .create({
-                amount: req.body.amount,
-                currency: req.body.currency,
-                interval: req.body.interval,
+                unit_amount: req.body.amount,
+                currency: 'usd',
+                recurring: { interval: 'month' },
                 product: key.dataValues.productId,
             })
-            .then((plan) => {
+            .then((price) => {
                 stripe.subscriptions
                     .create({
                         customer: req.body.customer,
                         items: [{
-                            plan: plan.id,
+                            price: price.id,
                         }],
+                        // coupon: 'YC8v1HeL',
+                        coupon: req.body.coupon,
                     })
                     .then((subscribePlan) => {
                         let userMetaList = [{
@@ -139,7 +156,20 @@ router.post("/subscribe_plan", async function(req, res, next) {
                                                 req.body.facilityList, next,
                                                 function(setFacilityLawyer) {
                                                     if (setFacilityLawyer) {
-                                                        res.json({ success: true, data: subscribePlan });
+                                                        console.log(setFacilityLawyer)
+                                                        console.log("===========re.body", req.body)
+                                                        let x = {
+                                                            "plan": 'Up to 25 Connections',
+                                                            "totalAmount": req.body.amount / 100,
+                                                            "coupon": req.body.coupon,
+                                                            "discount": ((req.body.amount / 100) * 50 / 100),
+                                                            "isActive": true,
+                                                            'userId': req.body.userId
+                                                        }
+                                                        console.log("===========", x)
+                                                        user_plan.create(x).then((user_plan) => {
+                                                            res.json({ success: true, data: user_plan });
+                                                        }).catch((next) => { console.log(next) });
                                                     }
                                                 }
                                             );
@@ -200,53 +230,41 @@ router.post("/validate_coupan", async function(req, res, next) {
 });
 
 
-router.post('/subcription_details', async function(req, res, next) {
-    StripeConnection.findOne({
-        attributes: ['authKey'],
-        where: { stripeId: 1 }
-    }).then((key) => {
-        let stripe = Stripe(key.authKey);
-        stripe.customers.retrieve(req.body.strip_custId).then((customer) => {
-            stripe.customers.retrieveSource(
-                customer.id,
-                customer.default_source
-            ).then((cardDetails) => {
-                res.json({ success: true, data: cardDetails })
-            })
-        }).catch(next);
-    })
+router.get('/subcription_details', passport.authenticate("jwt", { session: false }), async function(req, res, next) {
+    User.findOne({
+        include: [{
+            model: UserMeta,
+            where: {
+                metaKey: {
+                    $or: [
+                        { $eq: 'cust_id' },
+                        { $eq: 'sub_id' }
+                    ]
+                }
+            },
+        }, ],
+        attributes: ["userId"],
+        where: { userId: req.user.userId },
+    }).then((user) => {
+        let stripeData = user.userMeta.find(x => x.metaKey == 'cust_id')
+        StripeConnection.findOne({
+            attributes: ['authKey'],
+            where: { stripeId: 1 }
+        }).then((key) => {
+            let stripe = Stripe(key.authKey);
+            stripe.customers.retrieve(stripeData.metaValue).then((customer) => {
+                stripe.customers.retrieveSource(
+                    customer.id,
+                    customer.default_source
+                ).then((cardDetails) => {
+                    res.json({ success: true, data: cardDetails })
+                })
+            }).catch(next);
+        })
+    }).catch(next);
 })
 
-router.post(
-    "/list-transaction",
-    passport.authenticate("jwt", { session: false }),
-    async function(req, res, next) {
-        User.findOne({
-                include: [{
-                    model: UserMeta,
-                    where: { metaKey: "cust_id" },
-                    attributes: ["metaKey", "metaValue"],
-                }, ],
-                where: { userId: req.user.userId },
-                attributes: ["userId", "userName", "firstName", "middleName", "lastName"],
-            })
-            .then((user) => {
-                StripeConnection.findOne({
-                        attributes: ['authKey'],
-                        where: { stripeId: 1 }
-                    }).then((key) => {
-                        let stripe = Stripe(key.dataValues.authKey);
-                        stripe.customers
-                            .listBalanceTransactions(user.userMeta[0].metaValue)
-                            .then((transactions) => {
-                                res.json({ success: true, data: transactions });
-                            })
-                            .catch(next);
-                    })
-                    .catch(next);
-            })
-    }
-);
+
 
 /* update card */
 router.post("/update_card", async function(req, res, next) {
@@ -262,7 +280,7 @@ router.post("/update_card", async function(req, res, next) {
                     exp_month: req.body.exp_month,
                     exp_year: req.body.exp_year,
                     cvc: req.body.cvc,
-                },
+                }
             })
             .then((token) => {
                 // console.log('token', token)
@@ -291,92 +309,100 @@ router.post("/update_card", async function(req, res, next) {
     })
 });
 
+
+
 /*update plan */
-router.post("/update_plan", passport.authenticate("jwt", { session: false }),
-    async function(req, res, next) {
-        User.findOne({
-            include: [{
-                model: UserMeta,
-                where: {
-                    metaKey: {
-                        $or: [
-                            { $eq: 'cust_id' },
-                            { $eq: 'sub_id' }
-                        ]
-                    }
-                },
-            }, ],
-            attributes: ["userId"],
-            where: { userId: req.user.userId },
-        }).then((user) => {
-            StripeConnection.findOne({
-                attributes: ['authKey', 'productId'],
-                where: { stripeId: 1 }
-            }).then((key) => {
-                let stripe = Stripe(key.dataValues.authKey);
-                stripe.subscriptions
-                    .retrieve(user.userMeta[0].metaValue)
-                    .then((data) => {
-                        stripe.plans
-                            .del(data.items.data[0].plan.id)
-                            .then(() => {
-                                stripe.plans
-                                    .create({
-                                        amount: req.body.amount,
-                                        currency: "usd",
-                                        interval: "month",
-                                        product: key.dataValues.productId,
-                                    })
-                                    .then((plan) => {
-                                        stripe.subscriptions
-                                            .create({
-                                                customer: user.userMeta[1].metaValue,
-                                                items: [{
-                                                    plan: plan.id,
-                                                }, ],
-                                            })
-                                            .then((subscribePlan) => {
-                                                deleteLawyerFacilityAddons(
-                                                    req.body.userId, req.body.type, next,
-                                                    function(deleteFacilityLawyer) {
-                                                        if (deleteFacilityLawyer) {
-                                                            setLawyerFacilityAddons(
-                                                                req.body.facilityList, next,
-                                                                function(setFacilityLawyer) {
-                                                                    if (setFacilityLawyer) {
-                                                                        UserMeta.update({
-                                                                                metaValue: subscribePlan.id,
-                                                                            }, {
-                                                                                where: {
-                                                                                    metaKey: "sub_id",
-                                                                                    userId: req.user.userId,
-                                                                                },
-                                                                            })
-                                                                            .then((result) => {
-                                                                                res.json({
-                                                                                    success: true,
-                                                                                    data: subscribePlan,
-                                                                                });
-                                                                            })
-                                                                            .catch(next);
-                                                                    }
-                                                                }
-                                                            );
+router.post("/update_plan", passport.authenticate("jwt", { session: false }), async function(req, res, next) {
+    // console.log('==-==-==-==-===', req.body)
+    User.findOne({
+        include: [{
+            model: UserMeta,
+            where: {
+                metaKey: {
+                    $or: [
+                        { $eq: 'cust_id' },
+                        { $eq: 'sub_id' }
+                    ]
+                }
+            },
+        }, ],
+        attributes: ["userId"],
+        where: { userId: req.user.userId },
+    }).then((user) => {
+        // console.log(user.userMeta)
+        let subId = user.userMeta.filter(x => x.metaKey === 'sub_id')
+        let cusId = user.userMeta.filter(x => x.metaKey === 'cust_id')
+
+        console.log('======1234', subId.metaValue, cusId.metaValue)
+            // console.log('====================', subId.dataValues.metaValue, cusId.dataValues.metaValue)
+        StripeConnection.findOne({
+            attributes: ['authKey', 'productId'],
+            where: { stripeId: 1 }
+        }).then((key) => {
+            let stripe = Stripe(key.dataValues.authKey);
+            stripe.subscriptions
+                .del(user.userMeta[0].metaValue)
+                .then(() => {
+                    stripe.prices
+                        .create({
+                            unit_amount: req.body.amount,
+                            currency: 'usd',
+                            recurring: { interval: 'month' },
+                            product: key.dataValues.productId
+                        })
+                        .then((price) => {
+                            stripe.subscriptions
+                                .create({
+                                    customer: user.userMeta[1].metaValue,
+                                    items: [{
+                                        price: price.id,
+                                    }],
+                                })
+                                .then((subscribePlan) => {
+                                    deleteLawyerFacilityAddons(
+                                        req.body.userId, req.body.type, next,
+                                        function(deleteFacilityLawyer) {
+                                            if (deleteFacilityLawyer) {
+                                                setLawyerFacilityAddons(
+                                                    req.body.facilityList, next,
+                                                    function(setFacilityLawyer) {
+                                                        if (setFacilityLawyer) {
+                                                            UserMeta.update({
+                                                                    metaValue: subscribePlan.id,
+                                                                }, {
+                                                                    where: {
+                                                                        metaKey: "sub_id",
+                                                                        userId: req.user.userId,
+                                                                    },
+                                                                })
+                                                                .then(() => {
+                                                                    res.json({
+                                                                        success: true,
+                                                                        data: subscribePlan,
+                                                                    });
+                                                                })
+                                                                .catch(next);
                                                         }
                                                     }
                                                 );
-                                            })
-                                            .catch(next);
-                                    })
-                                    .catch(next);
-                            })
-                            .catch(next);
-                    })
-                    .catch(next);
-            })
-        });
-    }
-);
+                                            }
+                                        }
+                                    );
+                                }).catch((next) => {
+                                    console.log(next)
+                                });
+                        }).catch((next) => {
+                            console.log(next)
+                        });
+
+                })
+                .catch((next) => {
+                    console.log(next)
+                });
+        })
+    });
+});
+
 
 function deleteLawyerFacilityAddons(userId, type, next, callback) {
     if (type == 'lawyer') {

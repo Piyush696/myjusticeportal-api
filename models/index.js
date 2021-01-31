@@ -41,7 +41,7 @@ db.UserAdditionalInfo = require('./userAdditionalInfo')(sequelize, Sequelize);
 db.lawyer_facility = require('./lawyer_facility')(sequelize, Sequelize);
 db.defender_case = require('./defender_case')(sequelize, Sequelize);
 db.defender_facility = require('./defender_facility')(sequelize, Sequelize);
-
+db.user_plan = require('./user_plan')(sequelize, Sequelize);
 /* Mapings */
 
 db.Organization.hasMany(db.User, { foreignKey: 'organizationId', sourceKey: 'organizationId' });
@@ -101,6 +101,7 @@ db.Facility.belongsToMany(db.User, { as: 'lawyerFacility', through: 'lawyer_faci
 db.User.belongsToMany(db.Facility, { as: 'defender', through: 'defender_facility', foreignKey: 'defenderId' });
 db.Facility.belongsToMany(db.User, { as: 'defender', through: 'defender_facility', foreignKey: 'facilityId' });
 
+db.user_plan.belongsTo(db.User, { foreignKey: 'userId', sourceKey: 'userId' });
 
 db.User.belongsToMany(db.Case, { as: 'lawyer', through: 'lawyer_case', foreignKey: 'lawyerId' });
 db.Case.belongsToMany(db.User, { as: 'lawyer', through: 'lawyer_case', foreignKey: 'caseId' });
