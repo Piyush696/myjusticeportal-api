@@ -156,13 +156,18 @@ router.post("/subscribe_plan", async function(req, res, next) {
                                                 req.body.facilityList, next,
                                                 function(setFacilityLawyer) {
                                                     if (setFacilityLawyer) {
-                                                        console.log(setFacilityLawyer)
-                                                        console.log("===========re.body", req.body)
+                                                        console.log("===========req.body", req.body)
+                                                        let plan;
+                                                        if (req.body.facilityList && req.body.facilityList[0].planSelected) {
+                                                            plan = req.body.facilityList[0].planSelected
+                                                        } else {
+                                                            plan = 'Unlimited Connections';
+                                                        }
                                                         let x = {
-                                                            "plan": 'Up to 25 Connections',
+                                                            "plan": plan,
                                                             "totalAmount": req.body.amount / 100,
                                                             "coupon": req.body.coupon,
-                                                            "discount": ((req.body.amount / 100) * 50 / 100),
+                                                            "discount": req.body.discount,
                                                             "isActive": true,
                                                             'userId': req.body.userId
                                                         }
@@ -333,7 +338,7 @@ router.post("/update_plan", passport.authenticate("jwt", { session: false }), as
         let subId = user.userMeta.filter(x => x.metaKey === 'sub_id')
         let cusId = user.userMeta.filter(x => x.metaKey === 'cust_id')
 
-        console.log('======1234', subId.metaValue, cusId.metaValue)
+        console.log('======1234', subId, cusId)
             // console.log('====================', subId.dataValues.metaValue, cusId.dataValues.metaValue)
         StripeConnection.findOne({
             attributes: ['authKey', 'productId'],
@@ -357,37 +362,46 @@ router.post("/update_plan", passport.authenticate("jwt", { session: false }), as
                                     items: [{
                                         price: price.id,
                                     }],
+                                    coupon: req.body.coupon,
                                 })
                                 .then((subscribePlan) => {
-                                    deleteLawyerFacilityAddons(
-                                        req.body.userId, req.body.type, next,
-                                        function(deleteFacilityLawyer) {
-                                            if (deleteFacilityLawyer) {
-                                                setLawyerFacilityAddons(
-                                                    req.body.facilityList, next,
-                                                    function(setFacilityLawyer) {
-                                                        if (setFacilityLawyer) {
-                                                            UserMeta.update({
-                                                                    metaValue: subscribePlan.id,
-                                                                }, {
-                                                                    where: {
-                                                                        metaKey: "sub_id",
-                                                                        userId: req.user.userId,
-                                                                    },
-                                                                })
-                                                                .then(() => {
-                                                                    res.json({
-                                                                        success: true,
-                                                                        data: subscribePlan,
-                                                                    });
-                                                                })
-                                                                .catch(next);
+                                    deleteLawyerFacilityAddons(req.body.userId, req.body.type, next, function(deleteFacilityLawyer) {
+                                        if (deleteFacilityLawyer) {
+                                            setLawyerFacilityAddons(req.body.facilityList, next, function(setFacilityLawyer) {
+                                                if (setFacilityLawyer) {
+                                                    UserMeta.update({
+                                                        metaValue: subscribePlan.id,
+                                                    }, {
+                                                        where: {
+                                                            metaKey: "sub_id",
+                                                            userId: req.user.userId,
+                                                        },
+                                                    }).then(() => {
+                                                        let plan;
+                                                        if (req.body.facilityList && req.body.facilityList[0].planSelected) {
+                                                            plan = req.body.facilityList[0].planSelected
+                                                        } else {
+                                                            plan = 'Unlimited Connections';
                                                         }
-                                                    }
-                                                );
-                                            }
+                                                        let x = {
+                                                            "plan": plan,
+                                                            "totalAmount": req.body.amount / 100,
+                                                            "coupon": req.body.coupon,
+                                                            "discount": req.body.discount,
+                                                            "isActive": true,
+                                                            'userId': req.user.userId
+                                                        }
+                                                        user_plan.update({ isActive: false }, { where: { userId: req.user.userId, isActive: true } }).then(() => {
+                                                            console.log("===========", x)
+                                                            user_plan.create(x).then((user_plan) => {
+                                                                res.json({ success: true, data: user_plan });
+                                                            }).catch(next);
+                                                        }).catch(next)
+                                                    }).catch(next);
+                                                }
+                                            });
                                         }
-                                    );
+                                    });
                                 }).catch((next) => {
                                     console.log(next)
                                 });
