@@ -12,17 +12,20 @@ var Facility = require('../../models').Facility;
 const jwtUtils = require('../../utils/create-jwt');
 
 /* Login user. */
-router.post('/login', function (req, res, next) {
+router.post('/login', function(req, res, next) {
     User.findOne({
-        include: [
-            {
-                model: Role, through: {
-                    attributes: [],attributes: ['roleId','name'],
+        include: [{
+                model: Role,
+                through: {
+                    attributes: [],
+                    attributes: ['roleId', 'name'],
                 }
             },
             {
-                model: Facility, through: {
-                    attributes: [],attributes: ['facilityId'],
+                model: Facility,
+                through: {
+                    attributes: [],
+                    attributes: ['facilityId'],
                 }
             }
         ],
@@ -30,11 +33,9 @@ router.post('/login', function (req, res, next) {
     }).then((user) => {
         if (!user) {
             res.json({ success: false, data: 'Invalid User.' })
-        }
-        else if (user && !user.isValidPassword(req.body.password)) {
+        } else if (user && !user.isValidPassword(req.body.password)) {
             res.json({ success: false, data: 'Invalid Password.' })
-        }
-        else {
+        } else {
             if (user.isMFA && user.status) {
                 if (user.mobile && user.countryCode) {
                     Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
@@ -42,26 +43,25 @@ router.post('/login', function (req, res, next) {
                         var client = new twilio(twilioCredentials.accountSid, twilioCredentials.authToken);
                         client.messages.create({
                             body: 'My Justice Portal' + ': ' + code + ' - This is your verification code.',
-                            to: '+' + user.countryCode + user.mobile,  // Text this number
+                            to: '+' + user.countryCode + user.mobile, // Text this number
                             from: twilioCredentials.from // From a valid Twilio number
                         }).then((message) => {
                             User.update({ authCode: code }, { where: { userId: user.dataValues.userId } }).then((user) => {
                                 res.json({ success: false, data: 'Please Enter Your auth code.' })
                             }).catch(next)
                         }).catch((err) => {
-                            res.json({ success: false });
+                            console.log(err)
+                            res.json({ success: false, data: err });
                         })
                     })
-                }
-                else {
+                } else {
                     res.json({ success: false, data: 'Please Register your Mobile Number.' })
                 }
-            }
-            else if (user.isMFA && !user.status) {
-                if(user.roles[0].roleId === 3 || user.roles[0].roleId === 5){
-                    jwtUtils.createJwt(user, req.body.rememberMe, function (token) {
+            } else if (user.isMFA && !user.status) {
+                if (user.roles[0].roleId === 3 || user.roles[0].roleId === 5) {
+                    jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
                         if (token) {
-                            res.json({ success: false, token:token })
+                            res.json({ success: false, token: token })
                         } else {
                             res.json({ success: false });
                         }
@@ -69,13 +69,11 @@ router.post('/login', function (req, res, next) {
                 } else {
                     res.json({ success: false, data: 'Your account is under review. Please contact Administrator to activate your account.' })
                 }
-            }
-            else {
+            } else {
                 if (!user.isMFA && !user.status) {
                     res.json({ success: false, data: 'Please complete your registration.' })
-                }
-                else {
-                    jwtUtils.createJwt(user, req.body.rememberMe, function (token) {
+                } else {
+                    jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
                         if (token) {
                             res.json({ success: true, token: token });
                         } else {
@@ -99,21 +97,25 @@ function generateCode() {
 }
 
 /** if ismfa verify otp */
-router.post('/verify-otp', async function (req, res, next) {
+router.post('/verify-otp', async function(req, res, next) {
     User.findOne({
-        include: [
-            {
-                model: Role, through: {
-                    attributes: [],attributes: ['roleId','name'],
+        include: [{
+                model: Role,
+                through: {
+                    attributes: [],
+                    attributes: ['roleId', 'name'],
                 }
             },
             {
-                model: Facility, through: {
-                    attributes: [],attributes: ['facilityId'],
+                model: Facility,
+                through: {
+                    attributes: [],
+                    attributes: ['facilityId'],
                 }
             },
             {
-                model: Organization,attributes: ['organizationId'],
+                model: Organization,
+                attributes: ['organizationId'],
             }
         ],
         where: { userName: req.body.userName }
@@ -122,7 +124,7 @@ router.post('/verify-otp', async function (req, res, next) {
         let x = date - user.dataValues.updatedAt;
         x = Math.round((x / 1000) / 60);
         if (x <= 5 && user.dataValues.authCode == req.body.otp) {
-            jwtUtils.createJwt(user.dataValues, req.body.rememberMe, function (token) {
+            jwtUtils.createJwt(user.dataValues, req.body.rememberMe, function(token) {
                 if (token) {
                     res.json({ success: true, token: token });
                 } else {
@@ -138,7 +140,7 @@ router.post('/verify-otp', async function (req, res, next) {
 
 /**generate otp during login*/
 
-router.post('/resendCode', async function (req, res, next) {
+router.post('/resendCode', async function(req, res, next) {
     console.log(req.body)
     User.findOne({ where: { userName: req.body.userName } }).then((user) => {
         let code = generateCode();
@@ -146,15 +148,14 @@ router.post('/resendCode', async function (req, res, next) {
             var client = new twilio(twilioCredentials.accountSid, twilioCredentials.authToken);
             client.messages.create({
                 body: 'My Justice Portal' + ': ' + code + ' - This is your verification code.',
-                to: '+' + user.countryCode + user.mobile,  // Text this number
+                to: '+' + user.countryCode + user.mobile, // Text this number
                 from: twilioCredentials.from // From a valid Twilio number
             }).then((message) => {
-                User.update({ authCode: code },
-                    {
-                        where: { userName: req.body.userName }
-                    }).then(() => {
-                        res.json({ success: true })
-                    }).catch(next)
+                User.update({ authCode: code }, {
+                    where: { userName: req.body.userName }
+                }).then(() => {
+                    res.json({ success: true })
+                }).catch(next)
             }).catch((err) => {
                 res.json({ success: false })
             })
