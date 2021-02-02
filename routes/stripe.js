@@ -156,7 +156,6 @@ router.post("/subscribe_plan", async function(req, res, next) {
                                                 req.body.facilityList, next,
                                                 function(setFacilityLawyer) {
                                                     if (setFacilityLawyer) {
-                                                        console.log("===========req.body", req.body)
                                                         let plan;
                                                         if (req.body.facilityList && req.body.facilityList[0].planSelected) {
                                                             plan = req.body.facilityList[0].planSelected
@@ -171,25 +170,18 @@ router.post("/subscribe_plan", async function(req, res, next) {
                                                             "isActive": true,
                                                             'userId': req.body.userId
                                                         }
-                                                        console.log("===========", x)
                                                         user_plan.create(x).then((user_plan) => {
                                                             res.json({ success: true, data: user_plan });
-                                                        }).catch((next) => { console.log(next) });
+                                                        }).catch(next);
                                                     }
                                                 }
                                             );
                                         }
                                     })
                                 }
-                            }).catch((next) => {
-                                console.log(next)
-                            });
-                    }).catch((next) => {
-                        console.log(next)
-                    });
-            }).catch((next) => {
-                console.log(next)
-            });
+                            }).catch(next);
+                    }).catch(next);
+            }).catch(next);
     })
 });
 
@@ -272,53 +264,48 @@ router.get('/subcription_details', passport.authenticate("jwt", { session: false
 
 
 /* update card */
-router.post("/update_card", async function(req, res, next) {
-    StripeConnection.findOne({
-        attributes: ['authKey'],
-        where: { stripeId: 1 }
-    }).then((key) => {
-        let stripe = Stripe(key.dataValues.authKey);
-        stripe.tokens
-            .create({
-                card: {
-                    number: req.body.number,
-                    exp_month: req.body.exp_month,
-                    exp_year: req.body.exp_year,
-                    cvc: req.body.cvc,
+router.post("/update_card", passport.authenticate("jwt", { session: false }), async function(req, res, next) {
+    User.findOne({
+        include: [{
+            model: UserMeta,
+            where: {
+                metaKey: {
+                    $or: [
+                        { $eq: 'cust_id' }
+                    ]
                 }
-            })
-            .then((token) => {
-                // console.log('token', token)
-                stripe.customers
-                    .retrieve(req.body.customerId)
-                    .then((customer) => {
-                        //  console.log('customer', customer)
-                        //  console.log('customer', customer.default_source)
-                        stripe.customers
-                            .createSource(customer.id, { source: token.id })
-                            .then((createSource) => {
-                                // console.log('createSource', createSource)
-                                stripe.customers
-                                    .deleteSource(req.body.customerId, customer.default_source)
-                                    .then((deletecard) => {
-                                        //  console.log('deletecard', deletecard)
-                                        res.json({ success: true, data: createSource });
-                                    })
-                                    .catch(next);
-                            })
-                            .catch(next);
-                    })
-                    .catch(next);
-            })
-            .catch(next);
-    })
+            },
+        }, ],
+        attributes: ["userId"],
+        where: { userId: req.user.userId },
+    }).then((user) => {
+        StripeConnection.findOne({
+            attributes: ['authKey'],
+            where: { stripeId: 1 }
+        }).then((key) => {
+            let custId = user.userMeta.find(x => x.metaKey === 'cust_id')
+            let stripe = Stripe(key.dataValues.authKey);
+            stripe.customers
+                .retrieve(custId.metaValue)
+                .then((customer) => {
+                    stripe.customers
+                        .createSource(customer.id, { source: req.body.token })
+                        .then((createSource) => {
+                            stripe.customers
+                                .deleteSource(custId.metaValue, customer.default_source)
+                                .then(() => {
+                                    res.json({ success: true, data: createSource });
+                                }).catch(next);
+                        }).catch(next);
+                }).catch(next);
+        }).catch(next);
+    });
 });
 
 
 
 /*update plan */
 router.post("/update_plan", passport.authenticate("jwt", { session: false }), async function(req, res, next) {
-    // console.log('==-==-==-==-===', req.body)
     User.findOne({
         include: [{
             model: UserMeta,
@@ -334,12 +321,8 @@ router.post("/update_plan", passport.authenticate("jwt", { session: false }), as
         attributes: ["userId"],
         where: { userId: req.user.userId },
     }).then((user) => {
-        // console.log(user.userMeta)
         let subId = user.userMeta.filter(x => x.metaKey === 'sub_id')
         let cusId = user.userMeta.filter(x => x.metaKey === 'cust_id')
-
-        console.log('======1234', subId, cusId)
-            // console.log('====================', subId.dataValues.metaValue, cusId.dataValues.metaValue)
         StripeConnection.findOne({
             attributes: ['authKey', 'productId'],
             where: { stripeId: 1 }
@@ -392,7 +375,6 @@ router.post("/update_plan", passport.authenticate("jwt", { session: false }), as
                                                             'userId': req.user.userId
                                                         }
                                                         user_plan.update({ isActive: false }, { where: { userId: req.user.userId, isActive: true } }).then(() => {
-                                                            console.log("===========", x)
                                                             user_plan.create(x).then((user_plan) => {
                                                                 res.json({ success: true, data: user_plan });
                                                             }).catch(next);
@@ -402,17 +384,10 @@ router.post("/update_plan", passport.authenticate("jwt", { session: false }), as
                                             });
                                         }
                                     });
-                                }).catch((next) => {
-                                    console.log(next)
-                                });
-                        }).catch((next) => {
-                            console.log(next)
-                        });
+                                }).catch(next);
+                        }).catch(next);
 
-                })
-                .catch((next) => {
-                    console.log(next)
-                });
+                }).catch(next);
         })
     });
 });
