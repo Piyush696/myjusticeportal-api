@@ -61,10 +61,7 @@ router.get("/organizations", function(req, res, next) {
                             include: [{
                                 model: Address
                             }],
-                            attributes: [
-                                "organizationId",
-                                "name"
-                            ],
+                            attributes: ["organizationId","name"],
                         },
                         {
                             model: UserAdditionalInfo,
@@ -94,11 +91,11 @@ router.get("/organizations", function(req, res, next) {
                         "createdAt",
                     ],
                     where: { status: true }
-                })
-                .then((user) => {
+                }).then((user) => {
                     res.json({ success: true, data: user });
-                })
-                .catch(next);
+                }).catch((next)=>{
+                    console.log(next)
+                });
         } else {
             res.status(401).json({ success: false, data: "User not authorized." });
         }

@@ -17,6 +17,7 @@ const util = require('../utils/validateUser');
 const jwtUtils = require('../utils/create-jwt');
 const Organization = require('../models').Organization;
 const Address = require('../models').Address;
+const organization = require('../models/organization');
 
 
 /*findAll user include role */
@@ -28,7 +29,15 @@ router.get('/', passport.authenticate('jwt', { session: false }), function(req, 
             through: {
                 attributes: []
             },
-        }],
+        },
+        {
+            model: Organization,
+            include: [{
+                model: Address,
+                attributes: [ "state"],
+            }]
+        }
+    ],
         order: [
             ['createdAt', 'DESC']
         ]
