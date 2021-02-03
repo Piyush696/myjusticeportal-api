@@ -42,6 +42,7 @@ db.lawyer_facility = require('./lawyer_facility')(sequelize, Sequelize);
 db.defender_case = require('./defender_case')(sequelize, Sequelize);
 db.defender_facility = require('./defender_facility')(sequelize, Sequelize);
 db.user_plan = require('./user_plan')(sequelize, Sequelize);
+db.user_facility = require('./user_facility')(sequelize, Sequelize);
 /* Mapings */
 
 db.Organization.hasMany(db.User, { foreignKey: 'organizationId', sourceKey: 'organizationId' });
