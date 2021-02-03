@@ -10,6 +10,8 @@ const Role = require('../../models').Role;
 const Organization = require('../../models').Organization;
 var Facility = require('../../models').Facility;
 const jwtUtils = require('../../utils/create-jwt');
+const requestIp = require('request-ip');
+const user_facility = require('../../models').user_facility;
 
 /* Login user. */
 router.post('/login', function(req, res, next) {
@@ -36,50 +38,135 @@ router.post('/login', function(req, res, next) {
         } else if (user && !user.isValidPassword(req.body.password)) {
             res.json({ success: false, data: 'Invalid Password.' })
         } else {
-            if (user.isMFA && user.status) {
-                if (user.mobile && user.countryCode) {
-                    Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
-                        let code = generateCode();
-                        var client = new twilio(twilioCredentials.accountSid, twilioCredentials.authToken);
-                        client.messages.create({
-                            body: 'My Justice Portal' + ': ' + code + ' - This is your verification code.',
-                            to: '+' + user.countryCode + user.mobile, // Text this number
-                            from: twilioCredentials.from // From a valid Twilio number
-                        }).then((message) => {
-                            User.update({ authCode: code }, { where: { userId: user.dataValues.userId } }).then((user) => {
-                                res.json({ success: false, data: 'Please Enter Your auth code.' })
-                            }).catch(next)
+            if (user.roles[0].roleId === 1) {
+                const clientIp = requestIp.getClientIp(req);
+                Facility.findOne({ where: { ipAddress: clientIp } }).then((foundFacility) => {
+                    if (foundFacility) {
+                        user_facility.findOne({ facilityId: foundFacility.facilityId, userId: user.userId }).then((user_facility) => {
+                            if (user_facility) {
+                                if (user_facility.isActive === true) {
+                                    jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
+                                        if (token) {
+                                            res.json({ success: true, token: token });
+                                        } else {
+                                            res.json({ success: false });
+                                        }
+                                    });
+                                } else {
+                                    user_facility.update({ isActive: false }, { where: { userId: user.userId } }).then(() => {
+                                        user_facility.update({ isActive: true }, { where: { facilityId: foundFacility.facilityId, userId: user.userId } }).then((updatedFacility) => {
+                                            jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
+                                                if (token) {
+                                                    res.json({ success: true, token: token });
+                                                } else {
+                                                    res.json({ success: false });
+                                                }
+                                            });
+                                        });
+                                    });
+                                }
+                            } else {
+                                Facility.findOne({ where: { ipAddress: 'outside' } }).then((foundOutFacility) => {
+                                    let x = {
+                                        userId: user.userId,
+                                        facilityId: foundOutFacility.facilityId,
+                                        isActive: true
+                                    }
+                                    user_facility.create(x).then((updatedFacility) => {
+                                        jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
+                                            if (token) {
+                                                res.json({ success: true, token: token });
+                                            } else {
+                                                res.json({ success: false });
+                                            }
+                                        });
+                                    });
+                                });
+                            }
+                        });
+                    } else {
+                        Facility.findOne({ where: { ipAddress: 'outside' } }).then((foundOutFacility) => {
+                            user_facility.findOne({ where: { facilityId: foundOutFacility.facilityId, userId: user.userId } }).then((x) => {
+                                if (x) {
+                                    user_facility.update({ isActive: true }, { where: { facilityId: foundOutFacility.facilityId, userId: user.userId } }).then((updatedFacility) => {
+                                        jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
+                                            if (token) {
+                                                res.json({ success: true, token: token });
+                                            } else {
+                                                res.json({ success: false });
+                                            }
+                                        });
+                                    })
+                                } else {
+                                    let x = {
+                                        userId: user.userId,
+                                        facilityId: foundOutFacility.facilityId,
+                                        isActive: true
+                                    }
+                                    user_facility.create(x).then((updatedFacility) => {
+                                        jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
+                                            if (token) {
+                                                res.json({ success: true, token: token });
+                                            } else {
+                                                res.json({ success: false });
+                                            }
+                                        });
+                                    }).catch((err) => {
+                                        console.log(err)
+                                    });
+                                }
+                            })
                         }).catch((err) => {
                             console.log(err)
-                            res.json({ success: false, data: err });
-                        })
-                    })
-                } else {
-                    res.json({ success: false, data: 'Please Register your Mobile Number.' })
-                }
-            } else if (user.isMFA && !user.status) {
-                if (user.roles[0].roleId === 3 || user.roles[0].roleId === 5) {
-                    jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
-                        if (token) {
-                            res.json({ success: false, token: token })
-                        } else {
-                            res.json({ success: false });
-                        }
-                    });
-                } else {
-                    res.json({ success: false, data: 'Your account is under review. Please contact Administrator to activate your account.' })
-                }
+                        });
+                    }
+                });
             } else {
-                if (!user.isMFA && !user.status) {
-                    res.json({ success: false, data: 'Please complete your registration.' })
+                if (user.isMFA && user.status) {
+                    if (user.mobile && user.countryCode) {
+                        Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
+                            let code = generateCode();
+                            var client = new twilio(twilioCredentials.accountSid, twilioCredentials.authToken);
+                            client.messages.create({
+                                body: 'My Justice Portal' + ': ' + code + ' - This is your verification code.',
+                                to: '+' + user.countryCode + user.mobile, // Text this number
+                                from: twilioCredentials.from // From a valid Twilio number
+                            }).then((message) => {
+                                User.update({ authCode: code }, { where: { userId: user.dataValues.userId } }).then((user) => {
+                                    res.json({ success: false, data: 'Please Enter Your auth code.' })
+                                }).catch(next)
+                            }).catch((err) => {
+                                console.log(err)
+                                res.json({ success: false, data: err });
+                            })
+                        })
+                    } else {
+                        res.json({ success: false, data: 'Please Register your Mobile Number.' })
+                    }
+                } else if (user.isMFA && !user.status) {
+                    if (user.roles[0].roleId === 3 || user.roles[0].roleId === 5) {
+                        jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
+                            if (token) {
+                                res.json({ success: false, token: token })
+                            } else {
+                                res.json({ success: false });
+                            }
+                        });
+                    } else {
+                        res.json({ success: false, data: 'Your account is under review. Please contact Administrator to activate your account.' })
+                    }
                 } else {
-                    jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
-                        if (token) {
-                            res.json({ success: true, token: token });
-                        } else {
-                            res.json({ success: false });
-                        }
-                    });
+                    if (!user.isMFA && !user.status) {
+                        res.json({ success: false, data: 'Please complete your registration.' })
+                    } else {
+                        jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
+                            if (token) {
+                                res.json({ success: true, token: token });
+                            } else {
+                                res.json({ success: false });
+                            }
+                        });
+                    }
                 }
             }
         }
