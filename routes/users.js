@@ -15,6 +15,8 @@ const userMeta = require('../models').UserMeta;
 const Postage = require('../models').Postage;
 const util = require('../utils/validateUser');
 const jwtUtils = require('../utils/create-jwt');
+const Organization = require('../models').Organization;
+const Address = require('../models').Address;
 
 
 /*findAll user include role */
@@ -189,6 +191,14 @@ router.get('/singleUser/:userId', passport.authenticate('jwt', { session: false 
                     through: {
                         attributes: []
                     }
+                },
+                {
+                    model: Organization,
+                    attributes: ['name'],
+                    include: [{
+                        model: Address,
+                        attributes: ['street1', 'street2', "city", "state", "country", "zip"],
+                    }]
                 }
             ],
             where: { userId: req.params.userId }
