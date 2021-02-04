@@ -10,8 +10,9 @@ const Role = require('../../models').Role;
 const Organization = require('../../models').Organization;
 var Facility = require('../../models').Facility;
 const jwtUtils = require('../../utils/create-jwt');
-
-/* Login user. */
+const requestIp = require('request-ip');
+const user_facility = require('../../models').user_facility
+    /* Login user. */
 router.post('/login', function(req, res, next) {
     User.findOne({
         include: [{
@@ -37,11 +38,15 @@ router.post('/login', function(req, res, next) {
             res.json({ success: false, data: 'Invalid Password.' })
         } else {
             if (user.roles[0].roleId === 1) {
+                console.log('====1')
                 const clientIp = requestIp.getClientIp(req);
                 Facility.findOne({ where: { ipAddress: clientIp } }).then((foundFacility) => {
+                    console.log('2')
                     if (foundFacility) {
                         user_facility.findOne({ facilityId: foundFacility.facilityId, userId: user.userId }).then((user_facility) => {
+                            console.log('3')
                             if (user_facility) {
+                                console.log('4')
                                 if (user_facility.isActive === true) {
                                     jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
                                         if (token) {
@@ -51,6 +56,7 @@ router.post('/login', function(req, res, next) {
                                         }
                                     });
                                 } else {
+                                    console.log('5')
                                     user_facility.update({ isActive: false }, { where: { userId: user.userId } }).then(() => {
                                         user_facility.update({ isActive: true }, { where: { facilityId: foundFacility.facilityId, userId: user.userId } }).then((updatedFacility) => {
                                             jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
@@ -66,8 +72,10 @@ router.post('/login', function(req, res, next) {
                                     });
                                 }
                             } else {
+                                console.log('6')
                                 user_facility.update({ isActive: false }, { where: { userId: user.userId } }).then((updatedFacility) => {
                                     Facility.findOne({ where: { ipAddress: 'outside' } }).then((foundOutFacility) => {
+                                        console.log('7')
                                         let x = {
                                             userId: user.userId,
                                             facilityId: foundOutFacility.facilityId,
@@ -94,8 +102,11 @@ router.post('/login', function(req, res, next) {
                         });
                     } else {
                         Facility.findOne({ where: { ipAddress: 'outside' } }).then((foundOutFacility) => {
+                            console.log('7')
                             user_facility.findOne({ where: { facilityId: foundOutFacility.facilityId, userId: user.userId } }).then((x) => {
+                                console.log('8')
                                 if (x) {
+                                    console.log('9')
                                     user_facility.update({ isActive: true }, { where: { facilityId: foundOutFacility.facilityId, userId: user.userId } }).then((updatedFacility) => {
                                         jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
                                             if (token) {
@@ -108,6 +119,7 @@ router.post('/login', function(req, res, next) {
                                         });;
                                     })
                                 } else {
+                                    console.log('10')
                                     let x = {
                                         userId: user.userId,
                                         facilityId: foundOutFacility.facilityId,
