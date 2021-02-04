@@ -25,19 +25,19 @@ const organization = require('../models/organization');
 router.get('/', passport.authenticate('jwt', { session: false }), function(req, res, next) {
     User.findAll({
         include: [{
-            model: Role,
-            through: {
-                attributes: []
+                model: Role,
+                through: {
+                    attributes: []
+                },
             },
-        },
-        {
-            model: Organization,
-            include: [{
-                model: Address,
-                attributes: [ "state"],
-            }]
-        }
-    ],
+            {
+                model: Organization,
+                include: [{
+                    model: Address,
+                    attributes: ["state"],
+                }]
+            }
+        ],
         order: [
             ['createdAt', 'DESC']
         ]
@@ -407,6 +407,7 @@ router.post('/createUser', passport.authenticate('jwt', { session: false }), fun
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
                 userName: req.body.userName,
+                email: req.body.userName,
                 middleName: req.body.middleName,
                 isMFA: false,
                 status: true
