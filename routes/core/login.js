@@ -66,22 +66,24 @@ router.post('/login', function(req, res, next) {
                                     });
                                 }
                             } else {
-                                Facility.findOne({ where: { ipAddress: 'outside' } }).then((foundOutFacility) => {
-                                    let x = {
-                                        userId: user.userId,
-                                        facilityId: foundOutFacility.facilityId,
-                                        isActive: true
-                                    }
-                                    user_facility.create(x).then((updatedFacility) => {
-                                        jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
-                                            if (token) {
-                                                res.json({ success: true, token: token });
-                                            } else {
-                                                res.json({ success: false });
-                                            }
+                                user_facility.update({ isActive: false }, { where: { userId: user.userId } }).then((updatedFacility) => {
+                                    Facility.findOne({ where: { ipAddress: 'outside' } }).then((foundOutFacility) => {
+                                        let x = {
+                                            userId: user.userId,
+                                            facilityId: foundOutFacility.facilityId,
+                                            isActive: true
+                                        }
+                                        user_facility.create(x).then((updatedFacility) => {
+                                            jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
+                                                if (token) {
+                                                    res.json({ success: true, token: token });
+                                                } else {
+                                                    res.json({ success: false });
+                                                }
+                                            });
                                         });
                                     });
-                                });
+                                })
                             }
                         });
                     } else {
@@ -121,7 +123,7 @@ router.post('/login', function(req, res, next) {
                         });
                     }
                 });
-            } else {
+            } else if (user.roles[0].roleId === 3 || user.roles[0].roleId === 5 || user.roles[0].roleId === 4 || user.roles[0].roleId === 6) {
                 if (user.isMFA && user.status) {
                     if (user.mobile && user.countryCode) {
                         Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
