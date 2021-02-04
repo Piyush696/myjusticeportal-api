@@ -10,8 +10,6 @@ const Role = require('../../models').Role;
 const Organization = require('../../models').Organization;
 var Facility = require('../../models').Facility;
 const jwtUtils = require('../../utils/create-jwt');
-const requestIp = require('request-ip');
-const user_facility = require('../../models').user_facility;
 
 /* Login user. */
 router.post('/login', function(req, res, next) {
