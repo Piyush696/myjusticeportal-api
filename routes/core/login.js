@@ -38,98 +38,23 @@ router.post('/login', function(req, res, next) {
             res.json({ success: false, data: 'Invalid Password.' })
         } else {
             if (user.roles[0].roleId === 1) {
-                console.log('====1')
                 const clientIp = requestIp.getClientIp(req);
+
                 Facility.findOne({ where: { ipAddress: clientIp } }).then((foundFacility) => {
-                    console.log('2')
+
                     if (foundFacility) {
-                        user_facility.findOne({ facilityId: foundFacility.facilityId, userId: user.userId }).then((user_facility) => {
-                            console.log('3')
-                            if (user_facility) {
-                                console.log('4')
-                                if (user_facility.isActive === true) {
-                                    jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
-                                        if (token) {
-                                            res.json({ success: true, token: token });
-                                        } else {
-                                            res.json({ success: false });
-                                        }
-                                    });
-                                } else {
-                                    console.log('5')
+                        user_facility.findOne({ userId: user.userId, isActive: true }).then((user_facility) => {
+
+                            if (foundFacility.facilityId != user_facility.facilityId) {
+
+                                user_facility.update({ isActive: false }, { where: { userId: user.userId } }).then(() => {
+
                                     let x = {
                                         userId: user.userId,
                                         facilityId: foundFacility.facilityId,
                                         isActive: true
                                     }
-                                    user_facility.update({ isActive: false }, { where: { userId: user.userId } }).then(() => {
-                                        user_facility.create(x).then((createdUser_facility) => {
-                                            jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
-                                                if (token) {
-                                                    res.json({ success: true, token: token });
-                                                } else {
-                                                    res.json({ success: false });
-                                                }
-                                            });
-                                        }).catch((err) => {
-                                            console.log(err)
-                                        });
-                                    });
-                                }
-                            } else {
-                                console.log('6')
-                                user_facility.update({ isActive: false }, { where: { userId: user.userId } }).then((updatedFacility) => {
-                                    console.log('7')
-                                    let x = {
-                                        userId: user.userId,
-                                        facilityId: foundFacility.facilityId,
-                                        isActive: true
-                                    }
-                                    user_facility.create(x).then((createdFacility) => {
-                                        jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
-                                            if (token) {
-                                                res.json({ success: true, token: token });
-                                            } else {
-                                                res.json({ success: false });
-                                            }
-                                        });
-                                    }).catch((err) => {
-                                        console.log(err)
-                                    });
-                                }).catch((err) => {
-                                    console.log(err)
-                                });
-                            }
-                        }).catch((err) => {
-                            console.log(err)
-                        });
-                    } else {
-                        Facility.findOne({ where: { ipAddress: 'outside' } }).then((foundOutFacility) => {
-                            console.log('7', foundOutFacility)
-                            user_facility.findOne({ where: { facilityId: foundOutFacility.dataValues.facilityId, userId: user.userId } }).then((x) => {
-                                console.log('8')
-                                if (x) {
-                                    console.log('9')
-                                    user_facility.update({ isActive: false }, { where: { userId: user.userId } }).then((updatedFacility) => {
-                                        user_facility.update({ isActive: true }, { where: { facilityId: foundOutFacility.facilityId, userId: user.userId } }).then((updatedFacility) => {
-                                            jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
-                                                if (token) {
-                                                    res.json({ success: true, token: token });
-                                                } else {
-                                                    res.json({ success: false });
-                                                }
-                                            }).catch((err) => {
-                                                console.log(err)
-                                            });
-                                        })
-                                    })
-                                } else {
-                                    console.log('10')
-                                    let x = {
-                                        userId: user.userId,
-                                        facilityId: foundOutFacility.facilityId,
-                                        isActive: true
-                                    }
+
                                     user_facility.create(x).then((updatedFacility) => {
                                         jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
                                             if (token) {
@@ -141,13 +66,70 @@ router.post('/login', function(req, res, next) {
                                     }).catch((err) => {
                                         console.log(err)
                                     });
+
+                                })
+
+
+                            } else {
+                                jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
+                                    if (token) {
+                                        res.json({ success: true, token: token });
+                                    } else {
+                                        res.json({ success: false });
+                                    }
+                                });
+                            }
+
+                        })
+                    } else {
+
+                        Facility.findOne({ where: { ipAddress: 'outside' } }).then((outsideFacility) => {
+
+                            user_facility.findOne({ userId: user.userId, isActive: true, facilityId: outsideFacility.facilityId }).then((user_facility) => {
+
+                                if (!user_facility) {
+
+                                    user_facility.update({ isActive: false }, { where: { userId: user.userId } }).then(() => {
+                                        let x = {
+                                            userId: user.userId,
+                                            facilityId: outsideFacility.facilityId,
+                                            isActive: true
+                                        }
+                                        user_facility.create(x).then((updatedFacility) => {
+                                            jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
+                                                if (token) {
+                                                    res.json({ success: true, token: token });
+                                                } else {
+                                                    res.json({ success: false });
+                                                }
+                                            });
+                                        }).catch((err) => {
+                                            console.log(err)
+                                        });
+                                    })
+
+                                } else {
+                                    jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
+                                        if (token) {
+                                            res.json({ success: true, token: token });
+                                        } else {
+                                            res.json({ success: false });
+                                        }
+                                    });
                                 }
                             })
-                        }).catch((err) => {
-                            console.log(err)
-                        });
+
+                        })
+
+
+
                     }
-                });
+
+
+
+                })
+
+
             } else if (user.roles[0].roleId != 1) {
                 if (user.isMFA && user.status) {
                     if (user.mobile && user.countryCode) {
