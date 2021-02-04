@@ -57,8 +57,13 @@ router.post('/login', function(req, res, next) {
                                     });
                                 } else {
                                     console.log('5')
+                                    let x = {
+                                        userId: user.userId,
+                                        facilityId: foundFacility.facilityId,
+                                        isActive: true
+                                    }
                                     user_facility.update({ isActive: false }, { where: { userId: user.userId } }).then(() => {
-                                        user_facility.update({ isActive: true }, { where: { facilityId: foundFacility.facilityId, userId: user.userId } }).then((updatedFacility) => {
+                                        user_facility.create(x).then((createdUser_facility) => {
                                             jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
                                                 if (token) {
                                                     res.json({ success: true, token: token });
@@ -74,24 +79,22 @@ router.post('/login', function(req, res, next) {
                             } else {
                                 console.log('6')
                                 user_facility.update({ isActive: false }, { where: { userId: user.userId } }).then((updatedFacility) => {
-                                    Facility.findOne({ where: { ipAddress: 'outside' } }).then((foundOutFacility) => {
-                                        console.log('7')
-                                        let x = {
-                                            userId: user.userId,
-                                            facilityId: foundOutFacility.facilityId,
-                                            isActive: true
-                                        }
-                                        user_facility.create(x).then((createdFacility) => {
-                                            jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
-                                                if (token) {
-                                                    res.json({ success: true, token: token });
-                                                } else {
-                                                    res.json({ success: false });
-                                                }
-                                            });
-                                        }).catch((err) => {
-                                            console.log(err)
+                                    console.log('7')
+                                    let x = {
+                                        userId: user.userId,
+                                        facilityId: foundFacility.facilityId,
+                                        isActive: true
+                                    }
+                                    user_facility.create(x).then((createdFacility) => {
+                                        jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
+                                            if (token) {
+                                                res.json({ success: true, token: token });
+                                            } else {
+                                                res.json({ success: false });
+                                            }
                                         });
+                                    }).catch((err) => {
+                                        console.log(err)
                                     });
                                 }).catch((err) => {
                                     console.log(err)
@@ -102,21 +105,23 @@ router.post('/login', function(req, res, next) {
                         });
                     } else {
                         Facility.findOne({ where: { ipAddress: 'outside' } }).then((foundOutFacility) => {
-                            console.log('7')
-                            user_facility.findOne({ where: { facilityId: foundOutFacility.facilityId, userId: user.userId } }).then((x) => {
+                            console.log('7', foundOutFacility)
+                            user_facility.findOne({ where: { facilityId: foundOutFacility.dataValues.facilityId, userId: user.userId } }).then((x) => {
                                 console.log('8')
                                 if (x) {
                                     console.log('9')
-                                    user_facility.update({ isActive: true }, { where: { facilityId: foundOutFacility.facilityId, userId: user.userId } }).then((updatedFacility) => {
-                                        jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
-                                            if (token) {
-                                                res.json({ success: true, token: token });
-                                            } else {
-                                                res.json({ success: false });
-                                            }
-                                        }).catch((err) => {
-                                            console.log(err)
-                                        });;
+                                    user_facility.update({ isActive: false }, { where: { userId: user.userId } }).then((updatedFacility) => {
+                                        user_facility.update({ isActive: true }, { where: { facilityId: foundOutFacility.facilityId, userId: user.userId } }).then((updatedFacility) => {
+                                            jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
+                                                if (token) {
+                                                    res.json({ success: true, token: token });
+                                                } else {
+                                                    res.json({ success: false });
+                                                }
+                                            }).catch((err) => {
+                                                console.log(err)
+                                            });
+                                        })
                                     })
                                 } else {
                                     console.log('10')
@@ -143,7 +148,7 @@ router.post('/login', function(req, res, next) {
                         });
                     }
                 });
-            } else if (user.roles[0].roleId === 3 || user.roles[0].roleId === 5 || user.roles[0].roleId === 4 || user.roles[0].roleId === 6) {
+            } else if (user.roles[0].roleId != 1) {
                 if (user.isMFA && user.status) {
                     if (user.mobile && user.countryCode) {
                         Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
