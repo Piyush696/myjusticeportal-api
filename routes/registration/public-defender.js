@@ -19,6 +19,7 @@ router.post('/registration', function(req, res, next) {
     req.body.user.password = User.generateHash(req.body.user.password);
     req.body.user.isAdmin = true;
     req.body.user.email = req.body.user.userName;
+    req.body.user.isSelfPaid = true; //removed later
     User.create(req.body.user).then((createdUser) => {
         req.body.userMeta.map((element) => {
             element['userId'] = createdUser.dataValues.userId
