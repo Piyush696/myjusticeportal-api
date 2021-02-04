@@ -39,16 +39,17 @@ router.post('/login', function(req, res, next) {
         } else {
             if (user.roles[0].roleId === 1) {
                 const clientIp = requestIp.getClientIp(req);
-
+                console.log(1, clientIp)
                 Facility.findOne({ where: { ipAddress: clientIp } }).then((foundFacility) => {
+                    console.log(2, foundFacility)
 
                     if (foundFacility) {
                         user_facility.findOne({ userId: user.userId, isActive: true }).then((user_facility) => {
-
+                            console.log(3, user_facility)
                             if (foundFacility.facilityId != user_facility.facilityId) {
 
                                 user_facility.update({ isActive: false }, { where: { userId: user.userId } }).then(() => {
-
+                                    console.log(4)
                                     let x = {
                                         userId: user.userId,
                                         facilityId: foundFacility.facilityId,
@@ -56,6 +57,7 @@ router.post('/login', function(req, res, next) {
                                     }
 
                                     user_facility.create(x).then((updatedFacility) => {
+                                        console.log(5, updatedFacility)
                                         jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
                                             if (token) {
                                                 res.json({ success: true, token: token });
@@ -71,6 +73,8 @@ router.post('/login', function(req, res, next) {
 
 
                             } else {
+
+                                console.log(6)
                                 jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
                                     if (token) {
                                         res.json({ success: true, token: token });
@@ -84,9 +88,9 @@ router.post('/login', function(req, res, next) {
                     } else {
 
                         Facility.findOne({ where: { ipAddress: 'outside' } }).then((outsideFacility) => {
-
+                            console.log(7, outsideFacility)
                             user_facility.findOne({ userId: user.userId, isActive: true, facilityId: outsideFacility.facilityId }).then((user_facility) => {
-
+                                console.log(8, user_facility)
                                 if (!user_facility) {
 
                                     user_facility.update({ isActive: false }, { where: { userId: user.userId } }).then(() => {
@@ -96,6 +100,7 @@ router.post('/login', function(req, res, next) {
                                             isActive: true
                                         }
                                         user_facility.create(x).then((updatedFacility) => {
+                                            console.log(9, updatedFacility)
                                             jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
                                                 if (token) {
                                                     res.json({ success: true, token: token });
@@ -109,6 +114,7 @@ router.post('/login', function(req, res, next) {
                                     })
 
                                 } else {
+                                    console.log(10)
                                     jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
                                         if (token) {
                                             res.json({ success: true, token: token });
