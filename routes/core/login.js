@@ -44,8 +44,8 @@ router.post('/login', function(req, res, next) {
                     console.log(2, foundFacility)
 
                     if (foundFacility) {
-                        user_facility.findOne({ userId: user.userId, isActive: true }).then((user_facility) => {
-                            console.log(3, user_facility)
+                        user_facility.findOne({ where: { userId: user.userId, isActive: true } }).then((user_facility) => {
+                            console.log(3, foundFacility.facilityId, user_facility.facilityId)
                             if (foundFacility.facilityId != user_facility.facilityId) {
 
                                 user_facility.update({ isActive: false }, { where: { userId: user.userId } }).then(() => {
@@ -89,7 +89,7 @@ router.post('/login', function(req, res, next) {
 
                         Facility.findOne({ where: { ipAddress: 'outside' } }).then((outsideFacility) => {
                             console.log(7, outsideFacility)
-                            user_facility.findOne({ userId: user.userId, isActive: true, facilityId: outsideFacility.facilityId }).then((user_facility) => {
+                            user_facility.findOne({ where: { userId: user.userId, isActive: true, facilityId: outsideFacility.facilityId } }).then((user_facility) => {
                                 console.log(8, user_facility)
                                 if (!user_facility) {
 
