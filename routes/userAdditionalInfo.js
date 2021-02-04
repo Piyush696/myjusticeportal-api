@@ -187,7 +187,9 @@ router.get("/sponsorsUser", function(req, res, next) {
                 var n = 2
                 randomItems = user.sort(() => .5 - Math.random()).slice(0, n);
                 res.json({ success: true, data: randomItems });
-            }).catch(next);
+            }).catch((next) => {
+                console.log(next)
+            });
         } else {
             res.status(401).json({ success: false, data: "User not authorized." });
         }

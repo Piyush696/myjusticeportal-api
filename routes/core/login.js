@@ -62,6 +62,8 @@ router.post('/login', function(req, res, next) {
                                                     res.json({ success: false });
                                                 }
                                             });
+                                        }).catch((err) => {
+                                            console.log(err)
                                         });
                                     });
                                 }
@@ -73,7 +75,7 @@ router.post('/login', function(req, res, next) {
                                             facilityId: foundOutFacility.facilityId,
                                             isActive: true
                                         }
-                                        user_facility.create(x).then((updatedFacility) => {
+                                        user_facility.create(x).then((createdFacility) => {
                                             jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
                                                 if (token) {
                                                     res.json({ success: true, token: token });
@@ -81,10 +83,16 @@ router.post('/login', function(req, res, next) {
                                                     res.json({ success: false });
                                                 }
                                             });
+                                        }).catch((err) => {
+                                            console.log(err)
                                         });
                                     });
-                                })
+                                }).catch((err) => {
+                                    console.log(err)
+                                });
                             }
+                        }).catch((err) => {
+                            console.log(err)
                         });
                     } else {
                         Facility.findOne({ where: { ipAddress: 'outside' } }).then((foundOutFacility) => {
@@ -97,7 +105,9 @@ router.post('/login', function(req, res, next) {
                                             } else {
                                                 res.json({ success: false });
                                             }
-                                        });
+                                        }).catch((err) => {
+                                            console.log(err)
+                                        });;
                                     })
                                 } else {
                                     let x = {

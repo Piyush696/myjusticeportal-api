@@ -51,54 +51,44 @@ router.get("/organizations", function(req, res, next) {
     util.validate([1], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             User.findAll({
-                    include: [{
-                            model: Facility,
-                            as: "lawyerFacility",
-                            where: { facilityId: req.user.facilities[0].facilityId },
-                        },
-                        {
-                            model: Organization,
-                            include: [{
-                                model: Address
-                            }],
-                            attributes: [
-                                "organizationId",
-                                "name"
-                            ],
-                        },
-                        {
-                            model: UserAdditionalInfo,
-                            include: [{
-                                    model: Files,
-                                    as: "profile",
-                                },
-                                {
-                                    model: Files,
-                                    as: "header",
-                                },
-                            ],
-                        },
-                        {
-                            model: Role,
-                            through: { attributes: [] },
-                            attributes: ["roleId"],
-                            where: { roleId: 3 },
-                        },
-                    ],
-                    attributes: [
-                        "userId",
-                        "firstName",
-                        "middleName",
-                        "lastName",
-                        "userName",
-                        "createdAt",
-                    ],
-                    where: { status: true }
-                })
-                .then((user) => {
-                    res.json({ success: true, data: user });
-                })
-                .catch(next);
+                include: [{
+                        model: Facility,
+                        as: "lawyerFacility",
+                        where: { facilityId: req.user.facilities[0].facilityId },
+                    },
+                    {
+                        model: Organization,
+                        include: [{
+                            model: Address
+                        }],
+                        attributes: ["organizationId", "name"],
+                    },
+                    {
+                        model: UserAdditionalInfo,
+                        include: [{
+                                model: Files,
+                                as: "profile",
+                            },
+                            {
+                                model: Files,
+                                as: "header",
+                            },
+                        ],
+                    },
+                    {
+                        model: Role,
+                        through: { attributes: [] },
+                        attributes: ["roleId"],
+                        where: { roleId: 3 },
+                    },
+                ],
+                attributes: ["userId", "firstName", "middleName", "lastName", "userName", "createdAt"],
+                where: { status: true }
+            }).then((user) => {
+                res.json({ success: true, data: user });
+            }).catch((next) => {
+                console.log(next)
+            });
         } else {
             res.status(401).json({ success: false, data: "User not authorized." });
         }
