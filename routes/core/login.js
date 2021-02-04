@@ -69,12 +69,12 @@ router.post('/login', function(req, res, next) {
                                                 },
                                                 {
                                                     model: Facility,
-                                                    where: { isActive: true },
                                                     through: {
                                                         attributes: [],
                                                         attributes: ['facilityId'],
                                                     }
                                                 }
+
                                             ],
                                             where: { userName: req.body.userName }
                                         }).then((inmate) => {
@@ -106,12 +106,12 @@ router.post('/login', function(req, res, next) {
                                         },
                                         {
                                             model: Facility,
-                                            where: { isActive: true },
                                             through: {
                                                 attributes: [],
                                                 attributes: ['facilityId'],
                                             }
-                                        }
+                                        },
+
                                     ],
                                     where: { userName: req.body.userName }
                                 }).then((inmate) => {
@@ -152,12 +152,12 @@ router.post('/login', function(req, res, next) {
                                                     },
                                                     {
                                                         model: Facility,
-                                                        where: { isActive: true },
                                                         through: {
                                                             attributes: [],
                                                             attributes: ['facilityId'],
                                                         }
-                                                    }
+                                                    },
+
                                                 ],
                                                 where: { userName: req.body.userName }
                                             }).then((inmate) => {
@@ -169,9 +169,9 @@ router.post('/login', function(req, res, next) {
                                                     }
                                                 });
                                             })
-                                        }).catch((err) => {
-                                            console.log(err)
-                                        });
+                                        }).catch((next) => {
+                                            console.log(next)
+                                        })
                                     })
 
                                 } else {
@@ -186,7 +186,6 @@ router.post('/login', function(req, res, next) {
                                             },
                                             {
                                                 model: Facility,
-                                                where: { isActive: true },
                                                 through: {
                                                     attributes: [],
                                                     attributes: ['facilityId'],
@@ -202,6 +201,8 @@ router.post('/login', function(req, res, next) {
                                                 res.json({ success: false });
                                             }
                                         });
+                                    }).catch((next) => {
+                                        console.log(next)
                                     })
                                 }
                             })
