@@ -44,9 +44,9 @@ router.post('/login', function(req, res, next) {
                     console.log(2, foundFacility)
 
                     if (foundFacility) {
-                        user_facility.findOne({ where: { userId: user.userId, isActive: true } }).then((user_facility) => {
-                            console.log(3, foundFacility.facilityId, user_facility.facilityId)
-                            if (foundFacility.facilityId != user_facility.facilityId) {
+                        user_facility.findOne({ where: { userId: user.userId, isActive: true } }).then((user_fac) => {
+                            // console.log(3, foundFacility.facilityId, user_facility.facilityId)
+                            if (foundFacility.facilityId != user_fac.facilityId) {
 
                                 user_facility.update({ isActive: false }, { where: { userId: user.userId } }).then(() => {
                                     console.log(4)
