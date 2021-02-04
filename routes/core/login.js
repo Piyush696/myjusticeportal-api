@@ -58,13 +58,34 @@ router.post('/login', function(req, res, next) {
 
                                     user_facility.create(x).then((updatedFacility) => {
                                         console.log(5, updatedFacility)
-                                        jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
-                                            if (token) {
-                                                res.json({ success: true, token: token });
-                                            } else {
-                                                res.json({ success: false });
-                                            }
-                                        });
+
+                                        User.findOne({
+                                            include: [{
+                                                    model: Role,
+                                                    through: {
+                                                        attributes: [],
+                                                        attributes: ['roleId', 'name'],
+                                                    }
+                                                },
+                                                {
+                                                    model: Facility,
+                                                    where: { isActive: true },
+                                                    through: {
+                                                        attributes: [],
+                                                        attributes: ['facilityId'],
+                                                    }
+                                                }
+                                            ],
+                                            where: { userName: req.body.userName }
+                                        }).then((inmate) => {
+                                            jwtUtils.createJwt(inmate, req.body.rememberMe, function(token) {
+                                                if (token) {
+                                                    res.json({ success: true, token: token });
+                                                } else {
+                                                    res.json({ success: false });
+                                                }
+                                            });
+                                        })
                                     }).catch((err) => {
                                         console.log(err)
                                     });
@@ -75,13 +96,33 @@ router.post('/login', function(req, res, next) {
                             } else {
 
                                 console.log(6)
-                                jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
-                                    if (token) {
-                                        res.json({ success: true, token: token });
-                                    } else {
-                                        res.json({ success: false });
-                                    }
-                                });
+                                User.findOne({
+                                    include: [{
+                                            model: Role,
+                                            through: {
+                                                attributes: [],
+                                                attributes: ['roleId', 'name'],
+                                            }
+                                        },
+                                        {
+                                            model: Facility,
+                                            where: { isActive: true },
+                                            through: {
+                                                attributes: [],
+                                                attributes: ['facilityId'],
+                                            }
+                                        }
+                                    ],
+                                    where: { userName: req.body.userName }
+                                }).then((inmate) => {
+                                    jwtUtils.createJwt(inmate, req.body.rememberMe, function(token) {
+                                        if (token) {
+                                            res.json({ success: true, token: token });
+                                        } else {
+                                            res.json({ success: false });
+                                        }
+                                    });
+                                })
                             }
 
                         })
@@ -101,13 +142,33 @@ router.post('/login', function(req, res, next) {
                                         }
                                         user_facility.create(x).then((updatedFacility) => {
                                             console.log(9, updatedFacility)
-                                            jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
-                                                if (token) {
-                                                    res.json({ success: true, token: token });
-                                                } else {
-                                                    res.json({ success: false });
-                                                }
-                                            });
+                                            User.findOne({
+                                                include: [{
+                                                        model: Role,
+                                                        through: {
+                                                            attributes: [],
+                                                            attributes: ['roleId', 'name'],
+                                                        }
+                                                    },
+                                                    {
+                                                        model: Facility,
+                                                        where: { isActive: true },
+                                                        through: {
+                                                            attributes: [],
+                                                            attributes: ['facilityId'],
+                                                        }
+                                                    }
+                                                ],
+                                                where: { userName: req.body.userName }
+                                            }).then((inmate) => {
+                                                jwtUtils.createJwt(inmate, req.body.rememberMe, function(token) {
+                                                    if (token) {
+                                                        res.json({ success: true, token: token });
+                                                    } else {
+                                                        res.json({ success: false });
+                                                    }
+                                                });
+                                            })
                                         }).catch((err) => {
                                             console.log(err)
                                         });
@@ -115,13 +176,33 @@ router.post('/login', function(req, res, next) {
 
                                 } else {
                                     console.log(10)
-                                    jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
-                                        if (token) {
-                                            res.json({ success: true, token: token });
-                                        } else {
-                                            res.json({ success: false });
-                                        }
-                                    });
+                                    User.findOne({
+                                        include: [{
+                                                model: Role,
+                                                through: {
+                                                    attributes: [],
+                                                    attributes: ['roleId', 'name'],
+                                                }
+                                            },
+                                            {
+                                                model: Facility,
+                                                where: { isActive: true },
+                                                through: {
+                                                    attributes: [],
+                                                    attributes: ['facilityId'],
+                                                }
+                                            }
+                                        ],
+                                        where: { userName: req.body.userName }
+                                    }).then((inmate) => {
+                                        jwtUtils.createJwt(inmate, req.body.rememberMe, function(token) {
+                                            if (token) {
+                                                res.json({ success: true, token: token });
+                                            } else {
+                                                res.json({ success: false });
+                                            }
+                                        });
+                                    })
                                 }
                             })
 

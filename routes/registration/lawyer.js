@@ -19,6 +19,7 @@ router.post('/registration', function(req, res, next) {
     req.body.user.password = User.generateHash(req.body.user.password);
     req.body.user.isAdmin = true;
     req.body.user.email = req.body.user.userName;
+    req.body.user.isSelfPaid = true; //removed later
     User.create(req.body.user).then((createdUser) => {
         req.body.userMeta.map((element) => {
             element['userId'] = createdUser.userId
@@ -112,11 +113,21 @@ router.post('/verify-sms/registration', async function(req, res, next) {
 // To update invited user data.
 
 router.post('/invitedUserUpdate', async function(req, res, next) {
-    req.body.password = User.generateHash(req.body.password);
-    User.update(req.body, {
-        where: { userName: req.body.userName }
-    }).then((updatedUser) => {
-        res.json({ success: true });
+    console.log(req.body)
+    req.body.user.password = User.generateHash(req.body.user.password);
+    req.body.user.email = req.body.user.userName;
+    User.update(req.body.user, {
+        where: { userName: req.body.user.userName },
+    }).then(() => {
+        User.findOne({ where: { userName: req.body.user.userName } }).then((user) => {
+            req.body.userMeta.map((element) => {
+                element['userId'] = user.dataValues.userId
+                element['createdBy'] = user.dataValues.userId
+            })
+            UserMeta.bulkCreate(req.body.userMeta).then(() => {
+                res.json({ success: true });
+            })
+        })
     });
 });
 

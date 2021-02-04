@@ -42,7 +42,6 @@ router.post('/', function(req, res, next) {
                         return Facility.findOne({ where: { ipAddress: clientIp } }).then((facility) => {
                             console.log(facility)
                             if (facility) {
-                                facility['isActive'] = true;
                                 user['roles'] = roles;
                                 user['facilities'] = [facility];
                                 console.log(user)
