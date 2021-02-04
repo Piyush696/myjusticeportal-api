@@ -89,9 +89,9 @@ router.post('/login', function(req, res, next) {
 
                         Facility.findOne({ where: { ipAddress: 'outside' } }).then((outsideFacility) => {
                             console.log(7, outsideFacility)
-                            user_facility.findOne({ where: { userId: user.userId, isActive: true, facilityId: outsideFacility.facilityId } }).then((user_facility) => {
-                                console.log(8, user_facility)
-                                if (!user_facility) {
+                            user_facility.findOne({ where: { userId: user.userId, isActive: true, facilityId: outsideFacility.facilityId } }).then((user_fac) => {
+                                console.log(8, user_fac)
+                                if (!user_fac) {
 
                                     user_facility.update({ isActive: false }, { where: { userId: user.userId } }).then(() => {
                                         let x = {
