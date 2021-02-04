@@ -102,8 +102,8 @@ router.post('/login', function(req, res, next) {
                         });
                     } else {
                         Facility.findOne({ where: { ipAddress: 'outside' } }).then((foundOutFacility) => {
-                            console.log('7')
-                            user_facility.findOne({ where: { facilityId: foundOutFacility.facilityId, userId: user.userId } }).then((x) => {
+                            console.log('7', foundOutFacility)
+                            user_facility.findOne({ where: { facilityId: foundOutFacility.dataValues.facilityId, userId: user.userId } }).then((x) => {
                                 console.log('8')
                                 if (x) {
                                     console.log('9')
