@@ -12,14 +12,12 @@ const validateUtil = require('../utils/validateUser');
 // To upload file.
 
 router.post('/uploadFile', upload.any(), function(req, res, next) {
-    console.log(req.user)
     validateUtil.validate([3, 5], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             let itemsProcessed = 1;
             req.files.forEach((file, index, array) => {
                 utils.uploadFile(file, file.mimetype, req.user.userId, 'mjp-public', 'public-read', function(fileId) {
                     if (fileId) {
-                        console.log(fileId)
                         req.body.fileId = fileId;
                         File_case.create(req.body).then(() => {
                             if (itemsProcessed === array.length) {
@@ -68,7 +66,6 @@ router.post('/fileDownloadLink', function(req, res, next) {
                     where: { fileId: req.body.fileId }
                 }]
             }).then((data) => {
-                console.log(data)
                 utils.getSingleSignedURL(data.caseFile[0], function(downloadLink) {
                     if (downloadLink) {
                         res.json({ success: true, data: downloadLink });
@@ -78,6 +75,22 @@ router.post('/fileDownloadLink', function(req, res, next) {
         } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
+    })
+})
+
+// To View file.
+
+router.get('/file-viewer/:fileId', function(req, res, next) {
+    validateUtil.validate([1], req.user.roles, function(isAuthenticated) {
+        Files.findOne({
+            where:{fileId: req.params.fileId}
+        }).then((file)=>{
+            utils.getSingleSignedURL(file, function(downloadLink) {
+                if (downloadLink) {
+                    res.json({ success: true, data: downloadLink });
+                }
+            })
+        }).catch(next);
     })
 })
 
