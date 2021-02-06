@@ -350,7 +350,9 @@ router.post("/status-update", function (req, res, next) {
 
 function connectionLimit(req, next, callback) {
     Lawyer_case.findAndCountAll({
-        where: { lawyerId: req.user.userId, status: 'Lawyer Approved' }
+        where: {
+        $or: [{ lawyerId: req.user.userId, status: 'Connected' }, { lawyerId: req.user.userId, status: 'Lawyer Approved' }],
+    }
     }).then((cases) => {
         Lawyer_facility.findOne({
             where: { lawyerId: req.user.userId },
