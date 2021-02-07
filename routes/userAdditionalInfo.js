@@ -169,9 +169,14 @@ router.get("/sponsorsUser", function(req, res, next) {
                     {
                         model: UserAdditionalInfo,
                         include: [{
-                            model: Files,
-                            as: "profile",
-                        }, ],
+                                model: Files,
+                                as: "profile",
+                            },
+                            {
+                                model: Files,
+                                as: "header",
+                            }
+                        ],
                     },
                     {
                         model: Organization
@@ -187,9 +192,7 @@ router.get("/sponsorsUser", function(req, res, next) {
                 var n = 2
                 randomItems = user.sort(() => .5 - Math.random()).slice(0, n);
                 res.json({ success: true, data: randomItems });
-            }).catch((next) => {
-                console.log(next)
-            });
+            }).catch(next);
         } else {
             res.status(401).json({ success: false, data: "User not authorized." });
         }
@@ -322,14 +325,10 @@ router.get("/dasboard/count", function(req, res, next) {
 // To set data after case Approved.
 
 router.post("/status-update", function(req, res, next) {
-    console.log(req.body)
     util.validate([3], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
-            console.log('1')
             if (req.body.status === 'Lawyer Approved') {
-                console.log('2')
                 connectionLimit(req, next, function(isLimitReached) {
-                    console.log('=======limit reached', isLimitReached)
                     if (isLimitReached) {
                         Lawyer_case.update({ status: req.body.status }, {
                             where: { caseId: req.body.caseId, lawyerId: req.user.userId },
@@ -341,14 +340,11 @@ router.post("/status-update", function(req, res, next) {
                     }
                 })
             } else {
-                console.log('================')
                 Lawyer_case.update({ status: req.body.status }, {
                     where: { caseId: req.body.caseId, lawyerId: req.user.userId },
                 }).then((data) => {
                     res.json({ success: true });
-                }).catch((next) => {
-                    console.log(next)
-                });
+                }).catch(next);
             }
 
         } else {
@@ -358,16 +354,13 @@ router.post("/status-update", function(req, res, next) {
 });
 
 function connectionLimit(req, next, callback) {
-    console.log('3')
     Lawyer_case.findAndCountAll({
         where: { lawyerId: req.user.userId, status: 'Connected' }
     }).then((cases) => {
-        console.log('========4', cases)
         Lawyer_facility.findOne({
             where: { lawyerId: req.user.userId },
             attributes: ["planSelected"]
         }).then((plan) => {
-            console.log('========5', plan)
             let planCount = 0;
             if (plan.planSelected === 'Up to 5 Connections') {
                 planCount = 5;

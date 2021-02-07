@@ -113,7 +113,6 @@ router.post('/verify-sms/registration', async function(req, res, next) {
 // To update invited user data.
 
 router.post('/invitedUserUpdate', async function(req, res, next) {
-    console.log(req.body)
     req.body.user.password = User.generateHash(req.body.user.password);
     req.body.user.email = req.body.user.userName;
     User.update(req.body.user, {

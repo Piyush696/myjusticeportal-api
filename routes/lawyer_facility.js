@@ -16,8 +16,6 @@ router.get('/', function(req, res, next) {
                     where: { userId: req.user.userId, isActive: true },
                     attributes: ['totalAmount', 'coupon', "discount", "userId"],
                 }).then((user_plan) => {
-                    console.log(user_plan)
-                        //console.log(data)
                     let facilityIds = data.map((x) => x.facilityId)
                     Facility.findAll({ where: { facilityId: facilityIds } }).then((facilities) => {
                         let count = 0;

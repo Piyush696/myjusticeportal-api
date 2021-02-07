@@ -54,7 +54,6 @@ router.get('/list-transactions', function(req, res, next) {
             attributes: ["userId", "userName", "firstName", "middleName", "lastName"],
         })
         .then((user) => {
-            console.log('==============eeee', user.userMeta[0].metaValue)
             StripeConnection.findOne({
                     attributes: ['authKey'],
                     where: { stripeId: 1 }
@@ -70,9 +69,7 @@ router.get('/list-transactions', function(req, res, next) {
                         .catch(next);
                 })
                 .catch(next);
-        }).catch((next) => {
-            console.log(next)
-        });
+        }).catch(next);
 });
 
 

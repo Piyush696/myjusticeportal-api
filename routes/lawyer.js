@@ -14,8 +14,6 @@ const Lawyer_case = require('../models').lawyer_case;
 router.get('/users', function(req, res, next) {
     util.validate([3], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
-            console.log('foundLawyerCases')
-            console.log(req.user.userId)
             Lawyer_case.findAll({
                 where: { status: 'Approved', lawyerId: req.user.userId }
             }).then((foundLawyerCases) => {
@@ -52,14 +50,11 @@ router.get('/users', function(req, res, next) {
 })
 
 router.put('/:caseId', function(req, res, next) {
-    console.log(req.body, req.params)
     util.validate([1], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             Lawyer_case.update({ status: 'Disconnected' }, { where: { lawyerId: req.body.lawyerId, caseId: parseInt(req.params.caseId) } }).then((data) => {
                 res.json({ success: true, data: data });
-            }).catch((next) => {
-                console.log(next)
-            })
+            }).catch(next)
         } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }
