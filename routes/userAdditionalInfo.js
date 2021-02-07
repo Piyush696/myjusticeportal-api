@@ -258,7 +258,7 @@ router.get("/lawyer/Cases", function(req, res, next) {
                             include: [{
                                 model: User,
                                 as: "inmate",
-                                attributes: ["userId", "firstName", "lastName", "userName"],
+                                attributes: ["userId", "firstName", "middleName", "lastName", "userName"],
                             }, ],
                             where: { caseId: caseIds },
                             attributes: ['caseId', 'legalMatter', 'briefDescriptionOfChargeOrLegalMatter'],
@@ -355,7 +355,9 @@ router.post("/status-update", function(req, res, next) {
 
 function connectionLimit(req, next, callback) {
     Lawyer_case.findAndCountAll({
-        where: { lawyerId: req.user.userId, status: 'Connected' }
+        where: {
+            $or: [{ lawyerId: req.user.userId, status: 'Connected' }, { lawyerId: req.user.userId, status: 'Lawyer Approved' }],
+        }
     }).then((cases) => {
         Lawyer_facility.findOne({
             where: { lawyerId: req.user.userId },

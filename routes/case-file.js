@@ -78,4 +78,20 @@ router.post('/fileDownloadLink', function(req, res, next) {
     })
 })
 
+// To View file.
+
+router.get('/file-viewer/:fileId', function(req, res, next) {
+    validateUtil.validate([1], req.user.roles, function(isAuthenticated) {
+        Files.findOne({
+            where:{fileId: req.params.fileId}
+        }).then((file)=>{
+            utils.getSingleSignedURL(file, function(downloadLink) {
+                if (downloadLink) {
+                    res.json({ success: true, data: downloadLink });
+                }
+            })
+        }).catch(next);
+    })
+})
+
 module.exports = router;

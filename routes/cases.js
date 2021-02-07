@@ -96,7 +96,7 @@ router.get('/assignedCase/:caseId', function(req, res, next) {
                     {
                         model: User,
                         as: 'inmate',
-                        attributes: ['userId', 'firstName', 'lastName', 'userName']
+                        attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName']
                     },
                     {
                         model: Files,
@@ -129,7 +129,7 @@ router.get('/:caseId', function(req, res, next) {
                 include: [{
                         model: User,
                         as: 'inmate',
-                        attributes: ['userId', 'firstName', 'lastName', 'userName']
+                        attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName']
                     },
                     {
                         model: Files,
