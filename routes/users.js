@@ -139,7 +139,6 @@ router.put('/updateUser', passport.authenticate('jwt', { session: false }), (req
 })
 
 router.put('/update/admin', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-    console.log(req.body)
     User.update({ isAdmin: req.body.isAdmin }, {
         where: { userId: req.body.userId }
     }).then(result => {
@@ -426,7 +425,6 @@ router.post('/createUser', passport.authenticate('jwt', { session: false }), fun
 
 //bulk delete by superadmin
 router.post('/deleteUsers', passport.authenticate('jwt', { session: false }), function(req, res, next) {
-    console.log(req.body)
     util.validate([7], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             req.body.forEach(element => {

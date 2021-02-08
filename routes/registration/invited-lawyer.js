@@ -14,7 +14,6 @@ const UserMeta = require('../../models').UserMeta;
 // To update invited public defender data.
 
 router.post('/registration', async function(req, res, next) {
-    console.log(req.body)
     req.body.user.password = User.generateHash(req.body.user.password);
     User.update(req.body.user, {
         where: { userName: req.body.user.userName },

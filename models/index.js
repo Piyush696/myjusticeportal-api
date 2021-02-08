@@ -110,5 +110,7 @@ db.Case.belongsToMany(db.User, { as: 'lawyer', through: 'lawyer_case', foreignKe
 db.User.belongsToMany(db.Case, { as: 'publicdefender', through: 'defender_case', foreignKey: 'publicdefenderId' });
 db.Case.belongsToMany(db.User, { as: 'publicdefender', through: 'defender_case', foreignKey: 'caseId' });
 
+db.User.belongsToMany(db.Facility, { as: 'facility', through: 'facilityUser_Facility', foreignKey: 'facilityUserId' });
+db.Facility.belongsToMany(db.User, { as: 'facility', through: 'facilityUser_Facility', foreignKey: 'facilityId' });
 
 module.exports = db;

@@ -40,13 +40,10 @@ router.post('/', function(req, res, next) {
                     Promise.resolve(user.setRoles(roles)).then(() => {
                         const clientIp = requestIp.getClientIp(req);
                         return Facility.findOne({ where: { ipAddress: clientIp } }).then((facility) => {
-                            console.log(facility)
                             if (facility) {
                                 user['roles'] = roles;
                                 user['facilities'] = [facility];
-                                console.log(user)
                                 Promise.resolve(user.addFacility(facility)).then(() => {
-                                    console.log(user)
                                     jwtUtils.createJwt(user, req.body.rememberMe, function(token) {
                                         if (token) {
                                             res.json({ success: true, token: token });
@@ -54,9 +51,7 @@ router.post('/', function(req, res, next) {
                                             res.json({ success: false });
                                         }
                                     });
-                                }).catch((next) => {
-                                    console.log(next)
-                                });
+                                }).catch(next);
                             } else {
                                 return Facility.findOne({ where: { ipAddress: 'outside' } }).then((foundFacility) => {
                                     Promise.resolve(user.addFacility(foundFacility)).then(() => {
@@ -72,21 +67,12 @@ router.post('/', function(req, res, next) {
                                     }).catch(next);
                                 })
                             }
-                        }).catch((next) => {
-                            console.log('1', next)
-                        });
+                        }).catch(next);
                     })
-                }).catch((next) => {
-                    console.log('2', next)
-                });
-            }).catch((next) => {
-                console.log('3', next)
-            });
-        }).catch((next) => {
-            console.log('4', next)
-        });
+                }).catch(next);
+            }).catch(next);
+        }).catch(next);
     }).catch(next => {
-        console.log('5', next)
         utils.validator(next, function(err) {
             res.status(400).json(err)
         })

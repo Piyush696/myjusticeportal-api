@@ -14,65 +14,67 @@ const requestIp = require('request-ip');
 
 // To create a facility user.
 
-router.post('/registration', function (req, res, next) {
+router.post('/registration', function(req, res, next) {
     req.body.user.password = User.generateHash(req.body.user.password);
+    req.body.user.email = req.body.user.userName;
     User.create(req.body.user).then((createdUser) => {
         Role.findOne({ where: { roleId: 2 } }).then((roles) => {
             Promise.resolve(createdUser.addRole(roles)).then(() => {
-                const clientIp = requestIp.getClientIp(req);
-                Facility.findOne({ where: { ipAddress: clientIp } }).then((foundFacility) => {
-                    if (foundFacility) {
-                        Promise.resolve(createdUser.addFacility(foundFacility)).then(() => {
-                            res.json({ success: true, data: createdUser });
-                        }).catch(next);
-                    } else {
-                        Facility.findOne({ where: { ipAddress: 'outside' } }).then((foundFacility) => {
-                            Promise.resolve(createdUser.addFacility(foundFacility)).then(() => {
-                                res.json({ success: true, data: createdUser });
-                            }).catch(next);
-                        })
-                    }
-                });
+                res.json({ success: true, data: createdUser });
+                // const clientIp = requestIp.getClientIp(req);
+                // Facility.findOne({ where: { ipAddress: clientIp } }).then((foundFacility) => {
+                //     if (foundFacility) {
+                //         Promise.resolve(createdUser.addFacility(foundFacility)).then(() => {
+                //             res.json({ success: true, data: createdUser });
+                //         }).catch(next);
+                //     } else {
+                //         Facility.findOne({ where: { ipAddress: 'outside' } }).then((foundFacility) => {
+                //             Promise.resolve(createdUser.addFacility(foundFacility)).then(() => {
+                //                 res.json({ success: true, data: createdUser });
+                //             }).catch(next);
+                //         })
+                //     }
+                // });
             }).catch(next);
         }).catch(next);
     }).catch(next => {
-        utils.validator(next, function (err) {
+        utils.validator(next, function(err) {
             res.status(400).json(err)
         });
     });
 })
 
-router.post('/authenticate/registration', async function (req, res, next) {
+router.post('/authenticate/registration', async function(req, res, next) {
     let code = generateCode();
     Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
         var client = new twilio(twilioCredentials.accountSid, twilioCredentials.authToken);
         client.messages.create({
             body: 'My Justice Portal' + ': ' + code + ' - This is your verification code.',
-            to: '+' + req.body.countryCode + req.body.mobile,  // Text this number
+            to: '+' + req.body.countryCode + req.body.mobile, // Text this number
             from: twilioCredentials.from // From a valid Twilio number
         }).then((message) => {
-            User.update({ authCode: code, mobile: req.body.mobile, countryCode: req.body.countryCode },
-                {
-                    where: { userName: req.body.userName }
-                }).then((user) => {
-                    res.json({ success: true });
-                }).catch(next)
+            User.update({ authCode: code, mobile: req.body.mobile, countryCode: req.body.countryCode }, {
+                where: { userName: req.body.userName }
+            }).then((user) => {
+                res.json({ success: true });
+            }).catch(next)
         }).catch((err) => {
             res.json({ success: false });
         })
     })
 });
 
-router.post('/verify-sms/registration', async function (req, res, next) {
+router.post('/verify-sms/registration', async function(req, res, next) {
     User.findOne({
-        include: [
-            {
-                model: Role, through: {
+        include: [{
+                model: Role,
+                through: {
                     attributes: []
                 }
             },
             {
-                model: Facility, through: {
+                model: Facility,
+                through: {
                     attributes: []
                 }
             }
@@ -83,7 +85,7 @@ router.post('/verify-sms/registration', async function (req, res, next) {
         let x = date - data.dataValues.updatedAt;
         x = Math.round((x / 1000) / 60);
         if (x <= 5 && data.dataValues.authCode == req.body.otp) {
-            jwtUtils.createJwt(data.dataValues, req.body.rememberMe, function (token) {
+            jwtUtils.createJwt(data.dataValues, req.body.rememberMe, function(token) {
                 if (token) {
                     res.json({ success: true, token: token });
                 } else {
@@ -107,13 +109,11 @@ function generateCode() {
     return Code;
 }
 
-router.get('/allFacility', function (req, res, next) {
+router.get('/allFacility', function(req, res, next) {
     Facility.findAll({
-        include: [
-            {
-                model: Address
-            }
-        ]
+        include: [{
+            model: Address
+        }]
     }).then(data => {
         res.json({ success: true, data: data });
     })

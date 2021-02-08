@@ -86,7 +86,6 @@ router.post('/forgot-password', function(req, res, next) {
                             }
                         }
                     }, function(error, response) {
-                        console.log(response.body)
                         if ((response.body.response.status !== 'unauthorized') && (response.body.response.status != 'bad_request') && (response.body.response.status !== 'precondition_failed')) {
                             if (response.body.data && response.body.data.message.status == 'queued') {
                                 res.json({ success: true, data: 'Mail sent' });
@@ -163,7 +162,6 @@ router.get('/user/securityQuestions', passport.authenticate('jwt', { session: fa
         let count = 0;
         data.forEach((element, index, array) => {
             SecurityQuestion.findOne({ where: { securityQuestionId: element.dataValues.securityQuestionId } }).then((securityQues) => {
-                console.log(securityQues)
                 element.dataValues.question = securityQues.dataValues.question
                 if (count === array.length - 1) {
                     res.json({ success: true, data: data });
@@ -171,9 +169,7 @@ router.get('/user/securityQuestions', passport.authenticate('jwt', { session: fa
                 count++;
             });
         })
-    }).catch((next) => {
-        console.log(next)
-    });
+    }).catch(next);
 })
 
 /*update securityQuestions Answers */
@@ -212,7 +208,6 @@ router.get('/user/userSecurityQuestions', passport.authenticate('jwt', { session
 })
 
 router.post('/update/SecurityQuestion', passport.authenticate('jwt', { session: false }), function(req, res, next) {
-    console.log(req.body)
     User_SecurityQuestion_Answers.update({ securityQuestionId: req.body.securityQuestionId, answer: req.body.answer }, { where: { securityQuestionId: req.body.previousSecurityId, userId: req.user.userId } }).then((question) => {
         res.json({ success: true, data: question });
     }).catch(next)
