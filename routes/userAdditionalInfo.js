@@ -161,32 +161,33 @@ router.get("/sponsorsUser", function(req, res, next) {
         if (isAuthenticated) {
             User.findAll({
                 include: [{
-                        model: Facility,
-                        as: 'lawyerFacility',
-                        through: { attributes: [] },
-                        where: { facilityId: req.user.facilities[0].facilityId }
+                    model: Facility,
+                    as: 'lawyerFacility',
+                    through: { attributes: [] },
+                    where: { facilityId: req.user.facilities[0].facilityId }
+                },
+                {
+                    model: UserAdditionalInfo,
+                    include: [
+                        {
+                        model: Files,
+                        as: "profile",
                     },
                     {
-                        model: UserAdditionalInfo,
-                        include: [{
-                                model: Files,
-                                as: "profile",
-                            },
-                            {
-                                model: Files,
-                                as: "header",
-                            }
-                        ],
+                        model: Files,
+                        as: "header",
                     },
-                    {
-                        model: Organization
-                    },
-                    {
-                        model: Role,
-                        through: { attributes: [] },
-                        attributes: ["roleId"],
-                        where: { roleId: 3 }
-                    }
+                ],
+                },
+                {
+                    model: Organization
+                },
+                {
+                    model: Role,
+                    through: { attributes: [] },
+                    attributes: ["roleId"],
+                    where: { roleId: 3 }
+                }
                 ],
             }).then((user) => {
                 var n = 2
