@@ -168,10 +168,16 @@ router.get("/sponsorsUser", function (req, res, next) {
                 },
                 {
                     model: UserAdditionalInfo,
-                    include: [{
+                    include: [
+                        {
                         model: Files,
                         as: "profile",
-                    },],
+                    },
+                    {
+                        model: Files,
+                        as: "header",
+                    },
+                ],
                 },
                 {
                     model: Organization
