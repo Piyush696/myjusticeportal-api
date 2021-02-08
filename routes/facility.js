@@ -8,6 +8,7 @@ const util = require('../utils/validateUser');
 const utils = require('../utils/validation');
 const Sequelize = require('sequelize');
 const Lawyer_Facility = require("../models").lawyer_facility;
+const user_facility = require("../models").user_facility;
 
 // create Facility
 
@@ -136,6 +137,30 @@ router.get('/planSelectedFaciltiy', function(req, res, next) {
     }).then(data => {
         res.json({ success: true, data: data });
     }).catch(next)
+})
+
+
+router.get('/users/all-users', function(req, res, next) {
+    User.findOne({
+        include: [{
+            model: Facility,
+            through: {
+                attributes: ['facilityId'],
+            },
+            as: 'facility',
+            attributes: ['facilityId'],
+            include: [{
+                model: User,
+                attributes: ["userId", "firstName", "middleName", "lastName", "userName", "mobile", "email"],
+            }]
+        }],
+        attributes: ["userId"],
+        where: { userId: req.user.userId }
+    }).then((result) => {
+        res.json({ success: true, data: result.facility[0].users });
+    }).catch((next) => {
+        console.log(next)
+    });
 })
 
 module.exports = router;

@@ -19,7 +19,6 @@ const Organization = require('../models').Organization;
 const Address = require('../models').Address;
 const organization = require('../models/organization');
 
-
 /*findAll user include role */
 
 router.get('/', passport.authenticate('jwt', { session: false }), function(req, res, next) {
@@ -36,7 +35,14 @@ router.get('/', passport.authenticate('jwt', { session: false }), function(req, 
                     model: Address,
                     attributes: ["state"],
                 }]
-            }
+            },
+            {
+                model: Facility,
+                through: {
+                    attributes: [],
+                },
+                as: 'facility'
+            },
         ],
         order: [
             ['createdAt', 'DESC']
@@ -201,6 +207,13 @@ router.get('/singleUser/:userId', passport.authenticate('jwt', { session: false 
                     }
                 },
                 {
+                    model: Facility,
+                    through: {
+                        attributes: [],
+                    },
+                    as: 'facility'
+                },
+                {
                     model: Organization,
                     attributes: ['name'],
                     include: [{
@@ -319,6 +332,28 @@ router.put('/changeFacility', passport.authenticate('jwt', { session: false }), 
             where: { userId: parseInt(req.body.userId) }
         }).then((userData) => {
             Promise.resolve(userData.setFacilities(req.body.facilityId)).then((userFacility) => {
+                res.json({ success: true, data: userFacility });
+            }).catch(next)
+        }).catch(next);
+    } else {
+        res.json({ success: false });
+    }
+})
+
+//set facility for facility admin
+// Change Facility.
+router.put('/facility/changeFacility', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    if (req.user.roles[0].roleId === 7) {
+        User.findOne({
+            include: [{
+                model: Facility,
+                through: {
+                    attributes: []
+                }
+            }],
+            where: { userId: parseInt(req.body.userId) }
+        }).then((userData) => {
+            Promise.resolve(userData.setFacility(req.body.facilityId)).then((userFacility) => {
                 res.json({ success: true, data: userFacility });
             }).catch(next)
         }).catch(next);
