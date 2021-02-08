@@ -113,9 +113,7 @@ router.get('/assignedCase/:caseId', function(req, res, next) {
                 attributes: ['caseId', 'legalMatter', 'countyOfArrest', 'stateOfArrest', 'dateOfArrest', 'otherInformation', 'nextCourtDate', 'briefDescriptionOfChargeOrLegalMatter']
             }).then(data => {
                 res.json({ success: true, data: data });
-            }).catch((next) => {
-                console.log(next)
-            })
+            }).catch(next)
         } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
         }

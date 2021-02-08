@@ -86,9 +86,7 @@ router.get("/organizations", function(req, res, next) {
                 where: { status: true }
             }).then((user) => {
                 res.json({ success: true, data: user });
-            }).catch((next) => {
-                console.log(next)
-            });
+            }).catch(next);
         } else {
             res.status(401).json({ success: false, data: "User not authorized." });
         }

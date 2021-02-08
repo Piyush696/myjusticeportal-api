@@ -19,7 +19,6 @@ const Organization = require('../models').Organization;
 const Address = require('../models').Address;
 const organization = require('../models/organization');
 
-
 /*findAll user include role */
 
 router.get('/', passport.authenticate('jwt', { session: false }), function(req, res, next) {
@@ -36,7 +35,14 @@ router.get('/', passport.authenticate('jwt', { session: false }), function(req, 
                     model: Address,
                     attributes: ["state"],
                 }]
-            }
+            },
+            {
+                model: Facility,
+                through: {
+                    attributes: [],
+                },
+                as: 'facility'
+            },
         ],
         order: [
             ['createdAt', 'DESC']
@@ -139,7 +145,6 @@ router.put('/updateUser', passport.authenticate('jwt', { session: false }), (req
 })
 
 router.put('/update/admin', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-    console.log(req.body)
     User.update({ isAdmin: req.body.isAdmin }, {
         where: { userId: req.body.userId }
     }).then(result => {
@@ -200,6 +205,13 @@ router.get('/singleUser/:userId', passport.authenticate('jwt', { session: false 
                     through: {
                         attributes: []
                     }
+                },
+                {
+                    model: Facility,
+                    through: {
+                        attributes: [],
+                    },
+                    as: 'facility'
                 },
                 {
                     model: Organization,
@@ -328,6 +340,28 @@ router.put('/changeFacility', passport.authenticate('jwt', { session: false }), 
     }
 })
 
+//set facility for facility admin
+// Change Facility.
+router.put('/facility/changeFacility', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    if (req.user.roles[0].roleId === 7) {
+        User.findOne({
+            include: [{
+                model: Facility,
+                through: {
+                    attributes: []
+                }
+            }],
+            where: { userId: parseInt(req.body.userId) }
+        }).then((userData) => {
+            Promise.resolve(userData.setFacility(req.body.facilityId)).then((userFacility) => {
+                res.json({ success: true, data: userFacility });
+            }).catch(next)
+        }).catch(next);
+    } else {
+        res.json({ success: false });
+    }
+})
+
 /**generate otp during registration*/
 
 router.post('/auth/register', async function(req, res, next) {
@@ -426,7 +460,6 @@ router.post('/createUser', passport.authenticate('jwt', { session: false }), fun
 
 //bulk delete by superadmin
 router.post('/deleteUsers', passport.authenticate('jwt', { session: false }), function(req, res, next) {
-    console.log(req.body)
     util.validate([7], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
             req.body.forEach(element => {

@@ -30,7 +30,9 @@ router.post('/login', function(req, res, next) {
                 }
             }
         ],
-        where: { userName: req.body.userName }
+        where: {
+            $or: [{ userName: req.body.userName }, { email: req.body.userName }],
+        },
     }).then((user) => {
         if (!user) {
             res.json({ success: false, data: 'Invalid User.' })
@@ -39,17 +41,11 @@ router.post('/login', function(req, res, next) {
         } else {
             if (user.roles[0].roleId === 1) {
                 const clientIp = requestIp.getClientIp(req);
-                console.log(1, clientIp)
                 Facility.findOne({ where: { ipAddress: clientIp } }).then((foundFacility) => {
-                    console.log(2, foundFacility)
-
                     if (foundFacility) {
                         user_facility.findOne({ where: { userId: user.userId, isActive: true } }).then((user_fac) => {
-                            // console.log(3, foundFacility.facilityId, user_facility.facilityId)
                             if (foundFacility.facilityId != user_fac.facilityId) {
-
                                 user_facility.update({ isActive: false }, { where: { userId: user.userId } }).then(() => {
-                                    console.log(4)
                                     let x = {
                                         userId: user.userId,
                                         facilityId: foundFacility.facilityId,
@@ -57,7 +53,6 @@ router.post('/login', function(req, res, next) {
                                     }
 
                                     user_facility.create(x).then((updatedFacility) => {
-                                        console.log(5, updatedFacility)
 
                                         User.findOne({
                                             include: [{
@@ -86,16 +81,12 @@ router.post('/login', function(req, res, next) {
                                                 }
                                             });
                                         })
-                                    }).catch((err) => {
-                                        console.log(err)
-                                    });
+                                    }).catch(next);
 
                                 })
 
 
                             } else {
-
-                                console.log(6)
                                 User.findOne({
                                     include: [{
                                             model: Role,
@@ -129,9 +120,7 @@ router.post('/login', function(req, res, next) {
                     } else {
 
                         Facility.findOne({ where: { ipAddress: 'outside' } }).then((outsideFacility) => {
-                            console.log(7, outsideFacility)
                             user_facility.findOne({ where: { userId: user.userId, isActive: true, facilityId: outsideFacility.facilityId } }).then((user_fac) => {
-                                console.log(8, user_fac)
                                 if (!user_fac) {
 
                                     user_facility.update({ isActive: false }, { where: { userId: user.userId } }).then(() => {
@@ -141,7 +130,6 @@ router.post('/login', function(req, res, next) {
                                             isActive: true
                                         }
                                         user_facility.create(x).then((updatedFacility) => {
-                                            console.log(9, updatedFacility)
                                             User.findOne({
                                                 include: [{
                                                         model: Role,
@@ -169,13 +157,10 @@ router.post('/login', function(req, res, next) {
                                                     }
                                                 });
                                             })
-                                        }).catch((next) => {
-                                            console.log(next)
-                                        })
+                                        }).catch(next)
                                     })
 
                                 } else {
-                                    console.log(10)
                                     User.findOne({
                                         include: [{
                                                 model: Role,
@@ -201,9 +186,7 @@ router.post('/login', function(req, res, next) {
                                                 res.json({ success: false });
                                             }
                                         });
-                                    }).catch((next) => {
-                                        console.log(next)
-                                    })
+                                    }).catch(next)
                                 }
                             })
 
@@ -233,7 +216,6 @@ router.post('/login', function(req, res, next) {
                                     res.json({ success: false, data: 'Please Enter Your auth code.' })
                                 }).catch(next)
                             }).catch((err) => {
-                                console.log(err)
                                 res.json({ success: false, data: err });
                             })
                         })
@@ -325,7 +307,6 @@ router.post('/verify-otp', async function(req, res, next) {
 /**generate otp during login*/
 
 router.post('/resendCode', async function(req, res, next) {
-    console.log(req.body)
     User.findOne({ where: { userName: req.body.userName } }).then((user) => {
         let code = generateCode();
         Twilio.findOne({ where: { twilioId: 1 } }).then(twilioCredentials => {
