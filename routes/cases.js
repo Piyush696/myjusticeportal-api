@@ -83,6 +83,52 @@ router.get('/getPendingCaseInfo', function(req, res, next) {
     })
 })
 
+
+/** get inmate cases from lawyer case*/
+router.get('/viewInmateCase', function(req, res, next) {
+    util.validate([1], req.user.roles, function(isAuthenticated) {
+        if (isAuthenticated) {
+            Case.findAll({
+                attributes: ['caseId'],
+                where: { userId: req.user.userId }
+            }).then((data) => {
+                let caseIds = data.map(x => x.caseId)
+                Lawyer_case.findAll({
+                    where: { caseId: caseIds },
+                    attributes: ['caseId', 'lawyer_caseId', 'status', 'notes', 'createdAt', 'lawyerId'],
+                }).then((lawyer_case) => {
+                    let lawyerIds = lawyer_case.map(x => x.lawyerId)
+                    User.findAll({
+                        include: [{
+                            model: Organization,
+                            attributes: ['name']
+                        }],
+                        where: { userId: lawyerIds },
+                        attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName'],
+                    }).then((users) => {
+                        lawyer_case.forEach((element) => {
+                            users.forEach((ele) => {
+                                console.log(element.lawyerId, ele.userId)
+                                if (element.lawyerId === ele.userId) {
+                                    element.dataValues['userId'] = ele.userId;
+                                    element.dataValues['firstName'] = ele.firstName;
+                                    element.dataValues['middleName'] = ele.middleName;
+                                    element.dataValues['lastName'] = ele.lastName;
+                                    element.dataValues['userName'] = ele.userName;
+                                    element.dataValues['organization'] = ele.Organization.name;
+                                }
+                            })
+                        });
+                        res.json({ success: true, data: lawyer_case });
+                    })
+                }).catch(next)
+            }).catch(next)
+        } else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    })
+})
+
 //requested case with caseId
 router.get('/assignedCase/:caseId', function(req, res, next) {
     util.validate([1, 3, 5], req.user.roles, function(isAuthenticated) {
@@ -111,8 +157,37 @@ router.get('/assignedCase/:caseId', function(req, res, next) {
                 ],
                 where: { caseId: req.params.caseId },
                 attributes: ['caseId', 'legalMatter', 'countyOfArrest', 'stateOfArrest', 'dateOfArrest', 'otherInformation', 'nextCourtDate', 'briefDescriptionOfChargeOrLegalMatter']
-            }).then(data => {
+            }).then((data) => {
                 res.json({ success: true, data: data });
+            }).catch((next) => {
+                console.log(next)
+            })
+        } else {
+            res.status(401).json({ success: false, data: 'User not authorized.' });
+        }
+    })
+})
+
+//view lawyer's case details by lawyer_caseId
+router.get('/viewLawyerCase/:lawyer_caseId', function(req, res, next) {
+    util.validate([3], req.user.roles, function(isAuthenticated) {
+        if (isAuthenticated) {
+            Lawyer_case.findOne({
+                where: { lawyer_caseId: req.params.lawyer_caseId },
+            }).then((data) => {
+                Case.findOne({
+                    include: [{
+                        model: User,
+                        as: 'inmate',
+                        attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName']
+                    }],
+                    where: { caseId: data.caseId },
+                    attributes: ['caseId', 'legalMatter', 'countyOfArrest', 'stateOfArrest', 'dateOfArrest', 'otherInformation', 'nextCourtDate', 'briefDescriptionOfChargeOrLegalMatter']
+                }).then((foundCase) => {
+                    foundCase.dataValues['status'] = data.dataValues.status
+                    foundCase.dataValues['notes'] = data.dataValues.notes
+                    res.json({ success: true, data: foundCase });
+                })
             }).catch(next)
         } else {
             res.status(401).json({ success: false, data: 'User not authorized.' });
