@@ -39,7 +39,6 @@ db.StripeConnection = require('./stripe_connection')(sequelize, Sequelize);
 db.UserAdditionalInfo = require('./userAdditionalInfo')(sequelize, Sequelize);
 
 db.lawyer_facility = require('./lawyer_facility')(sequelize, Sequelize);
-db.defender_case = require('./defender_case')(sequelize, Sequelize);
 db.defender_facility = require('./defender_facility')(sequelize, Sequelize);
 db.user_plan = require('./user_plan')(sequelize, Sequelize);
 db.user_facility = require('./user_facility')(sequelize, Sequelize);
@@ -106,9 +105,6 @@ db.user_plan.belongsTo(db.User, { foreignKey: 'userId', sourceKey: 'userId' });
 
 db.User.belongsToMany(db.Case, { as: 'lawyer', through: 'lawyer_case', foreignKey: 'lawyerId' });
 db.Case.belongsToMany(db.User, { as: 'lawyer', through: 'lawyer_case', foreignKey: 'caseId' });
-
-db.User.belongsToMany(db.Case, { as: 'publicdefender', through: 'defender_case', foreignKey: 'publicdefenderId' });
-db.Case.belongsToMany(db.User, { as: 'publicdefender', through: 'defender_case', foreignKey: 'caseId' });
 
 db.User.belongsToMany(db.Facility, { as: 'facility', through: 'facilityUser_Facility', foreignKey: 'facilityUserId' });
 db.Facility.belongsToMany(db.User, { as: 'facility', through: 'facilityUser_Facility', foreignKey: 'facilityId' });

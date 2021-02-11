@@ -9,6 +9,7 @@ const Organization = require('../models').Organization;
 const Lawyer_case = require('../models').lawyer_case;
 const Address = require('../models').Address;
 const Case = require('../models').Case;
+const Role = require('../models').Role;
 const Postage = require('../models').Postage;
 const CronJob = require('cron').CronJob;
 const uuidv1 = require('uuid/v1');
@@ -104,44 +105,42 @@ router.get('/connectedLawyers', function(req, res, next) {
         if (isAuthenticated) {
             Case.findAll({
                 include: [{
-                        model: User,
-                        as: 'lawyer',
-                        attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName'],
-                        include: [{
+                    model: User,
+                    as: 'lawyer',
+                    attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName'],
+                    include: [{
                             model: Organization,
                             attributes: ['name']
-                        }],
-                    },
-                    {
-                        model: User,
-                        as: 'publicdefender',
-                        attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName'],
-                    }
-                ],
+                        },
+                        {
+                            model: Role,
+                            through: { attributes: [] },
+                            attributes: ["roleId"]
+                        }
+                    ],
+                }, ],
                 attributes: ['caseId'],
                 where: { userId: req.user.userId }
-            }).then(data => {
+            }).then((data) => {
                 let allLawyers = [];
+
                 data.forEach((element) => {
-                    let x = {};
-                    if (element.lawyer && element.lawyer.length > 0 && element.lawyer[0].lawyer_case.status === 'Connected') {
-                        x['userId'] = element.lawyer[0].userId;
-                        x['firstName'] = element.lawyer[0].firstName;
-                        x['middleName'] = element.lawyer[0].middleName;
-                        x['lastName'] = element.lawyer[0].lastName;
-                        x['userName'] = element.lawyer[0].userName;
-                        x['role'] = 'Lawyer';
-                        allLawyers.push(x)
-                    }
-                    if (element.publicdefender && element.publicdefender.length > 0) {
-                        x['userId'] = element.publicdefender[0].userId;
-                        x['firstName'] = element.publicdefender[0].firstName;
-                        x['middleName'] = element.publicdefender[0].middleName;
-                        x['lastName'] = element.publicdefender[0].lastName;
-                        x['userName'] = element.publicdefender[0].userName;
-                        x['role'] = 'Defender';
-                        allLawyers.push(x)
-                    }
+                    element.lawyer.forEach((ele) => {
+                        if (ele.lawyer_case.status === 'Connected') {
+                            let x = {}
+                            x['userId'] = ele.userId;
+                            x['firstName'] = ele.firstName;
+                            x['middleName'] = ele.middleName;
+                            x['lastName'] = ele.lastName;
+                            x['userName'] = ele.userName;
+                            if (ele.roles[0].roleId === 3) {
+                                x['role'] = 'Lawyer';
+                            } else {
+                                x['role'] = 'Defender';
+                            }
+                            allLawyers.push(x)
+                        }
+                    })
                 });
                 lawyers = allLawyers.filter((v, i, a) => a.findIndex(t => (t.userId === v.userId)) === i)
                 res.json({ success: true, data: lawyers });
