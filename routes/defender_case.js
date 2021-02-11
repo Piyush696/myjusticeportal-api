@@ -5,6 +5,7 @@ const Case = require('../models').Case;
 const Facility = require('../models').Facility;
 const Organization = require('../models').Organization;
 const defender_case = require("../models").defender_case;
+const lawyer_case = require("../models").lawyer_case;
 const util = require("../utils/validateUser");
 const utils = require('../utils/validation');
 
@@ -44,6 +45,11 @@ router.get('/allCases/:userId', function(req, res, next) {
                         model: User,
                         as: 'inmate',
                         attributes: ['userId', 'firstName', 'lastName', 'userName']
+                    },
+                    {
+                        model: User,
+                        as: 'lawyer',
+                        attributes: ['userId', 'firstName', 'lastName', 'userName']
                     }
                 ],
                 where: { userId: req.params.userId }
@@ -60,8 +66,8 @@ router.get('/allCases/:userId', function(req, res, next) {
 router.get('/allInmateAssignedCases', function(req, res, next) {
     util.validate([5], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
-            defender_case.findAll({
-                where: { publicdefenderId: req.user.userId },
+            lawyer_case.findAll({
+                where: { lawyerId: req.user.userId },
             }).then(user => {
                 let caseIds = user.map(data => data.caseId);
                 Case.findAll({
@@ -103,15 +109,28 @@ router.get('/allDefenderFacility', function(req, res, next) {
 })
 
 router.post('/', function(req, res, next) {
+    console.log(req.body)
+    let x = {
+        "lawyerId": req.body.publicdefenderId,
+        "caseId": req.body.caseId,
+        "status": 'Connected',
+        "notes": ''
+    }
     util.validate([5], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {
-            defender_case.create(req.body).then((user) => {
-                res.json({ success: true, data: user });
-            }).catch(next => {
-                utils.validator(next, function(err) {
-                    res.status(400).json(err)
+            // defender_case.create(req.body).then((user) => {
+            lawyer_case.create(x).then((lawyer_case) => {
+                    res.json({ success: true, data: lawyer_case });
+                }).catch(next => {
+                    utils.validator(next, function(err) {
+                        res.status(400).json(err)
+                    })
                 })
-            })
+                // }).catch(next => {
+                //     utils.validator(next, function(err) {
+                //         res.status(400).json(err)
+                //     })
+                // })
         } else {
             res.status(401).json({ success: false, data: "User not authorized." });
         }

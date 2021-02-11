@@ -6,7 +6,8 @@ const Facility = require("../models").Facility;
 const Defender_Facility = require("../models").defender_facility;
 const defender_case = require("../models").defender_case;
 const util = require("../utils/validateUser");
-var user_plan = require("../models").user_plan
+var user_plan = require("../models").user_plan;
+
 router.get("/", function(req, res, next) {
     util.validate([5], req.user.roles, function(isAuthenticated) {
         if (isAuthenticated) {

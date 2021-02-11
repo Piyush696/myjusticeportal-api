@@ -41,8 +41,7 @@ router.get("/lawyer/organization/:userId", function(req, res, next) {
                 })
                 .then((data) => {
                     res.json({ success: true, data: data });
-                })
-                .catch(next);
+                }).catch(next);
         }
     });
 });
