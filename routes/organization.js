@@ -161,7 +161,7 @@ router.get('/all-user', function(req, res, next) {
             Organization.findOne({
                 include: [{
                     model: User,
-                    attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'mobile', 'isAdmin', 'createdAt'],
+                    attributes: ['userId', 'firstName', 'middleName', 'lastName', 'userName', 'mobile', 'isAdmin', 'isSelfPaid', 'createdAt'],
                     include: [{
                         model: Role,
                         through: {
