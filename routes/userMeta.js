@@ -5,9 +5,7 @@ const UserMeta = require("../models").UserMeta;
 const User = require("../models").User;
 const Facility = require("../models").Facility;
 
-router.post(
-    "/",
-    passport.authenticate("jwt", { session: false }),
+router.post("/", passport.authenticate("jwt", { session: false }),
     async function(req, res, next) {
         let userId;
         if (req.body.userId) {
@@ -82,17 +80,13 @@ router.post("/createUserMeta", passport.authenticate("jwt", { session: false }),
     }).catch(next);
 });
 
-router.get(
-    "/",
-    passport.authenticate("jwt", { session: false }),
-    async function(req, res, next) {
-        UserMeta.findAll({ where: { userId: req.user.userId } })
-            .then((data) => {
-                res.json({ success: true, data: data });
-            })
-            .catch(next);
-    }
-);
+router.get("/", passport.authenticate("jwt", { session: false }), async function(req, res, next) {
+    UserMeta.findAll({ where: { userId: req.user.userId } })
+        .then((data) => {
+            res.json({ success: true, data: data });
+        })
+        .catch(next);
+});
 
 router.post("/getModalValue", passport.authenticate("jwt", { session: false }), async function(req, res, next) {
     UserMeta.findOne({
